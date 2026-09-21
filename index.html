@@ -1165,230 +1165,152 @@ input,select{min-height:38px}
 .page-flow-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.order-row-actions{display:flex;gap:5px;flex-wrap:wrap;min-width:210px}.order-row-actions .btn{padding-left:8px;padding-right:8px}
 @media(max-width:1100px){.workflow-step small{display:none}.workflow-strip{padding-left:12px;padding-right:12px}.workflow-quick{align-items:flex-start;flex-direction:column}}
 @media(max-width:700px){.workflow-arrow{display:none}.workflow-step{padding:7px 8px}.workflow-step b{font-size:12px}.workflow-strip{gap:2px}.workflow-quick-actions{width:100%}.workflow-quick-actions .btn{flex:1 1 45%}.page-flow-actions{width:100%}.page-flow-actions .btn{flex:1 1 auto}}
-
+</style>
+<style>
 
 /* =========================================================
-   PMC 工廠控制台 UI - 全面視覺重構層
+   MOBILE QUERY UI 2026-09-21
+   PC 保留原版；手機重新配置為查詢優先介面
 ========================================================= */
-:root{
-  --ctrl-bg:#0b1220;
-  --ctrl-bg2:#111827;
-  --ctrl-panel:#ffffff;
-  --ctrl-soft:#f3f6fa;
-  --ctrl-line:#d8e0ea;
-  --ctrl-text:#182230;
-  --ctrl-muted:#667085;
-  --ctrl-accent:#2563eb;
-  --ctrl-accent-soft:#eaf1ff;
-  --ctrl-green:#15803d;
-  --ctrl-amber:#b45309;
-  --ctrl-red:#b42318;
-  --ctrl-radius:14px;
-}
+.mobile-bottom-nav{display:none}
+.mobile-only-note{display:none}
 
-html,body{background:#eef2f6!important;color:var(--ctrl-text)}
-body{font-family:Inter,"Noto Sans TC","Microsoft JhengHei",Arial,sans-serif}
+@media(max-width:760px){
+  html,body{max-width:100%;overflow-x:hidden}
+  body{padding-bottom:72px;background:#eef3f8}
+  .app{display:block;min-height:100vh}
+  .sidebar{display:none!important}
+  .main{margin-left:0!important;width:100%!important;min-width:0}
+  .workflow-strip{display:none!important}
+  .topbar{height:56px!important;padding:0 10px!important;gap:8px}
+  .title{font-size:15px!important;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .top-actions{gap:5px;flex:0 0 auto}
+  .top-actions #refreshBtn{font-size:0;width:38px;padding:0;display:grid;place-items:center}
+  .top-actions #refreshBtn::before{content:'↻';font-size:18px}
+  .top-actions #loginBtn{min-width:54px;padding:6px 9px!important}
+  .top-actions .permission-badge,.top-actions #openDataFileBtn,.top-actions #openOrderBtn{display:none!important}
+  .content{padding:10px 10px 18px!important;max-width:none!important}
+  .card{padding:12px!important;border-radius:12px;box-shadow:0 2px 10px rgba(20,35,55,.05)}
+  .page-intro{display:none!important}
+  .section-title{font-size:15px}
+  .toolbar{display:flex!important;flex-direction:column;align-items:stretch!important;padding:10px!important;gap:8px!important;background:#fff}
+  .toolbar>*,.toolbar input,.toolbar select,.toolbar .btn{width:100%!important;max-width:none!important;min-width:0!important}
+  .filter-grid{display:grid!important;grid-template-columns:1fr!important;gap:7px!important;width:100%!important}
+  #page-orders .filter-grid input:first-child,#page-progress .filter-grid input:first-child{grid-column:auto!important}
+  .readonly-note{margin:0!important;text-align:center}
+  .btn{min-height:40px}
+  input,select{min-height:42px;font-size:16px}
+  .modal{padding:8px!important;align-items:flex-end}
+  .modalbox{width:100%!important;max-height:94vh;border-radius:16px 16px 0 0!important}
+  .modalhead,.modalbody,.modal-actions{padding:14px!important}
+  .form-grid,.process-grid{grid-template-columns:1fr!important}
 
-.sidebar{
-  width:252px!important;
-  background:linear-gradient(180deg,#0b1220 0%,#111827 68%,#162033 100%)!important;
-  border-right:0!important;
-  box-shadow:10px 0 30px rgba(15,23,42,.08);
-}
-.logo{padding:24px 22px 22px!important;border-bottom:1px solid rgba(255,255,255,.08)}
-.logo>div{font-size:20px!important;letter-spacing:.08em}
-.logo span{
-  font-size:10px!important;
-  padding:4px 7px!important;
-  border-radius:999px!important;
-  background:#2563eb!important;color:#fff!important;vertical-align:middle
-}
-.logo small{display:block;margin-top:7px!important;font-size:10px!important;color:#8da0bc!important;letter-spacing:.05em}
-.nav-group-title{color:#61718b!important;font-size:10px!important;font-weight:800!important;letter-spacing:.12em!important;padding:22px 22px 8px!important}
-.nav{
-  margin:3px 12px!important;padding:11px 13px!important;border-radius:10px!important;
-  color:#b9c5d6!important;transition:.18s ease!important;border:1px solid transparent!important
-}
-.nav .ico{width:28px!important;height:28px!important;display:grid!important;place-items:center!important;border-radius:8px!important;background:rgba(255,255,255,.05)}
-.nav:hover{background:rgba(255,255,255,.055)!important;color:#fff!important}
-.nav.active{
-  background:linear-gradient(90deg,rgba(37,99,235,.24),rgba(37,99,235,.08))!important;
-  color:#fff!important;border-color:rgba(96,165,250,.20)!important;box-shadow:inset 3px 0 #3b82f6
-}
-.nav.active .ico{background:#2563eb!important}
-.sidebar-tip{
-  margin:22px 14px 14px!important;padding:14px!important;border:1px solid rgba(255,255,255,.08)!important;
-  background:rgba(255,255,255,.035)!important;color:#8291a8!important
-}
-.sidebar-tip b{color:#d8e1ee!important}
+  /* 看板 */
+  .board-hero{padding:14px!important;margin-bottom:10px!important;border-radius:12px;gap:10px}
+  .board-hero-info>div:first-child{font-size:19px!important}
+  .board-hero .sub{font-size:11px;line-height:1.55}
+  .board-system-info{display:none!important}
+  .workflow-quick{display:none!important}
+  .kpi-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+  .kpi-grid .card{padding:11px!important}
+  .kpi .value{font-size:23px!important}
+  #page-board .two{display:grid!important;grid-template-columns:1fr!important;gap:10px!important;margin-top:10px!important}
+  .board-order-row{display:grid!important;grid-template-columns:1fr auto!important;gap:5px 8px!important;padding:12px 2px!important;align-items:center}
+  .board-order-row>b{font-size:16px;color:#0f172a}
+  .board-order-row>span:nth-child(2){grid-column:1/2;font-weight:700;color:#334155}
+  .board-order-row>span:nth-child(3){grid-column:1/2;font-size:12px;color:var(--muted)}
+  .board-order-row>span:nth-child(4){grid-column:2/3;grid-row:1/3;align-self:start;justify-self:end}
+  .board-order-row>span:nth-child(5){grid-column:2/3;grid-row:3;justify-self:end;font-size:12px;font-weight:700}
+  .board-pagination,.order-pagination,.purchase-pagination{flex-direction:column;align-items:stretch!important}
+  .board-page-buttons,.order-page-buttons,.purchase-page-buttons{display:grid!important;grid-template-columns:repeat(3,1fr);width:100%}
+  .board-page-buttons .btn,.order-page-buttons .btn,.purchase-page-buttons .btn{width:100%;min-width:0}
 
-.topbar{
-  height:72px!important;background:rgba(255,255,255,.96)!important;border-bottom:1px solid #dde4ec!important;
-  box-shadow:0 2px 12px rgba(15,23,42,.035)!important;padding:0 24px!important
-}
-.console-title{display:flex!important;flex-direction:column!important;gap:2px!important}
-.console-title-main{font-size:18px!important;font-weight:800!important;color:#101828}
-.console-title-sub{font-size:11px!important;color:#98a2b3!important;font-weight:600!important}
-.top-actions{gap:8px!important}
-.permission-badge{border-radius:999px!important;padding:7px 11px!important;font-weight:700!important}
-.btn{
-  border-radius:9px!important;min-height:36px!important;font-weight:700!important;box-shadow:none!important
-}
-.btn:not(.secondary){background:#2563eb!important;border-color:#2563eb!important}
-.btn:not(.secondary):hover{background:#1d4ed8!important}
+  /* 手機卡片表格共通 */
+  #page-orders .table-wrap,#page-schedule .table-wrap,#page-progress .table-wrap,#page-purchase .table-wrap{overflow:visible!important;border:0!important;background:transparent}
+  #page-orders table,#page-schedule table,#page-progress table,#page-purchase table{min-width:0!important;width:100%!important;border-collapse:separate!important;border-spacing:0 9px!important}
+  #page-orders thead,#page-schedule thead,#page-progress thead,#page-purchase thead{display:none!important}
+  #page-orders tbody,#page-schedule tbody,#page-progress tbody,#page-purchase tbody{display:block;width:100%}
+  #page-orders tbody tr,#page-schedule tbody tr,#page-progress tbody tr,#page-purchase tbody tr{display:grid!important;width:100%!important;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 11px;box-shadow:0 2px 8px rgba(20,35,55,.04);overflow:hidden}
+  #page-orders tbody td,#page-schedule tbody td,#page-progress tbody td,#page-purchase tbody td{position:static!important;display:grid!important;grid-template-columns:92px minmax(0,1fr);align-items:center;gap:8px;width:auto!important;min-width:0!important;padding:7px 0!important;border:0!important;border-bottom:1px dashed #e8edf3!important;background:transparent!important;box-shadow:none!important;white-space:normal!important;font-size:13px}
+  #page-orders tbody td:last-child,#page-schedule tbody td:last-child,#page-progress tbody td:last-child,#page-purchase tbody td:last-child{border-bottom:0!important}
+  #page-orders tbody td::before,#page-schedule tbody td::before,#page-progress tbody td::before,#page-purchase tbody td::before{font-size:11px;color:#64748b;font-weight:800}
+  #page-orders tbody tr:hover td,#page-schedule tbody tr:hover td,#page-progress tbody tr:hover td,#page-purchase tbody tr:hover td{background:transparent!important}
+  .empty{display:block!important;padding:24px 8px!important;text-align:center!important}
+  .progress-floating-head{display:none!important}
 
-.workflow-strip{
-  margin:14px 22px 0!important;padding:8px 10px!important;border:1px solid #dde4ec!important;
-  background:#fff!important;border-radius:12px!important;box-shadow:0 3px 14px rgba(15,23,42,.035)!important
-}
-.workflow-step{border-radius:9px!important;padding:8px 10px!important}
-.workflow-step.active{background:#eef4ff!important;color:#1d4ed8!important}
-.workflow-num{border-radius:7px!important}
+  /* 工單卡片欄位名稱 */
+  #page-orders tbody td:nth-child(1)::before{content:'工單'}
+  #page-orders tbody td:nth-child(2)::before{content:'客戶'}
+  #page-orders tbody td:nth-child(3)::before{content:'產品'}
+  #page-orders tbody td:nth-child(4)::before{content:'訂單日期'}
+  #page-orders tbody td:nth-child(5)::before{content:'預計交期'}
+  #page-orders tbody td:nth-child(6)::before{content:'優先級'}
+  #page-orders tbody td:nth-child(7)::before{content:'目前狀態'}
+  #page-orders tbody td:nth-child(8)::before{content:'整體進度'}
+  #page-orders tbody td:nth-child(9)::before{content:'快速查看'}
+  #page-orders tbody td:nth-child(1){font-size:16px;color:#0f172a}
+  #page-orders .order-row-actions{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px!important;min-width:0!important;width:100%}
+  #page-orders .order-row-actions .btn{width:100%;min-height:36px;padding:6px 5px;font-size:12px}
 
-.content{padding:20px 22px 34px!important;max-width:none!important}
-.page-intro{
-  background:transparent!important;border:0!important;padding:4px 2px 16px!important;margin-bottom:0!important;
-  align-items:flex-end!important
-}
-.page-intro>div:first-child{display:grid!important;gap:4px!important}
-.page-intro b{font-size:24px!important;line-height:1.15!important;color:#101828!important}
-.page-intro span{font-size:13px!important;color:#667085!important}
-.page-code{
-  width:max-content!important;padding:3px 7px!important;border-radius:5px!important;
-  background:#e9eef5!important;color:#667085!important;font-size:9px!important;font-weight:900!important;letter-spacing:.14em!important
-}
-.page-flow-actions{display:flex!important;gap:8px!important}
+  /* 排程卡片 */
+  #scheduleSummary .alert{line-height:1.7;font-size:12px}
+  #page-schedule tbody td:nth-child(1)::before{content:'工序'}
+  #page-schedule tbody td:nth-child(2)::before{content:'工作中心'}
+  #page-schedule tbody td:nth-child(3)::before{content:'前置條件'}
+  #page-schedule tbody td:nth-child(4)::before{content:'計畫開始'}
+  #page-schedule tbody td:nth-child(5)::before{content:'計畫完成'}
+  #page-schedule tbody td:nth-child(6)::before{content:'實際完成'}
+  #page-schedule tbody td:nth-child(7)::before{content:'天數'}
+  #page-schedule tbody td:nth-child(8)::before{content:'狀態'}
+  #page-schedule tbody td:nth-child(1){font-size:15px}
 
-.card{
-  border:1px solid #dde4ec!important;border-radius:var(--ctrl-radius)!important;
-  box-shadow:0 4px 18px rgba(15,23,42,.045)!important;background:#fff!important
-}
-.control-card{padding:16px!important}
+  /* 生產進度卡片 */
+  #page-progress tbody td:nth-child(1)::before{content:'工單'}
+  #page-progress tbody td:nth-child(2)::before{content:'客戶'}
+  #page-progress tbody td:nth-child(3)::before{content:'設計繪圖'}
+  #page-progress tbody td:nth-child(4)::before{content:'加工焊接'}
+  #page-progress tbody td:nth-child(5)::before{content:'採購'}
+  #page-progress tbody td:nth-child(6)::before{content:'委外製造'}
+  #page-progress tbody td:nth-child(7)::before{content:'組裝'}
+  #page-progress tbody td:nth-child(8)::before{content:'電控'}
+  #page-progress tbody td:nth-child(9)::before{content:'包裝測試'}
+  #page-progress tbody td:nth-child(10)::before{content:'結案'}
+  #page-progress tbody td:nth-child(11)::before{content:'整體進度'}
+  #page-progress tbody td .btn{width:100%;white-space:normal;text-align:center}
 
-.control-hero{
-  background:linear-gradient(120deg,#0f172a 0%,#18253a 62%,#1d4ed8 145%)!important;
-  border:0!important;color:#fff!important;border-radius:18px!important;padding:24px 26px!important;
-  box-shadow:0 12px 28px rgba(15,23,42,.16)!important
-}
-.control-kicker{font-size:10px!important;letter-spacing:.16em!important;color:#8eb8ff!important;font-weight:900!important}
-.control-main-title{font-size:28px!important;font-weight:850!important;letter-spacing:.01em!important;margin:5px 0 4px!important}
-.control-hero .sub{color:#b8c6d9!important}
-.control-system{
-  min-width:170px!important;background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.12)!important;
-  border-radius:12px!important;padding:14px 16px!important
-}
-.control-system .label{color:#8da0bc!important;font-size:9px!important;letter-spacing:.14em!important}
-.control-system .version{font-size:16px!important;font-weight:850!important;color:#fff!important;margin-top:4px!important}
-.system-dot-row{font-size:11px!important;color:#bbcadc!important;margin-top:8px!important}
-.system-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.13);margin-right:5px}
+  /* 採購卡片 */
+  #page-purchase .grid.two{display:grid!important;grid-template-columns:1fr!important;gap:10px}
+  #page-purchase tbody td:nth-child(1)::before{content:'廠商'}
+  #page-purchase tbody td:nth-child(2)::before{content:'工單號碼'}
+  #page-purchase tbody td:nth-child(3)::before{content:'預計交期'}
+  #page-purchase tbody td:nth-child(4)::before{content:'圖名'}
+  #page-purchase tbody td:nth-child(5)::before{content:'材質'}
+  #page-purchase tbody td:nth-child(6)::before{content:'零件編號'}
+  #page-purchase tbody td:nth-child(7)::before{content:'數量'}
+  #page-purchase tbody td:nth-child(8)::before{content:'狀態'}
+  .purchase-risk-line{grid-template-columns:1fr!important;gap:4px!important;padding:8px 0;border-bottom:1px solid #eef2f6}
+  .purchase-risk-line>span:last-child{white-space:normal!important;font-size:11px;color:#475569}
 
-.workflow-quick{
-  margin-top:14px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;
-  border-left:4px solid #2563eb!important
-}
-.workflow-quick-copy b{font-size:15px!important}
-.workflow-quick-copy span{color:#667085!important}
+  /* 甘特圖：整頁不橫移，只讓時間軸區塊橫向滑動 */
+  #page-gantt .card{overflow:hidden}
+  #page-gantt .toolbar{margin-bottom:10px}
+  .gantt-wrap{overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch;max-width:100%;touch-action:pan-x pan-y}
+  .gantt{min-width:1100px}
+  .g-head{grid-template-columns:150px repeat(var(--days),34px)!important;min-width:calc(150px + var(--days) * 34px)!important}
+  .g-row{grid-template-columns:150px 1fr!important;min-width:calc(150px + var(--days) * 34px)!important}
+  .g-label{width:150px!important;min-width:150px!important;padding:7px 6px!important;font-size:10px!important}
+  .legend{flex-wrap:wrap;gap:10px}
 
-.kpi-grid{gap:12px!important}
-.kpi{
-  border-radius:13px!important;min-height:104px!important;padding:16px!important;
-  position:relative!important;overflow:hidden!important
-}
-.kpi:after{
-  content:"";position:absolute;right:-12px;top:-18px;width:72px;height:72px;border-radius:50%;
-  background:#f1f5f9
-}
-.kpi .label{font-size:12px!important;color:#667085!important;font-weight:750!important;position:relative;z-index:1}
-.kpi .value{font-size:26px!important;font-weight:850!important;color:#101828!important;position:relative;z-index:1;margin-top:8px!important}
+  /* 系統設定手機可讀，但避免過寬 */
+  #page-settings .grid.two{grid-template-columns:1fr!important}
+  #page-settings .statline{align-items:flex-start;gap:8px;flex-wrap:wrap}
 
-.section-title{
-  font-size:14px!important;font-weight:800!important;color:#344054!important;
-  padding-bottom:10px!important;border-bottom:1px solid #edf0f3!important;margin-bottom:10px!important
+  /* 底部導覽 */
+  .mobile-bottom-nav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:9998;height:64px;padding:5px 6px calc(5px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);border-top:1px solid #dbe3ec;box-shadow:0 -8px 24px rgba(15,23,42,.08);backdrop-filter:blur(10px)}
+  .mobile-bottom-nav button{border:0;background:transparent;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#64748b;font-size:10px;font-weight:800;min-width:0}
+  .mobile-bottom-nav button .mi{font-size:19px;line-height:1}
+  .mobile-bottom-nav button.active{background:#eaf2ff;color:#1d4ed8}
 }
-
-.control-strip{
-  display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:0 0 10px;
-}
-.control-strip-label{font-size:11px;color:#98a2b3;font-weight:800;margin-right:4px}
-.control-chip{
-  font-size:11px;font-weight:750;color:#475467;background:#fff;border:1px solid #dbe2ea;
-  border-radius:999px;padding:5px 9px
-}
-
-.toolbar{gap:8px!important}
-.toolbar input,.toolbar select,.filter-grid input,.filter-grid select{
-  border:1px solid #d0d8e2!important;background:#fbfcfd!important;border-radius:8px!important;min-height:38px!important;
-  padding:8px 10px!important;transition:.15s ease
-}
-.toolbar input:focus,.toolbar select:focus,.filter-grid input:focus,.filter-grid select:focus{
-  outline:none!important;border-color:#84adff!important;box-shadow:0 0 0 3px rgba(37,99,235,.09)!important;background:#fff!important
-}
-
-.table-wrap{
-  border:1px solid #e1e6ed!important;border-radius:11px!important;overflow:auto!important;background:#fff!important
-}
-table{border-collapse:separate!important;border-spacing:0!important}
-thead th{
-  position:sticky;top:0;z-index:2;background:#f6f8fb!important;color:#475467!important;
-  font-size:11px!important;letter-spacing:.02em!important;font-weight:800!important;border-bottom:1px solid #dfe5ec!important
-}
-tbody td{border-bottom:1px solid #edf0f3!important;font-size:12px!important}
-tbody tr:nth-child(even){background:#fbfcfd!important}
-tbody tr:hover{background:#f0f5ff!important}
-.progress-bar,.progress-track{border-radius:999px!important}
-
-.schedule-focus{
-  display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:10px;
-  background:#edf4ff;border:1px solid #d9e7ff;border-radius:12px;color:#1d4ed8
-}
-.schedule-focus-icon{
-  width:34px;height:34px;border-radius:10px;background:#2563eb;color:white;display:grid;place-items:center;font-weight:900
-}
-.schedule-focus b{display:block;font-size:13px}
-.schedule-focus span{display:block;font-size:11px;color:#5d78a4;margin-top:2px}
-.schedule-control-card .schedule-selector{
-  padding:2px 0 14px!important;border-bottom:1px solid #edf0f3!important;margin-bottom:8px!important
-}
-.schedule-control-card #scheduleSummary{
-  background:#f8fafc!important;border:1px solid #e2e8f0!important;border-radius:10px!important;padding:12px!important;margin-top:10px!important
-}
-.schedule-table tbody tr td:first-child{font-weight:800!important;color:#1f2937!important}
-.schedule-table tbody tr td:last-child{font-weight:800!important}
-
-#page-purchase>.grid.two{gap:12px!important}
-#purchaseRisk{padding-top:2px}
-.purchase-filter-row th{background:#fff!important;padding:6px!important}
-.purchase-filter-row input,.purchase-filter-row select{min-width:110px!important;border-radius:7px!important;border:1px solid #d9e0e8!important;background:#fbfcfd!important}
-
-#page-gantt .card{padding:16px!important}
-#ganttContainer{
-  border:1px solid #dfe5ec!important;border-radius:11px!important;background:#fbfcfe!important;padding:10px!important
-}
-
-#page-progress .card{padding:16px!important}
-#page-settings .card{border-top:3px solid #64748b!important}
-
-.order-pagination,.purchase-pagination,.board-pagination{margin-top:12px!important}
-
-@media(max-width:1000px){
-  .sidebar{width:76px!important}
-  .logo small,.logo span,.nav-text,.nav-group-title,.sidebar-tip{display:none!important}
-  .logo{padding:20px 10px!important;text-align:center!important}
-  .logo>div{font-size:14px!important}
-  .nav{margin:4px 9px!important;justify-content:center!important;padding:10px!important}
-  .nav .ico{margin:0!important}
-  .workflow-strip{margin-left:14px!important;margin-right:14px!important;overflow-x:auto!important}
-  .content{padding-left:14px!important;padding-right:14px!important}
-}
-@media(max-width:720px){
-  .control-main-title{font-size:23px!important}
-  .control-hero{flex-direction:column!important;align-items:flex-start!important}
-  .control-system{width:100%!important}
-  .workflow-quick{flex-direction:column!important;align-items:flex-start!important;gap:12px!important}
-  .page-intro{align-items:flex-start!important}
-  .page-flow-actions{width:100%!important;overflow-x:auto!important}
-}
-
 </style>
 </head>
 
@@ -1403,12 +1325,12 @@ tbody tr:hover{background:#f0f5ff!important}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>CONTROL</span></div>
-    <small>Production Management Center</small>
+    <div>PMC <span>V3</span></div>
+    <small>生產管理系統</small>
   </div>
 
-  <div class="nav-group-title">控制中心</div>
-  <button class="nav active" data-page="board"><span class="ico">▦</span><span class="nav-text">生產控制台</span></button>
+  <div class="nav-group-title">即時查詢</div>
+  <button class="nav active" data-page="board"><span class="ico">▦</span><span class="nav-text">PMC 看板模式</span></button>
 
   <div class="nav-group-title">生產管理</div>
   <button class="nav" data-page="orders"><span class="ico">▤</span><span class="nav-text">工單管理</span></button>
@@ -1416,7 +1338,7 @@ tbody tr:hover{background:#f0f5ff!important}
   <button class="nav" data-page="gantt"><span class="ico">▥</span><span class="nav-text">甘特圖</span></button>
   <button class="nav" data-page="progress"><span class="ico">◉</span><span class="nav-text">生產進度</span></button>
 
-  <div class="nav-group-title">供應與系統</div>
+  <div class="nav-group-title">採購與系統</div>
   <button class="nav" data-page="purchase"><span class="ico">▣</span><span class="nav-text">採購管理</span></button>
   <button class="nav" data-page="settings"><span class="ico">⚙</span><span class="nav-text">系統設定</span></button>
 
@@ -1437,9 +1359,8 @@ tbody tr:hover{background:#f0f5ff!important}
 
 <header class="topbar">
 
-  <div class="title console-title">
-    <span class="console-title-main" id="pageTitle">生產控制台</span>
-    <span class="console-title-sub">工單・排程・進度・供應鏈</span>
+  <div class="title" id="pageTitle">
+    PMC 看板模式
   </div>
 
   <div class="top-actions">
@@ -1474,22 +1395,20 @@ tbody tr:hover{background:#f0f5ff!important}
 ========================================================= -->
 
 <section id="page-board" class="page active">
-  <div class="board-hero control-hero">
+  <div class="board-hero">
     <div class="board-hero-info">
-      <div class="control-kicker">PRODUCTION CONTROL CENTER</div>
-      <div class="control-main-title">今日生產控制台</div>
-      <div class="sub">先看工單、異常與交期，再進入單一工單排程或進度處理。</div>
+      <div style="font-size:22px;font-weight:800">PMC 看板模式</div>
+      <div class="sub">查詢首頁｜未登入可查看資料；新增、修改、刪除、匯入與系統設定需管理者登入。</div>
     </div>
-    <div class="board-system-info control-system">
-      <div class="label">SYSTEM STATUS</div>
-      <div class="version">PMC ONLINE</div>
-      <div class="system-dot-row"><span class="system-dot"></span> 內部生產資料</div>
+    <div class="board-system-info">
+      <div class="label">系統資訊</div>
+      <div class="version">PMC V3-20260916</div>
     </div>
   </div>
   <div class="workflow-quick card">
     <div class="workflow-quick-copy">
-      <b>快速作業</b>
-      <span>從控制台直接進入最常用的生管作業。</span>
+      <b>今天要做什麼？</b>
+      <span>依工作順序直接進入常用功能，不必再回左側選單。</span>
     </div>
     <div class="workflow-quick-actions">
       <button class="btn" type="button" data-flow-action="new-order">＋ 新增工單</button>
@@ -1521,19 +1440,11 @@ tbody tr:hover{background:#f0f5ff!important}
 <section id="page-orders" class="page">
 
 <div class="page-intro">
-  <div><span class="page-code">ORDERS</span><b>工單總覽</b><span>一次查看多張工單，快速找出目前製程、交期與異常。</span></div>
+  <div><b>工單管理</b><span>第 1 步｜建立、查詢工單，完成後進入排程</span></div>
   <div class="page-flow-actions"><button class="btn" id="orderQuickAddBtn" type="button">＋ 新增工單</button><button class="btn secondary" type="button" data-flow-nav="schedule">下一步：排程 →</button></div>
 </div>
 
-<div class="control-strip">
-  <span class="control-strip-label">快速篩選</span>
-  <span class="control-chip">多工單總覽</span>
-  <span class="control-chip">交期追蹤</span>
-  <span class="control-chip">製程狀態</span>
-  <span class="control-chip">維修工單</span>
-</div>
-
-<div class="card control-card">
+<div class="card">
 
   <div class="toolbar">
     <div class="filter-grid" style="width:100%">
@@ -1591,21 +1502,13 @@ tbody tr:hover{background:#f0f5ff!important}
 <section id="page-schedule" class="page">
 
 <div class="page-intro">
-  <div><span class="page-code">SCHEDULE</span><b>單一工單製程</b><span>選擇一張工單，查看每個製程的計畫、實際完成與目前狀態。</span></div>
+  <div><b>生產排程</b><span>第 2 步｜選擇工單後查看各製程計畫與實際完成日期</span></div>
   <div class="page-flow-actions"><button class="btn secondary" type="button" data-flow-nav="orders">← 工單</button><button class="btn" type="button" data-flow-nav="progress">下一步：進度 →</button></div>
 </div>
 
-<div class="schedule-focus">
-  <div class="schedule-focus-icon">◎</div>
-  <div>
-    <b>單一工單追蹤</b>
-    <span>先搜尋工單，再從下拉選單選擇；下方會集中顯示該工單所有製程。</span>
-  </div>
-</div>
+<div class="card">
 
-<div class="card control-card schedule-control-card">
-
-  <div class="toolbar schedule-selector">
+  <div class="toolbar">
 
     <input id="scheduleOrderSearch" placeholder="輸入工單號碼／客戶／產品" style="min-width:260px">
 
@@ -1656,7 +1559,7 @@ tbody tr:hover{background:#f0f5ff!important}
 <section id="page-gantt" class="page">
 
 <div class="page-intro">
-  <div><span class="page-code">TIMELINE</span><b>生產時間軸</b><span>用時間軸檢查工單製程配置、實際進度與今天位置。</span></div>
+  <div><b>甘特圖</b><span>第 5 步｜整體時程檢視；藍色為計畫、綠色為實際，紅線為今天</span></div>
   <div class="page-flow-actions"><button class="btn secondary" type="button" data-flow-nav="purchase">← 採購</button><button class="btn secondary" type="button" data-flow-nav="board">回看板</button></div>
 </div>
 
@@ -1797,7 +1700,7 @@ tbody tr:hover{background:#f0f5ff!important}
 <section id="page-purchase" class="page">
 
 <div class="page-intro">
-  <div><span class="page-code">SUPPLY</span><b>採購供應狀況</b><span>先看缺料、逾期與交期風險，再追查零件明細。</span></div>
+  <div><b>採購管理</b><span>第 4 步｜先看未進貨與交期風險，再查看零件明細</span></div>
   <div class="page-flow-actions"><button class="btn secondary" type="button" data-flow-nav="progress">← 進度</button><button class="btn" type="button" data-flow-nav="gantt">下一步：甘特圖 →</button></div>
 </div>
 
@@ -1874,7 +1777,7 @@ tbody tr:hover{background:#f0f5ff!important}
 <section id="page-settings" class="page">
 
 <div class="page-intro">
-  <div><span class="page-code">SYSTEM</span><b>系統設定</b><span>製程規則、資料備份、還原與系統管理。</span></div>
+  <div><b>系統設定</b><span>製程規則與資料備份／還原</span></div>
 </div>
 
 <div class="grid two">
@@ -4358,18 +4261,18 @@ function showPage(page){
 
   const titles={
 
-    board:"生產控制台",
+    board:"PMC 看板模式",
 
 
     orders:"工單管理",
 
-    schedule:"單一工單製程",
+    schedule:"生產排程",
 
-    gantt:"生產時間軸",
+    gantt:"生產甘特圖",
 
-    progress:"實際進度回報",
+    progress:"生產進度管理",
 
-    purchase:"採購供應狀況",
+    purchase:"採購管理",
 
     settings:"系統設定"
 
@@ -5624,6 +5527,53 @@ document.addEventListener(
   }
 );
 
+</script>
+
+
+<nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="手機快速導覽">
+  <button type="button" data-mobile-page="board" class="active"><span class="mi">⌂</span><span>看板</span></button>
+  <button type="button" data-mobile-page="orders"><span class="mi">▤</span><span>工單</span></button>
+  <button type="button" data-mobile-page="schedule"><span class="mi">◫</span><span>排程</span></button>
+  <button type="button" data-mobile-page="progress"><span class="mi">◉</span><span>進度</span></button>
+  <button type="button" data-mobile-page="purchase"><span class="mi">▣</span><span>採購</span></button>
+</nav>
+
+<script>
+(function(){
+  function syncMobileNav(page){
+    document.querySelectorAll('[data-mobile-page]').forEach(function(btn){
+      btn.classList.toggle('active',btn.dataset.mobilePage===page);
+    });
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    document.querySelectorAll('[data-mobile-page]').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        if(typeof showPage==='function') showPage(btn.dataset.mobilePage);
+        syncMobileNav(btn.dataset.mobilePage);
+        window.scrollTo({top:0,behavior:'smooth'});
+      });
+    });
+    document.querySelectorAll('.nav').forEach(function(nav){
+      nav.addEventListener('click',function(){syncMobileNav(nav.dataset.page);});
+    });
+    document.querySelectorAll('[data-workflow-page],[data-flow-nav]').forEach(function(el){
+      el.addEventListener('click',function(){syncMobileNav(el.dataset.workflowPage||el.dataset.flowNav);});
+    });
+    document.addEventListener('click',function(e){
+      var action=e.target.closest('.order-row-actions button');
+      if(!action)return;
+      setTimeout(function(){
+        var active=document.querySelector('.page.active');
+        if(active)syncMobileNav(active.id.replace('page-',''));
+      },0);
+    });
+    var pageObserver=new MutationObserver(function(){
+      var active=document.querySelector('.page.active');
+      if(active)syncMobileNav(active.id.replace('page-',''));
+    });
+    document.querySelectorAll('.page').forEach(function(p){pageObserver.observe(p,{attributes:true,attributeFilter:['class']});});
+  });
+})();
 </script>
 
 </body>
