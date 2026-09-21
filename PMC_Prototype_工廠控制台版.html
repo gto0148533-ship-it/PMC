@@ -1,0 +1,5630 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PMC 生產管理系統 V3 - 完整可操作版</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<style>
+:root{
+  --bg:#f3f6fa;
+  --panel:#ffffff;
+  --line:#dfe5ec;
+  --text:#17212b;
+  --muted:#6b7785;
+  --primary:#2563eb;
+  --primary-dark:#1d4ed8;
+  --ok:#16a34a;
+  --warn:#d97706;
+  --danger:#dc2626;
+  --sidebar:#172033;
+  --sidebar-hover:#26334c;
+  --shadow:0 6px 22px rgba(20,35,55,.08);
+  --radius:12px;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:"Microsoft JhengHei","Segoe UI",Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+button,
+input,
+select{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+.app{
+  display:flex;
+  min-height:100vh;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.sidebar{
+  width:230px;
+  background:var(--sidebar);
+  color:#fff;
+  padding:18px 12px;
+  position:fixed;
+  inset:0 auto 0 0;
+  z-index:20;
+}
+
+.logo{
+  font-size:21px;
+  font-weight:800;
+  padding:8px 10px 22px;
+}
+
+.logo span{
+  color:#60a5fa;
+}
+
+.logo small{
+  display:block;
+  color:#9eabc0;
+  font-size:11px;
+  font-weight:400;
+  margin-top:4px;
+}
+
+.nav{
+  width:100%;
+  border:0;
+  background:transparent;
+  color:#dce4ef;
+  text-align:left;
+  padding:12px 13px;
+  border-radius:9px;
+  margin:3px 0;
+}
+
+.nav:hover,
+.nav.active{
+  background:var(--sidebar-hover);
+  color:#fff;
+}
+
+.nav .ico{
+  display:inline-block;
+  width:25px;
+}
+
+/* =========================
+   MAIN
+========================= */
+
+.main{
+  margin-left:230px;
+  width:calc(100% - 230px);
+}
+
+.topbar{
+  height:68px;
+  background:#fff;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 24px;
+  position:sticky;
+  top:0;
+  z-index:15;
+}
+
+.title{
+  font-size:20px;
+  font-weight:800;
+}
+
+.top-actions{
+  display:flex;
+  gap:8px;
+}
+
+.content{
+  padding:22px;
+  max-width:1800px;
+  margin:auto;
+}
+
+.page{
+  display:none;
+}
+
+.page.active{
+  display:block;
+}
+
+/* =========================
+   BUTTON
+========================= */
+
+.btn{
+  border:0;
+  background:var(--primary);
+  color:#fff;
+  padding:9px 14px;
+  border-radius:8px;
+  font-weight:700;
+}
+
+.btn:hover{
+  background:var(--primary-dark);
+}
+
+.btn.secondary{
+  background:#eef2f7;
+  color:#263342;
+}
+
+.btn.secondary:hover{
+  background:#e3e8ef;
+}
+
+.btn.danger{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+.btn.danger:hover{
+  background:#fecaca;
+}
+
+.btn.success{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.btn.small{
+  padding:6px 9px;
+  font-size:12px;
+}
+
+/* =========================
+   CARD / GRID
+========================= */
+
+.grid{
+  display:grid;
+  gap:14px;
+}
+
+.kpi-grid{
+  grid-template-columns:repeat(6,minmax(130px,1fr));
+}
+
+.card{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:16px;
+}
+
+.two{
+  grid-template-columns:1.25fr .75fr;
+}
+
+.three{
+  grid-template-columns:repeat(3,1fr);
+}
+
+.section-title{
+  font-weight:800;
+  font-size:16px;
+  margin-bottom:12px;
+}
+
+/* =========================
+   KPI
+========================= */
+
+.kpi .label{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.kpi .value{
+  font-size:28px;
+  font-weight:800;
+  margin-top:5px;
+}
+
+.kpi .sub{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:3px;
+}
+
+/* =========================
+   TOOLBAR
+========================= */
+
+.toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+  margin-bottom:12px;
+}
+
+input,
+select{
+  border:1px solid #cdd6e0;
+  border-radius:8px;
+  padding:9px 10px;
+  background:#fff;
+  color:var(--text);
+}
+
+input:focus,
+select:focus{
+  outline:2px solid #bfdbfe;
+  border-color:#60a5fa;
+}
+
+/* =========================
+   TABLE
+========================= */
+
+.table-wrap{
+  overflow:auto;
+  border:1px solid var(--line);
+  border-radius:10px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:900px;
+}
+
+th,
+td{
+  padding:9px 10px;
+  border-bottom:1px solid var(--line);
+  text-align:left;
+  font-size:13px;
+  white-space:nowrap;
+}
+
+th{
+  background:#f7f9fc;
+  font-weight:800;
+  position:sticky;
+  top:0;
+  z-index:1;
+}
+
+tr:hover td{
+  background:#fafcff;
+}
+
+/* =========================
+   BADGE
+========================= */
+
+.badge{
+  display:inline-flex;
+  padding:4px 8px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:800;
+}
+
+.badge.ok{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.badge.warn{
+  background:#fef3c7;
+  color:#92400e;
+}
+
+.badge.danger{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+.badge.blue{
+  background:#dbeafe;
+  color:#1d4ed8;
+}
+
+.badge.gray{
+  background:#e5e7eb;
+  color:#374151;
+}
+.badge.purple{background:#ede9fe;color:#6d28d9;}
+.badge.teal{background:#ccfbf1;color:#0f766e;}
+.badge.orange{background:#ffedd5;color:#c2410c;}
+.badge.indigo{background:#e0e7ff;color:#4338ca;}
+.badge.cyan{background:#cffafe;color:#0e7490;}
+.badge.pink{background:#fce7f3;color:#be185d;}
+
+/* =========================
+   PROGRESS
+========================= */
+
+.progress{
+  height:8px;
+  background:#e9eef4;
+  border-radius:99px;
+  overflow:hidden;
+}
+
+.progress > i{
+  display:block;
+  height:100%;
+  background:var(--primary);
+  border-radius:99px;
+}
+
+.statline{
+  display:flex;
+  justify-content:space-between;
+  font-size:12px;
+  margin:8px 0;
+}
+
+.purchase-risk-line{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  column-gap:12px;
+  font-size:12px;
+  margin:7px 0;
+}
+
+.purchase-risk-line > span:last-child{
+  white-space:nowrap;
+}
+
+/* =========================
+   ALERT
+========================= */
+
+.alert{
+  padding:11px 13px;
+  border-radius:8px;
+  background:#fff7ed;
+  border:1px solid #fed7aa;
+  color:#9a3412;
+  font-size:13px;
+}
+
+/* =========================
+   SCHEDULE
+========================= */
+
+.schedule-table th:first-child,
+.schedule-table td:first-child{
+  position:sticky;
+  left:0;
+  background:#fff;
+  z-index:2;
+}
+
+#page-progress table th:first-child,
+#page-progress table td:first-child{
+  position:sticky;
+  left:0;
+  width:120px;
+  min-width:120px;
+  background:#fff;
+  z-index:3;
+  box-shadow:5px 0 8px -8px rgba(20,35,55,.6);
+}
+
+#page-progress table th:nth-child(2),
+#page-progress table td:nth-child(2){
+  position:sticky;
+  left:120px;
+  width:150px;
+  min-width:150px;
+  background:#fff;
+  z-index:3;
+  box-shadow:5px 0 8px -8px rgba(20,35,55,.6);
+}
+
+#page-progress table thead th:first-child,
+#page-progress table thead th:nth-child(2){
+  background:#f7f9fc;
+  top:0;
+  z-index:10;
+}
+
+#page-progress table thead th{
+  position:sticky;
+  top:0;
+  background:#f7f9fc;
+  z-index:8;
+}
+
+#page-progress .table-wrap{
+  overflow-x:auto;
+  overflow-y:visible;
+}
+
+#page-orders table th:last-child,
+#page-orders table td:last-child{
+  position:sticky;
+  right:0;
+  width:170px;
+  min-width:170px;
+  background:#fff;
+  z-index:3;
+  box-shadow:-5px 0 8px -8px rgba(20,35,55,.6);
+}
+
+#page-orders table th:first-child,
+#page-orders table td:first-child{
+  position:sticky;
+  left:0;
+  width:120px;
+  min-width:120px;
+  background:#fff;
+  z-index:3;
+  box-shadow:5px 0 8px -8px rgba(20,35,55,.6);
+}
+
+#page-orders table th:nth-child(2),
+#page-orders table td:nth-child(2){
+  position:sticky;
+  left:120px;
+  width:150px;
+  min-width:150px;
+  background:#fff;
+  z-index:3;
+  box-shadow:5px 0 8px -8px rgba(20,35,55,.6);
+}
+
+#page-orders table thead th:first-child,
+#page-orders table thead th:nth-child(2){
+  background:#f7f9fc;
+  z-index:5;
+}
+
+#page-orders table thead th:last-child{
+  background:#f7f9fc;
+  z-index:5;
+}
+
+.progress-floating-head{
+  display:none;
+  position:fixed;
+  top:68px;
+  overflow:hidden;
+  background:#f7f9fc;
+  border:1px solid var(--line);
+  z-index:100;
+  pointer-events:none;
+}
+
+.progress-floating-head table{
+  min-width:900px;
+  margin:0;
+  transform:translateX(0);
+}
+
+.progress-floating-head th{
+  position:static !important;
+  top:auto !important;
+  z-index:auto !important;
+  background:#f7f9fc !important;
+}
+
+.progress-floating-fixed{
+  position:absolute;
+  top:0;
+  height:100%;
+  padding:9px 10px;
+  border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  background:#f7f9fc;
+  font-size:13px;
+  font-weight:800;
+}
+
+.progress-floating-fixed.order{left:0;width:120px}
+.progress-floating-fixed.customer{left:120px;width:150px}
+
+/* =========================
+   GANTT
+========================= */
+
+.gantt-wrap{
+  overflow:auto;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#fff;
+}
+
+.gantt{
+  min-width:1300px;
+  position:relative;
+}
+
+.g-head{
+  display:grid;
+  grid-template-columns:240px repeat(var(--days),34px);
+  min-width:calc(240px + var(--days) * 34px);
+  background:#f7f9fc;
+  position:sticky;
+  top:0;
+  z-index:50;
+}
+
+.g-row{
+  display:grid;
+  grid-template-columns:240px 1fr;
+  min-width:calc(240px + var(--days) * 34px);
+}
+
+.g-cell{
+  height:32px;
+  border-right:1px solid #edf0f4;
+  padding:5px 4px;
+  font-size:10px;
+  text-align:center;
+}
+
+.g-label{
+  position:sticky;
+  left:0;
+  width:240px;
+  min-width:240px;
+  z-index:60;
+  background:#fff;
+  border-right:1px solid var(--line);
+  border-bottom:1px solid #edf0f4;
+  padding:7px 9px;
+  font-size:12px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  box-shadow:8px 0 10px -10px rgba(20,35,55,.55);
+}
+
+.g-head .g-label{
+  z-index:70;
+  background:#f7f9fc;
+}
+
+.g-bar-area{
+  position:relative;
+  height:34px;
+  display:flex;
+  border-bottom:1px solid #edf0f4;
+}
+
+.g-day{
+  width:34px;
+  min-width:34px;
+  border-right:1px solid #f0f2f5;
+  height:34px;
+}
+
+.g-task{
+  position:absolute;
+  height:17px;
+  border-radius:4px;
+  font-size:9px;
+  color:#fff;
+  padding:2px 5px;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+
+.g-task.planned{
+  background:#60a5fa;
+  top:3px;
+}
+
+.g-task.actual{
+  background:#22c55e;
+  top:20px;
+}
+
+.today-line{
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:4px;
+  background:#ef2222;
+  box-shadow:0 0 0 1px rgba(255,255,255,.8),0 0 8px rgba(239,34,34,.55);
+  z-index:20;
+  pointer-events:none;
+}
+
+.today-label{
+  position:absolute;
+  top:2px;
+  transform:translateX(-50%);
+  background:#ef2222;
+  color:#fff;
+  font-size:11px;
+  font-weight:800;
+  line-height:20px;
+  height:20px;
+  padding:0 7px;
+  border-radius:4px;
+  z-index:21;
+  pointer-events:none;
+  white-space:nowrap;
+}
+
+/* =========================
+   LEGEND
+========================= */
+
+.legend{
+  display:flex;
+  gap:15px;
+  font-size:12px;
+  margin-top:8px;
+}
+
+.legend span{
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+
+.dot{
+  width:12px;
+  height:8px;
+  border-radius:2px;
+  background:#60a5fa;
+}
+
+.dot.a{
+  background:#22c55e;
+}
+
+.dot.t{
+  width:2px;
+  height:12px;
+  background:#ef4444;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,.58);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  z-index:99999;
+}
+
+.modal.hidden{
+  display:none !important;
+}
+
+.modalbox{
+  width:min(880px,100%);
+  max-height:92vh;
+  overflow:auto;
+  background:#fff;
+  border-radius:15px;
+  box-shadow:0 25px 80px rgba(0,0,0,.30);
+  animation:modalIn .15s ease-out;
+}
+
+@keyframes modalIn{
+  from{
+    opacity:0;
+    transform:translateY(-10px) scale(.98);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+}
+
+.modalhead{
+  padding:17px 20px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.modalbody{
+  padding:20px;
+}
+
+.modal-actions{
+  padding:15px 20px;
+  border-top:1px solid var(--line);
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.field label{
+  display:block;
+  font-size:12px;
+  font-weight:800;
+  margin-bottom:5px;
+}
+
+.field input,
+.field select{
+  width:100%;
+}
+
+.process-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+}
+
+.process-item{
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:10px;
+  background:#fafbfc;
+}
+
+.footer-note{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:10px;
+}
+.purchase-filter-row th{padding:6px 7px;background:#fff;top:38px;z-index:2}
+.purchase-filter-row input{width:100%;min-width:85px;padding:6px 7px;font-size:12px}
+.purchase-filter-row select{width:100%;min-width:90px;padding:6px 7px;font-size:12px}
+.purchase-pagination{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:12px}
+.purchase-page-buttons{display:flex;gap:5px;flex-wrap:wrap}
+.purchase-page-buttons button{min-width:34px}
+.purchase-detail{font-size:11px;color:var(--muted);margin-top:4px}
+
+
+.empty{
+  text-align:center;
+  color:var(--muted);
+  padding:35px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:1100px){
+
+  .kpi-grid{
+    grid-template-columns:repeat(3,1fr);
+  }
+
+  .two,
+  .three{
+    grid-template-columns:1fr;
+  }
+
+  .form-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+@media(max-width:720px){
+
+  .sidebar{
+    width:62px;
+  }
+
+  .logo{
+    font-size:0;
+  }
+
+  .logo small{
+    display:none;
+  }
+
+  .nav{
+    font-size:0;
+    text-align:center;
+  }
+
+  .nav .ico{
+    font-size:17px;
+  }
+
+  .main{
+    margin-left:62px;
+    width:calc(100% - 62px);
+  }
+
+  .content{
+    padding:12px;
+  }
+
+  .kpi-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .form-grid,
+  .process-grid{
+    grid-template-columns:1fr;
+  }
+
+  .topbar{
+    padding:0 12px;
+  }
+
+  .title{
+    font-size:16px;
+  }
+
+  .top-actions .secondary{
+    display:none;
+  }
+}
+
+/* ===== 權限 / 看板 / 篩選 ===== */
+.permission-badge{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:999px;background:#eef2f7;color:#334155;font-size:12px;font-weight:800}
+.permission-badge.admin{background:#dcfce7;color:#166534}
+.login-modal .modalbox{width:min(430px,100%)}
+.login-error{display:none;margin-top:10px;padding:9px 11px;border-radius:8px;background:#fee2e2;color:#991b1b;font-size:12px}
+.login-hint{font-size:11px;color:var(--muted);margin-top:8px}
+.readonly-note{font-size:11px;color:var(--muted);margin-left:auto}
+.filter-grid{display:grid;grid-template-columns:repeat(7,minmax(120px,1fr));gap:8px;margin-bottom:12px}
+.filter-grid input,.filter-grid select{width:100%;min-width:0}
+.board-hero{background:linear-gradient(135deg,#172033,#26334c);color:#fff;border-radius:14px;padding:18px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.board-hero .sub{color:#cbd5e1;font-size:12px;margin-top:4px}
+.board-hero-info{min-width:0}
+.board-system-info{flex:0 0 auto;padding-left:18px;border-left:1px solid rgba(255,255,255,.25);text-align:right}
+.board-system-info .label{color:#cbd5e1;font-size:11px}
+.board-system-info .version{margin-top:4px;font-size:14px;font-weight:800;white-space:nowrap}
+.board-order-row{display:grid;grid-template-columns:120px 1.1fr 1fr 100px 100px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.board-order-row:last-child{border-bottom:0}
+.board-pagination{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+.board-page-buttons{display:flex;gap:5px;flex-wrap:wrap}
+.board-page-buttons button{min-width:34px}
+.order-pagination{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--muted)}
+.order-page-buttons{display:flex;gap:5px;flex-wrap:wrap}
+.order-page-buttons button{min-width:34px}
+@media(max-width:1250px){.filter-grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:720px){.filter-grid{grid-template-columns:1fr 1fr}.board-order-row{grid-template-columns:1fr 1fr}.board-hero{align-items:flex-start;flex-direction:column}.board-system-info{width:100%;padding-left:0;padding-top:10px;border-left:0;border-top:1px solid rgba(255,255,255,.25);text-align:left}}
+
+
+/* =========================================================
+   UX 版面優化：降低視覺雜訊、固定操作位置、提高可讀性
+   不改變既有資料結構與功能 ID
+========================================================= */
+:root{
+  --sidebar-width:248px;
+  --content-max:1920px;
+  --soft:#f8fafc;
+}
+html{scroll-behavior:smooth}
+body{font-size:14px}
+.sidebar{
+  width:var(--sidebar-width);
+  padding:18px 14px;
+  display:flex;
+  flex-direction:column;
+}
+.logo{
+  padding:8px 12px 16px;
+  border-bottom:1px solid rgba(255,255,255,.10);
+  margin-bottom:10px;
+}
+.logo small{font-size:11px;letter-spacing:.2px}
+.nav-group-title{
+  padding:13px 10px 5px;
+  color:#7f8da3;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.08em;
+}
+.nav{
+  padding:11px 12px;
+  margin:2px 0;
+  min-height:42px;
+  transition:background .15s,transform .15s;
+}
+.nav:hover{transform:translateX(2px)}
+.nav.active{
+  box-shadow:inset 3px 0 0 #60a5fa;
+}
+.nav .ico{width:28px;font-size:16px}
+.sidebar-tip{
+  margin-top:auto;
+  padding:11px 12px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.045);
+  border-radius:10px;
+  color:#aeb9ca;
+  font-size:10px;
+  line-height:1.6;
+}
+.sidebar-tip b{display:block;color:#e6edf7;font-size:11px;margin-bottom:2px}
+.sidebar-tip span{display:block}
+.main{
+  margin-left:var(--sidebar-width);
+  width:calc(100% - var(--sidebar-width));
+}
+.topbar{
+  height:64px;
+  padding:0 22px;
+}
+.title{font-size:19px}
+.top-actions{gap:7px}
+.top-actions .btn{min-height:36px}
+.top-actions #openOrderBtn{display:none!important}
+.permission-badge{min-height:34px}
+.content{
+  padding:18px 20px 28px;
+  max-width:var(--content-max);
+}
+.page-intro{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin:0 0 12px;
+}
+.page-intro > div:first-child{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+.page-intro b{font-size:18px}
+.page-intro span{font-size:12px;color:var(--muted)}
+.page-intro .btn{flex:0 0 auto}
+.card{
+  padding:14px;
+  border-radius:11px;
+  box-shadow:0 3px 14px rgba(20,35,55,.055);
+}
+.section-title{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:10px;
+}
+.section-title:before{
+  content:"";
+  width:4px;height:17px;border-radius:3px;
+  background:var(--primary);
+}
+.toolbar{
+  background:var(--soft);
+  border:1px solid #edf1f5;
+  border-radius:10px;
+  padding:10px;
+  margin-bottom:12px;
+}
+.toolbar > input,.toolbar > select{
+  min-height:38px;
+}
+.filter-grid{
+  grid-template-columns:repeat(4,minmax(150px,1fr));
+  gap:8px;
+  margin-bottom:0;
+}
+#page-orders .filter-grid input:first-child,
+#page-progress .filter-grid input:first-child{
+  grid-column:span 2;
+}
+#page-orders .toolbar,
+#page-progress .toolbar{
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  align-items:center;
+  gap:8px;
+}
+#page-orders .filter-grid,
+#page-progress .filter-grid{grid-column:1/-1}
+#page-orders .toolbar #orderClearFilterBtn,
+#page-progress .toolbar #progressClearFilterBtn{justify-self:start}
+.readonly-note{
+  padding:6px 8px;
+  background:#fff;
+  border-radius:7px;
+}
+.table-wrap{border-radius:9px}
+table{min-width:960px}
+th,td{padding:10px 9px}
+th{
+  color:#344054;
+  background:#f8fafc;
+}
+tbody tr:nth-child(even) td{background:#fcfdff}
+tbody tr:hover td{background:#f4f8ff!important}
+.btn{
+  min-height:36px;
+  padding:8px 13px;
+}
+.btn.small{min-height:30px}
+input,select{min-height:38px}
+.kpi-grid{gap:10px}
+.kpi-grid .card{padding:13px 14px}
+.kpi .value{font-size:25px}
+.board-hero{
+  margin-bottom:12px;
+  padding:16px 18px;
+}
+.board-hero .sub{line-height:1.55}
+.board-order-row{
+  grid-template-columns:110px minmax(120px,1.1fr) minmax(110px,1fr) 92px 92px;
+  padding:9px 0;
+}
+#page-board .two{grid-template-columns:minmax(0,1.55fr) minmax(300px,.65fr)}
+#page-board .card{min-height:100%}
+#page-board .footer-note{padding-top:7px;border-top:1px solid #eef1f4}
+#page-schedule .toolbar,
+#page-gantt .toolbar{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+#scheduleOrderSearch,#ganttOrderSearch{flex:1 1 300px;min-width:220px}
+#scheduleOrder,#ganttOrder{flex:0 1 320px;min-width:220px}
+#page-gantt .toolbar input[type=date]{width:145px}
+#page-gantt .toolbar .btn{white-space:nowrap}
+#page-purchase .grid.two{grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr)}
+#page-purchase .card{overflow:hidden}
+#page-purchase .purchase-filter-row th{background:#fff}
+#page-purchase .purchase-detail{line-height:1.45}
+#page-settings .grid.two{grid-template-columns:minmax(0,1.35fr) minmax(320px,.65fr)}
+#page-settings .alert{line-height:1.65}
+#page-settings .toolbar label{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:7px 10px;background:#fff;border:1px solid var(--line);
+  border-radius:8px;
+}
+.modalbox{border:1px solid rgba(20,35,55,.08)}
+.modalhead{background:#fbfcfe}
+.modal-actions{background:#fbfcfe}
+.form-grid{gap:10px}
+.field label{color:#344054}
+.process-item{background:#fbfcfe}
+.progress > i{transition:width .25s ease}
+.gantt-wrap{box-shadow:inset 0 0 0 1px rgba(0,0,0,.01)}
+.g-head{background:#f5f7fa}
+.g-task{font-weight:700}
+.today-line{width:3px}
+@media(max-width:1250px){
+  :root{--sidebar-width:220px}
+  .filter-grid{grid-template-columns:repeat(3,1fr)}
+  #page-orders .filter-grid input:first-child,
+  #page-progress .filter-grid input:first-child{grid-column:span 2}
+  #page-board .two,
+  #page-purchase .grid.two,
+  #page-settings .grid.two{grid-template-columns:1fr}
+}
+@media(max-width:900px){
+  .sidebar{width:72px;padding:14px 8px}
+  .main{margin-left:72px;width:calc(100% - 72px)}
+  .logo{padding-left:6px;padding-right:6px;text-align:center}
+  .logo div{font-size:15px}
+  .logo small,.nav-group-title,.nav-text,.sidebar-tip{display:none}
+  .nav{text-align:center;padding:11px 4px}
+  .nav .ico{width:auto;font-size:18px}
+  .content{padding:14px}
+  .filter-grid{grid-template-columns:repeat(2,1fr)}
+  #page-orders .filter-grid input:first-child,
+  #page-progress .filter-grid input:first-child{grid-column:span 2}
+  #page-orders .toolbar,#page-progress .toolbar{display:block}
+  #page-orders .toolbar .btn,#page-progress .toolbar .btn{margin-top:8px}
+  .page-intro{align-items:flex-start}
+}
+@media(max-width:620px){
+  .topbar{padding:0 10px;height:58px}
+  .title{font-size:16px}
+  .top-actions .permission-badge{display:none}
+  .top-actions .btn{padding:7px 9px;font-size:12px}
+  .filter-grid{grid-template-columns:1fr}
+  #page-orders .filter-grid input:first-child,
+  #page-progress .filter-grid input:first-child{grid-column:auto}
+  .page-intro{flex-direction:column}
+  .page-intro .btn{width:100%}
+  #page-gantt .toolbar,#page-schedule .toolbar{align-items:stretch;flex-direction:column}
+  #scheduleOrderSearch,#ganttOrderSearch,#scheduleOrder,#ganttOrder{width:100%;max-width:none}
+  #page-gantt .toolbar input[type=date]{width:100%}
+}
+
+
+/* ===== 操作流程優化 ===== */
+.workflow-strip{position:sticky;top:64px;z-index:35;display:flex;align-items:center;gap:6px;padding:9px 18px;background:rgba(255,255,255,.97);border-bottom:1px solid #e5e7eb;box-shadow:0 2px 10px rgba(15,23,42,.05);overflow-x:auto}
+.workflow-step{border:0;background:transparent;display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:10px;cursor:pointer;color:#64748b;white-space:nowrap;text-align:left}
+.workflow-step:hover{background:#f1f5f9;color:#0f172a}.workflow-step.active{background:#eaf2ff;color:#1d4ed8}.workflow-step.active .workflow-num{background:#2563eb;color:#fff}
+.workflow-step span:last-child{display:flex;flex-direction:column;line-height:1.12}.workflow-step b{font-size:13px}.workflow-step small{font-size:10px;margin-top:3px;color:#94a3b8}.workflow-step.active small{color:#5b7fba}
+.workflow-num{width:24px;height:24px;border-radius:999px;display:grid;place-items:center;background:#e2e8f0;color:#475569;font-size:12px;font-weight:800}.workflow-arrow{color:#cbd5e1;font-size:20px}
+.workflow-quick{margin:12px 0 14px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 16px}.workflow-quick-copy{display:flex;flex-direction:column;gap:3px}.workflow-quick-copy b{font-size:15px}.workflow-quick-copy span{font-size:12px;color:var(--muted)}.workflow-quick-actions{display:flex;gap:8px;flex-wrap:wrap}
+.page-flow-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.order-row-actions{display:flex;gap:5px;flex-wrap:wrap;min-width:210px}.order-row-actions .btn{padding-left:8px;padding-right:8px}
+@media(max-width:1100px){.workflow-step small{display:none}.workflow-strip{padding-left:12px;padding-right:12px}.workflow-quick{align-items:flex-start;flex-direction:column}}
+@media(max-width:700px){.workflow-arrow{display:none}.workflow-step{padding:7px 8px}.workflow-step b{font-size:12px}.workflow-strip{gap:2px}.workflow-quick-actions{width:100%}.workflow-quick-actions .btn{flex:1 1 45%}.page-flow-actions{width:100%}.page-flow-actions .btn{flex:1 1 auto}}
+
+
+/* =========================================================
+   PMC 工廠控制台 UI - 全面視覺重構層
+========================================================= */
+:root{
+  --ctrl-bg:#0b1220;
+  --ctrl-bg2:#111827;
+  --ctrl-panel:#ffffff;
+  --ctrl-soft:#f3f6fa;
+  --ctrl-line:#d8e0ea;
+  --ctrl-text:#182230;
+  --ctrl-muted:#667085;
+  --ctrl-accent:#2563eb;
+  --ctrl-accent-soft:#eaf1ff;
+  --ctrl-green:#15803d;
+  --ctrl-amber:#b45309;
+  --ctrl-red:#b42318;
+  --ctrl-radius:14px;
+}
+
+html,body{background:#eef2f6!important;color:var(--ctrl-text)}
+body{font-family:Inter,"Noto Sans TC","Microsoft JhengHei",Arial,sans-serif}
+
+.sidebar{
+  width:252px!important;
+  background:linear-gradient(180deg,#0b1220 0%,#111827 68%,#162033 100%)!important;
+  border-right:0!important;
+  box-shadow:10px 0 30px rgba(15,23,42,.08);
+}
+.logo{padding:24px 22px 22px!important;border-bottom:1px solid rgba(255,255,255,.08)}
+.logo>div{font-size:20px!important;letter-spacing:.08em}
+.logo span{
+  font-size:10px!important;
+  padding:4px 7px!important;
+  border-radius:999px!important;
+  background:#2563eb!important;color:#fff!important;vertical-align:middle
+}
+.logo small{display:block;margin-top:7px!important;font-size:10px!important;color:#8da0bc!important;letter-spacing:.05em}
+.nav-group-title{color:#61718b!important;font-size:10px!important;font-weight:800!important;letter-spacing:.12em!important;padding:22px 22px 8px!important}
+.nav{
+  margin:3px 12px!important;padding:11px 13px!important;border-radius:10px!important;
+  color:#b9c5d6!important;transition:.18s ease!important;border:1px solid transparent!important
+}
+.nav .ico{width:28px!important;height:28px!important;display:grid!important;place-items:center!important;border-radius:8px!important;background:rgba(255,255,255,.05)}
+.nav:hover{background:rgba(255,255,255,.055)!important;color:#fff!important}
+.nav.active{
+  background:linear-gradient(90deg,rgba(37,99,235,.24),rgba(37,99,235,.08))!important;
+  color:#fff!important;border-color:rgba(96,165,250,.20)!important;box-shadow:inset 3px 0 #3b82f6
+}
+.nav.active .ico{background:#2563eb!important}
+.sidebar-tip{
+  margin:22px 14px 14px!important;padding:14px!important;border:1px solid rgba(255,255,255,.08)!important;
+  background:rgba(255,255,255,.035)!important;color:#8291a8!important
+}
+.sidebar-tip b{color:#d8e1ee!important}
+
+.topbar{
+  height:72px!important;background:rgba(255,255,255,.96)!important;border-bottom:1px solid #dde4ec!important;
+  box-shadow:0 2px 12px rgba(15,23,42,.035)!important;padding:0 24px!important
+}
+.console-title{display:flex!important;flex-direction:column!important;gap:2px!important}
+.console-title-main{font-size:18px!important;font-weight:800!important;color:#101828}
+.console-title-sub{font-size:11px!important;color:#98a2b3!important;font-weight:600!important}
+.top-actions{gap:8px!important}
+.permission-badge{border-radius:999px!important;padding:7px 11px!important;font-weight:700!important}
+.btn{
+  border-radius:9px!important;min-height:36px!important;font-weight:700!important;box-shadow:none!important
+}
+.btn:not(.secondary){background:#2563eb!important;border-color:#2563eb!important}
+.btn:not(.secondary):hover{background:#1d4ed8!important}
+
+.workflow-strip{
+  margin:14px 22px 0!important;padding:8px 10px!important;border:1px solid #dde4ec!important;
+  background:#fff!important;border-radius:12px!important;box-shadow:0 3px 14px rgba(15,23,42,.035)!important
+}
+.workflow-step{border-radius:9px!important;padding:8px 10px!important}
+.workflow-step.active{background:#eef4ff!important;color:#1d4ed8!important}
+.workflow-num{border-radius:7px!important}
+
+.content{padding:20px 22px 34px!important;max-width:none!important}
+.page-intro{
+  background:transparent!important;border:0!important;padding:4px 2px 16px!important;margin-bottom:0!important;
+  align-items:flex-end!important
+}
+.page-intro>div:first-child{display:grid!important;gap:4px!important}
+.page-intro b{font-size:24px!important;line-height:1.15!important;color:#101828!important}
+.page-intro span{font-size:13px!important;color:#667085!important}
+.page-code{
+  width:max-content!important;padding:3px 7px!important;border-radius:5px!important;
+  background:#e9eef5!important;color:#667085!important;font-size:9px!important;font-weight:900!important;letter-spacing:.14em!important
+}
+.page-flow-actions{display:flex!important;gap:8px!important}
+
+.card{
+  border:1px solid #dde4ec!important;border-radius:var(--ctrl-radius)!important;
+  box-shadow:0 4px 18px rgba(15,23,42,.045)!important;background:#fff!important
+}
+.control-card{padding:16px!important}
+
+.control-hero{
+  background:linear-gradient(120deg,#0f172a 0%,#18253a 62%,#1d4ed8 145%)!important;
+  border:0!important;color:#fff!important;border-radius:18px!important;padding:24px 26px!important;
+  box-shadow:0 12px 28px rgba(15,23,42,.16)!important
+}
+.control-kicker{font-size:10px!important;letter-spacing:.16em!important;color:#8eb8ff!important;font-weight:900!important}
+.control-main-title{font-size:28px!important;font-weight:850!important;letter-spacing:.01em!important;margin:5px 0 4px!important}
+.control-hero .sub{color:#b8c6d9!important}
+.control-system{
+  min-width:170px!important;background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.12)!important;
+  border-radius:12px!important;padding:14px 16px!important
+}
+.control-system .label{color:#8da0bc!important;font-size:9px!important;letter-spacing:.14em!important}
+.control-system .version{font-size:16px!important;font-weight:850!important;color:#fff!important;margin-top:4px!important}
+.system-dot-row{font-size:11px!important;color:#bbcadc!important;margin-top:8px!important}
+.system-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.13);margin-right:5px}
+
+.workflow-quick{
+  margin-top:14px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;
+  border-left:4px solid #2563eb!important
+}
+.workflow-quick-copy b{font-size:15px!important}
+.workflow-quick-copy span{color:#667085!important}
+
+.kpi-grid{gap:12px!important}
+.kpi{
+  border-radius:13px!important;min-height:104px!important;padding:16px!important;
+  position:relative!important;overflow:hidden!important
+}
+.kpi:after{
+  content:"";position:absolute;right:-12px;top:-18px;width:72px;height:72px;border-radius:50%;
+  background:#f1f5f9
+}
+.kpi .label{font-size:12px!important;color:#667085!important;font-weight:750!important;position:relative;z-index:1}
+.kpi .value{font-size:26px!important;font-weight:850!important;color:#101828!important;position:relative;z-index:1;margin-top:8px!important}
+
+.section-title{
+  font-size:14px!important;font-weight:800!important;color:#344054!important;
+  padding-bottom:10px!important;border-bottom:1px solid #edf0f3!important;margin-bottom:10px!important
+}
+
+.control-strip{
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:0 0 10px;
+}
+.control-strip-label{font-size:11px;color:#98a2b3;font-weight:800;margin-right:4px}
+.control-chip{
+  font-size:11px;font-weight:750;color:#475467;background:#fff;border:1px solid #dbe2ea;
+  border-radius:999px;padding:5px 9px
+}
+
+.toolbar{gap:8px!important}
+.toolbar input,.toolbar select,.filter-grid input,.filter-grid select{
+  border:1px solid #d0d8e2!important;background:#fbfcfd!important;border-radius:8px!important;min-height:38px!important;
+  padding:8px 10px!important;transition:.15s ease
+}
+.toolbar input:focus,.toolbar select:focus,.filter-grid input:focus,.filter-grid select:focus{
+  outline:none!important;border-color:#84adff!important;box-shadow:0 0 0 3px rgba(37,99,235,.09)!important;background:#fff!important
+}
+
+.table-wrap{
+  border:1px solid #e1e6ed!important;border-radius:11px!important;overflow:auto!important;background:#fff!important
+}
+table{border-collapse:separate!important;border-spacing:0!important}
+thead th{
+  position:sticky;top:0;z-index:2;background:#f6f8fb!important;color:#475467!important;
+  font-size:11px!important;letter-spacing:.02em!important;font-weight:800!important;border-bottom:1px solid #dfe5ec!important
+}
+tbody td{border-bottom:1px solid #edf0f3!important;font-size:12px!important}
+tbody tr:nth-child(even){background:#fbfcfd!important}
+tbody tr:hover{background:#f0f5ff!important}
+.progress-bar,.progress-track{border-radius:999px!important}
+
+.schedule-focus{
+  display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:10px;
+  background:#edf4ff;border:1px solid #d9e7ff;border-radius:12px;color:#1d4ed8
+}
+.schedule-focus-icon{
+  width:34px;height:34px;border-radius:10px;background:#2563eb;color:white;display:grid;place-items:center;font-weight:900
+}
+.schedule-focus b{display:block;font-size:13px}
+.schedule-focus span{display:block;font-size:11px;color:#5d78a4;margin-top:2px}
+.schedule-control-card .schedule-selector{
+  padding:2px 0 14px!important;border-bottom:1px solid #edf0f3!important;margin-bottom:8px!important
+}
+.schedule-control-card #scheduleSummary{
+  background:#f8fafc!important;border:1px solid #e2e8f0!important;border-radius:10px!important;padding:12px!important;margin-top:10px!important
+}
+.schedule-table tbody tr td:first-child{font-weight:800!important;color:#1f2937!important}
+.schedule-table tbody tr td:last-child{font-weight:800!important}
+
+#page-purchase>.grid.two{gap:12px!important}
+#purchaseRisk{padding-top:2px}
+.purchase-filter-row th{background:#fff!important;padding:6px!important}
+.purchase-filter-row input,.purchase-filter-row select{min-width:110px!important;border-radius:7px!important;border:1px solid #d9e0e8!important;background:#fbfcfd!important}
+
+#page-gantt .card{padding:16px!important}
+#ganttContainer{
+  border:1px solid #dfe5ec!important;border-radius:11px!important;background:#fbfcfe!important;padding:10px!important
+}
+
+#page-progress .card{padding:16px!important}
+#page-settings .card{border-top:3px solid #64748b!important}
+
+.order-pagination,.purchase-pagination,.board-pagination{margin-top:12px!important}
+
+@media(max-width:1000px){
+  .sidebar{width:76px!important}
+  .logo small,.logo span,.nav-text,.nav-group-title,.sidebar-tip{display:none!important}
+  .logo{padding:20px 10px!important;text-align:center!important}
+  .logo>div{font-size:14px!important}
+  .nav{margin:4px 9px!important;justify-content:center!important;padding:10px!important}
+  .nav .ico{margin:0!important}
+  .workflow-strip{margin-left:14px!important;margin-right:14px!important;overflow-x:auto!important}
+  .content{padding-left:14px!important;padding-right:14px!important}
+}
+@media(max-width:720px){
+  .control-main-title{font-size:23px!important}
+  .control-hero{flex-direction:column!important;align-items:flex-start!important}
+  .control-system{width:100%!important}
+  .workflow-quick{flex-direction:column!important;align-items:flex-start!important;gap:12px!important}
+  .page-intro{align-items:flex-start!important}
+  .page-flow-actions{width:100%!important;overflow-x:auto!important}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- =========================
+     SIDEBAR
+========================= -->
+
+<aside class="sidebar">
+
+  <div class="logo">
+    <div>PMC <span>CONTROL</span></div>
+    <small>Production Management Center</small>
+  </div>
+
+  <div class="nav-group-title">控制中心</div>
+  <button class="nav active" data-page="board"><span class="ico">▦</span><span class="nav-text">生產控制台</span></button>
+
+  <div class="nav-group-title">生產管理</div>
+  <button class="nav" data-page="orders"><span class="ico">▤</span><span class="nav-text">工單管理</span></button>
+  <button class="nav" data-page="schedule"><span class="ico">◫</span><span class="nav-text">生產排程</span></button>
+  <button class="nav" data-page="gantt"><span class="ico">▥</span><span class="nav-text">甘特圖</span></button>
+  <button class="nav" data-page="progress"><span class="ico">◉</span><span class="nav-text">生產進度</span></button>
+
+  <div class="nav-group-title">供應與系統</div>
+  <button class="nav" data-page="purchase"><span class="ico">▣</span><span class="nav-text">採購管理</span></button>
+  <button class="nav" data-page="settings"><span class="ico">⚙</span><span class="nav-text">系統設定</span></button>
+
+  <div class="sidebar-tip">
+    <b>操作提示</b>
+    <span>點選左側功能切換頁面</span>
+    <span>訪客可查詢，管理者可編輯</span>
+  </div>
+
+</aside>
+
+
+<!-- =========================
+     MAIN
+========================= -->
+
+<main class="main">
+
+<header class="topbar">
+
+  <div class="title console-title">
+    <span class="console-title-main" id="pageTitle">生產控制台</span>
+    <span class="console-title-sub">工單・排程・進度・供應鏈</span>
+  </div>
+
+  <div class="top-actions">
+    <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
+    <button class="btn secondary" id="openDataFileBtn" type="button" style="display:none">選擇 PMC_Data.json</button>
+    <input type="file" id="dataFileInput" accept=".json,application/json" hidden>
+    <button class="btn secondary" id="refreshBtn" type="button">↻ 重新整理資料</button>
+    <button class="btn" id="openOrderBtn" type="button" aria-hidden="true">＋ 新增工單</button>
+    <button class="btn secondary" id="loginBtn" type="button">登入</button>
+  </div>
+</header>
+
+<div class="workflow-strip" aria-label="PMC 操作流程">
+  <button type="button" class="workflow-step" data-workflow-page="board"><span class="workflow-num">⌂</span><span><b>總覽</b><small>先看異常與工單</small></span></button>
+  <span class="workflow-arrow">›</span>
+  <button type="button" class="workflow-step" data-workflow-page="orders"><span class="workflow-num">1</span><span><b>工單</b><small>建立／查詢</small></span></button>
+  <span class="workflow-arrow">›</span>
+  <button type="button" class="workflow-step" data-workflow-page="schedule"><span class="workflow-num">2</span><span><b>排程</b><small>確認製程日期</small></span></button>
+  <span class="workflow-arrow">›</span>
+  <button type="button" class="workflow-step" data-workflow-page="progress"><span class="workflow-num">3</span><span><b>進度</b><small>回報實際完成</small></span></button>
+  <span class="workflow-arrow">›</span>
+  <button type="button" class="workflow-step" data-workflow-page="purchase"><span class="workflow-num">4</span><span><b>採購</b><small>追未進貨／逾期</small></span></button>
+  <span class="workflow-arrow">›</span>
+  <button type="button" class="workflow-step" data-workflow-page="gantt"><span class="workflow-num">5</span><span><b>甘特圖</b><small>整體時程檢視</small></span></button>
+</div>
+
+<div class="content">
+
+
+<!-- =========================================================
+     PMC BOARD
+========================================================= -->
+
+<section id="page-board" class="page active">
+  <div class="board-hero control-hero">
+    <div class="board-hero-info">
+      <div class="control-kicker">PRODUCTION CONTROL CENTER</div>
+      <div class="control-main-title">今日生產控制台</div>
+      <div class="sub">先看工單、異常與交期，再進入單一工單排程或進度處理。</div>
+    </div>
+    <div class="board-system-info control-system">
+      <div class="label">SYSTEM STATUS</div>
+      <div class="version">PMC ONLINE</div>
+      <div class="system-dot-row"><span class="system-dot"></span> 內部生產資料</div>
+    </div>
+  </div>
+  <div class="workflow-quick card">
+    <div class="workflow-quick-copy">
+      <b>快速作業</b>
+      <span>從控制台直接進入最常用的生管作業。</span>
+    </div>
+    <div class="workflow-quick-actions">
+      <button class="btn" type="button" data-flow-action="new-order">＋ 新增工單</button>
+      <button class="btn secondary" type="button" data-flow-action="schedule">查看排程</button>
+      <button class="btn secondary" type="button" data-flow-action="progress">更新進度</button>
+      <button class="btn secondary" type="button" data-flow-action="purchase">追採購</button>
+    </div>
+  </div>
+  <div class="grid kpi-grid" id="boardKpis"></div>
+  <div class="grid two" style="margin-top:14px">
+    <div class="card">
+      <div class="section-title">目前工單狀態</div>
+      <div id="boardOrders"></div>
+      <div id="boardPagination" class="board-pagination"></div>
+      <div class="footer-note">剩餘天數依工單預計交期計算。</div>
+    </div>
+    <div class="card">
+      <div class="section-title">維修工單</div>
+      <div id="boardMaintenance"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- =========================================================
+     ORDERS
+========================================================= -->
+
+<section id="page-orders" class="page">
+
+<div class="page-intro">
+  <div><span class="page-code">ORDERS</span><b>工單總覽</b><span>一次查看多張工單，快速找出目前製程、交期與異常。</span></div>
+  <div class="page-flow-actions"><button class="btn" id="orderQuickAddBtn" type="button">＋ 新增工單</button><button class="btn secondary" type="button" data-flow-nav="schedule">下一步：排程 →</button></div>
+</div>
+
+<div class="control-strip">
+  <span class="control-strip-label">快速篩選</span>
+  <span class="control-chip">多工單總覽</span>
+  <span class="control-chip">交期追蹤</span>
+  <span class="control-chip">製程狀態</span>
+  <span class="control-chip">維修工單</span>
+</div>
+
+<div class="card control-card">
+
+  <div class="toolbar">
+    <div class="filter-grid" style="width:100%">
+      <input id="orderSearch" placeholder="工單號碼／客戶／機型">
+      <input id="orderCustomerFilter" placeholder="客戶">
+      <input id="orderDateFrom" type="date" title="訂單日期起">
+      <input id="orderDateTo" type="date" title="訂單日期迄">
+      <select id="orderPriorityFilter"><option value="">全部優先度</option><option value="一般">一般</option><option value="高">高</option><option value="急件">急件</option></select>
+      <select id="orderStatusFilter"><option value="">全部狀態</option><option value="維修">維修</option><option value="繪圖">繪圖</option><option value="生產中">生產中</option><option value="組裝">組裝</option><option value="電控">電控</option><option value="測試中">測試中</option><option value="待結案">待結案</option><option value="已完成">已完成</option><option value="逾期">逾期</option></select>
+      <select id="orderProcessFilter"><option value="">全部製程</option><option value="design">設計繪圖</option><option value="weld">加工焊接</option><option value="purchase">採購</option><option value="outsourcing">委外製造</option><option value="assembly">組裝進度</option><option value="electrical">電控進度</option><option value="test">包裝測試</option><option value="close">結案</option></select>
+    </div>
+    <button class="btn secondary small" id="orderClearFilterBtn" type="button">清除篩選</button>
+    <span id="orderReadonlyNote" class="readonly-note"></span>
+    <button class="btn" id="orderAddBtn" type="button">＋ 新增工單</button>
+  </div>
+
+
+  <div class="table-wrap">
+
+    <table>
+
+      <thead>
+
+      <tr>
+        <th>工單</th>
+        <th>客戶</th>
+        <th>產品</th>
+        <th>訂單日期</th>
+        <th>預計交期</th>
+        <th>優先級</th>
+        <th>狀態</th>
+        <th>進度</th>
+        <th>操作</th>
+      </tr>
+
+      </thead>
+
+      <tbody id="ordersBody"></tbody>
+
+    </table>
+
+  </div>
+
+</div>
+
+<div id="orderPagination" class="order-pagination"></div>
+
+</section>
+
+
+<!-- =========================================================
+     SCHEDULE
+========================================================= -->
+
+<section id="page-schedule" class="page">
+
+<div class="page-intro">
+  <div><span class="page-code">SCHEDULE</span><b>單一工單製程</b><span>選擇一張工單，查看每個製程的計畫、實際完成與目前狀態。</span></div>
+  <div class="page-flow-actions"><button class="btn secondary" type="button" data-flow-nav="orders">← 工單</button><button class="btn" type="button" data-flow-nav="progress">下一步：進度 →</button></div>
+</div>
+
+<div class="schedule-focus">
+  <div class="schedule-focus-icon">◎</div>
+  <div>
+    <b>單一工單追蹤</b>
+    <span>先搜尋工單，再從下拉選單選擇；下方會集中顯示該工單所有製程。</span>
+  </div>
+</div>
+
+<div class="card control-card schedule-control-card">
+
+  <div class="toolbar schedule-selector">
+
+    <input id="scheduleOrderSearch" placeholder="輸入工單號碼／客戶／產品" style="min-width:260px">
+
+    <select id="scheduleOrder"></select>
+
+  </div>
+
+
+  <div id="scheduleSummary"></div>
+
+
+  <div
+    class="table-wrap"
+    style="margin-top:12px">
+
+    <table class="schedule-table">
+
+      <thead>
+
+      <tr>
+        <th>工序</th>
+        <th>工作中心</th>
+        <th>前置條件</th>
+        <th>計畫開始</th>
+        <th>計畫完成</th>
+        <th>實際完成</th>
+        <th>天數</th>
+        <th>狀態</th>
+      </tr>
+
+      </thead>
+
+      <tbody id="scheduleBody"></tbody>
+
+      </table>
+
+    </div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================================
+     GANTT
+========================================================= -->
+
+<section id="page-gantt" class="page">
+
+<div class="page-intro">
+  <div><span class="page-code">TIMELINE</span><b>生產時間軸</b><span>用時間軸檢查工單製程配置、實際進度與今天位置。</span></div>
+  <div class="page-flow-actions"><button class="btn secondary" type="button" data-flow-nav="purchase">← 採購</button><button class="btn secondary" type="button" data-flow-nav="board">回看板</button></div>
+</div>
+
+<div class="card">
+
+  <div class="toolbar">
+
+    <input id="ganttOrderSearch" placeholder="輸入工單號碼／客戶名稱" style="min-width:260px">
+
+    <select id="ganttOrder"></select>
+
+    <input
+      type="date"
+      id="ganttStart">
+
+    <input
+      type="date"
+      id="ganttEnd">
+
+    <button
+      class="btn secondary"
+      id="ganttToday"
+      type="button">
+      回到今天
+    </button>
+
+    <button
+      class="btn secondary"
+      id="ganttFullOrder"
+      type="button">
+      完整工單期間
+    </button>
+
+    <button
+      class="btn"
+      id="ganttExportImage"
+      type="button">
+      匯出甘特圖圖片
+    </button>
+
+  </div>
+
+
+  <div id="ganttContainer"></div>
+
+
+  <div class="legend">
+
+    <span>
+      <i class="dot"></i>
+      計畫
+    </span>
+
+    <span>
+      <i class="dot a"></i>
+      實際
+    </span>
+
+    <span>
+      <i class="dot t"></i>
+      今天
+    </span>
+
+  </div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================================
+     PROGRESS
+========================================================= -->
+
+<section id="page-progress" class="page">
+
+<div class="page-intro">
+  <div><b>生產進度</b><span>第 3 步｜回報實際完成；管理者可點擊日期進行更新</span></div>
+  <div class="page-flow-actions"><button class="btn secondary" type="button" data-flow-nav="schedule">← 排程</button><button class="btn" type="button" data-flow-nav="purchase">下一步：採購 →</button></div>
+</div>
+
+<div class="card">
+
+  <div class="toolbar">
+    <div class="filter-grid" style="width:100%">
+      <input id="progressSearch" placeholder="工單號碼／客戶／機型">
+      <input id="progressCustomerFilter" placeholder="客戶">
+      <input id="progressDateFrom" type="date" title="訂單日期起">
+      <input id="progressDateTo" type="date" title="訂單日期迄">
+      <select id="progressPriorityFilter"><option value="">全部優先度</option><option value="一般">一般</option><option value="高">高</option><option value="急件">急件</option></select>
+      <select id="progressFilter"><option value="">全部狀態</option><option value="維修">維修</option><option value="繪圖">繪圖</option><option value="生產中">生產中</option><option value="組裝">組裝</option><option value="電控">電控</option><option value="測試中">測試中</option><option value="待結案">待結案</option><option value="已完成">已完成</option><option value="逾期">逾期</option></select>
+      <select id="progressProcessFilter"><option value="">全部製程</option><option value="design">設計繪圖</option><option value="weld">加工焊接</option><option value="purchase">採購</option><option value="outsourcing">委外製造</option><option value="assembly">組裝進度</option><option value="electrical">電控進度</option><option value="test">包裝測試</option><option value="close">結案</option></select>
+    </div>
+    <button class="btn secondary small" id="progressClearFilterBtn" type="button">清除篩選</button>
+  </div>
+
+
+  <div class="table-wrap">
+
+    <table>
+
+      <thead>
+
+      <tr>
+
+        <th>工單</th>
+        <th>客戶</th>
+        <th>設計繪圖</th>
+        <th>加工焊接</th>
+        <th>採購</th>
+        <th>委外製造</th>
+        <th>組裝</th>
+        <th>電控</th>
+        <th>包裝測試</th>
+        <th>結案</th>
+        <th>整體進度</th>
+
+      </tr>
+
+      </thead>
+
+      <tbody id="progressBody"></tbody>
+
+    </table>
+
+  </div>
+  <div id="progressFloatingHead" class="progress-floating-head" aria-hidden="true"></div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================================
+     PURCHASE
+========================================================= -->
+
+<section id="page-purchase" class="page">
+
+<div class="page-intro">
+  <div><span class="page-code">SUPPLY</span><b>採購供應狀況</b><span>先看缺料、逾期與交期風險，再追查零件明細。</span></div>
+  <div class="page-flow-actions"><button class="btn secondary" type="button" data-flow-nav="progress">← 進度</button><button class="btn" type="button" data-flow-nav="gantt">下一步：甘特圖 →</button></div>
+</div>
+
+<div class="grid two" style="align-items:start">
+
+  <div class="card">
+    <div class="section-title">未進貨彙總</div>
+    <div id="purchaseSummary"></div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">匯入 Excel：未進貨詳細資料</div>
+    <div class="toolbar" style="margin-top:4px">
+      <button class="btn" id="purchaseImportBtn" type="button">選擇 Excel</button>
+      <input type="file" id="purchaseExcelFile" accept=".xlsx,.xls,.csv" hidden>
+      <button class="btn secondary" id="purchaseClearBtn" type="button">清除匯入資料</button>
+    </div>
+    <div class="footer-note">支援 XLSX／XLS／CSV；系統會自動尋找「未進貨詳細資料」工作表並依欄位名稱辨識資料。</div>
+  </div>
+
+</div>
+
+<div class="card" style="margin-top:14px">
+  <div class="section-title">採購交期風險</div>
+  <div id="purchaseRisk"></div>
+</div>
+
+<div
+  class="card"
+  style="margin-top:14px">
+
+  <div class="section-title">
+    未進貨明細
+  </div>
+
+
+  <div class="table-wrap">
+
+    <table>
+
+      <thead>
+      <tr>
+        <th>A 廠商</th><th>B 工單號碼</th><th>C 預計交期</th><th>D 圖名</th>
+        <th>E 材質</th><th>F 零件編號</th><th>G 數量</th><th>狀態</th>
+      </tr>
+      <tr class="purchase-filter-row">
+        <th><input id="purchaseFilterSupplier" placeholder="篩選廠商"></th>
+        <th><input id="purchaseFilterNo" placeholder="篩選工單"></th>
+        <th><input id="purchaseFilterExpected" type="date"></th>
+        <th><input id="purchaseFilterDrawing" placeholder="篩選圖名"></th>
+        <th><input id="purchaseFilterMaterial" placeholder="篩選材質"></th>
+        <th><input id="purchaseFilterPart" placeholder="篩選零件"></th>
+        <th><input id="purchaseFilterQty" placeholder="篩選數量"></th>
+        <th><select id="purchaseFilterStatus"><option value="">全部狀態</option><option value="待到貨">待到貨</option><option value="已到貨">已到貨</option><option value="逾期">逾期</option></select></th>
+      </tr>
+      </thead>
+
+      <tbody id="purchaseBody"></tbody>
+
+    </table>
+
+  </div>
+  <div id="purchasePagination" class="purchase-pagination"></div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================================
+     SETTINGS
+========================================================= -->
+
+<section id="page-settings" class="page">
+
+<div class="page-intro">
+  <div><span class="page-code">SYSTEM</span><b>系統設定</b><span>製程規則、資料備份、還原與系統管理。</span></div>
+</div>
+
+<div class="grid two">
+
+  <div class="card">
+
+    <div class="section-title">製程設定</div>
+    <div class="alert" style="margin-bottom:12px">
+      <b>半自動：</b>修改工期後按「重新計算」才更新排程；<br>
+      <b>全自動：</b>修改工期／交期後立即依製程依賴重新排程。
+    </div>
+    <div class="toolbar">
+      <label><input type="radio" name="scheduleMode" value="semi"> 半自動</label>
+      <label><input type="radio" name="scheduleMode" value="auto"> 全自動</label>
+    </div>
+    <div id="processSettings"></div>
+    <button class="btn" id="saveProcessSettingsBtn" type="button">儲存製程設定</button>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="section-title">
+      資料管理
+    </div>
+
+    <p class="footer-note">
+      資料會自動儲存在目前瀏覽器。
+      可使用 JSON 匯出／匯入進行備份。
+    </p>
+
+    <div class="toolbar">
+
+      <button
+        class="btn"
+        id="exportBtn"
+        type="button">
+        匯出資料
+      </button>
+
+
+      <label
+        class="btn secondary"
+        style="display:inline-block">
+
+        匯入資料
+
+        <input
+          type="file"
+          id="importFile"
+          accept=".json"
+          hidden>
+
+      </label>
+
+
+      <button
+        class="btn danger"
+        id="resetBtn"
+        type="button">
+        恢復示範資料
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+</section>
+
+</div>
+
+</main>
+
+</div>
+
+
+<!-- =========================================================
+     管理者登入 MODAL
+========================================================= -->
+<div id="loginModal" class="modal hidden login-modal" aria-hidden="true">
+  <div class="modalbox" role="dialog" aria-modal="true">
+    <div class="modalhead"><h2 style="margin:0">管理者登入</h2><button class="btn secondary small" id="loginCloseBtn" type="button">✕</button></div>
+    <div class="modalbody">
+      <div class="field" style="margin-bottom:12px"><label>帳號</label><input id="loginUser" autocomplete="username" placeholder="請輸入帳號"></div>
+      <div class="field"><label>密碼</label><input id="loginPass" type="password" autocomplete="current-password" placeholder="請輸入密碼"></div>
+      <div id="loginError" class="login-error">帳號或密碼錯誤</div>
+      <div class="login-hint">管理者帳號：CTI　密碼：123</div>
+    </div>
+    <div class="modal-actions"><button class="btn secondary" id="loginCancelBtn" type="button">取消</button><button class="btn" id="loginSubmitBtn" type="button">登入</button></div>
+  </div>
+</div>
+
+<!-- =========================================================
+     新增／編輯工單 MODAL
+========================================================= -->
+
+<div
+  id="orderModal"
+  class="modal hidden"
+  aria-hidden="true">
+
+  <div
+    class="modalbox"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modalTitle">
+
+
+    <div class="modalhead">
+
+      <h2
+        id="modalTitle"
+        style="margin:0">
+        新增工單
+      </h2>
+
+
+      <button
+        class="btn secondary small"
+        id="closeModalBtn"
+        type="button"
+        aria-label="關閉">
+        ✕
+      </button>
+
+    </div>
+
+
+    <div class="modalbody">
+
+      <div class="form-grid">
+
+        <div class="field">
+
+          <label>
+            工單號
+          </label>
+
+          <input
+            id="f_no"
+            placeholder="例如 2609010">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            客戶名稱
+          </label>
+
+          <input
+            id="f_customer">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            產品／機型
+          </label>
+
+          <input
+            id="f_product">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            訂單日期
+          </label>
+
+          <input
+            type="date"
+            id="f_orderDate">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            預計交期
+          </label>
+
+          <input
+            type="date"
+            id="f_due">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            優先級
+          </label>
+
+          <select id="f_priority">
+
+            <option value="一般">
+              一般
+            </option>
+
+            <option value="高">
+              高
+            </option>
+
+            <option value="急件">
+              急件
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="field">
+          <label>製程模式</label>
+          <select id="f_processMode">
+            <option value="semi">半自動</option>
+            <option value="auto">全自動</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>初始狀態</label>
+          <select id="f_status">
+
+            <option value="待生產">
+              待生產
+            </option>
+
+            <option value="維修">
+              維修
+            </option>
+
+            <option value="生產中">
+              生產中
+            </option>
+
+            <option value="已完成">
+              已完成
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="section-title"
+        style="margin-top:20px">
+
+        製程工期設定（工作天）
+
+      </div>
+
+
+      <div
+        class="process-grid"
+        id="processInputs">
+      </div>
+
+
+      <div class="footer-note">
+
+        排程規則：
+
+        <b>
+          設計繪圖
+        </b>
+
+        →
+
+        <b>
+          加工焊接／採購／委外製造
+        </b>
+
+        三線並行，
+
+        三線全部完成後才能進入
+
+        <b>
+          組裝 → 電控 → 包裝測試 → 結案
+        </b>
+
+      </div>
+
+    </div>
+
+
+    <div class="modal-actions">
+
+      <button
+        class="btn secondary"
+        id="cancelOrderBtn"
+        type="button">
+
+        取消
+
+      </button>
+
+
+      <button
+        class="btn"
+        id="saveOrderBtn"
+        type="button">
+
+        建立工單
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<div id="processModal" class="modal hidden" aria-hidden="true">
+  <div class="modalbox" role="dialog" aria-modal="true">
+    <div class="modalhead">
+      <h2 id="processModalTitle" style="margin:0">製程實際日期</h2>
+      <button class="btn secondary small" id="processModalClose" type="button">✕</button>
+    </div>
+    <div class="modalbody">
+      <div id="processModalInfo" class="alert" style="margin-bottom:12px"></div>
+      <div class="form-grid">
+        <div class="field"><label>實際開始日期</label><input type="date" id="actualStartInput"></div>
+        <div class="field"><label>實際完成日期</label><input type="date" id="actualEndInput"></div>
+      </div>
+      <div class="footer-note">填寫實際完成日期＝完成；將實際完成日期清空並儲存＝恢復未完成。填寫日期後，甘特圖會同時顯示計畫與實際日期。</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn danger" id="processDatesClear" type="button">清除日期</button>
+      <button class="btn secondary" id="processModalCancel" type="button">取消</button>
+      <button class="btn" id="processModalSave" type="button">儲存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+/* =========================================================
+   PMC V3 CORE
+========================================================= */
+
+
+/* =========================
+   製程定義
+========================= */
+
+const PROCESS = [
+
+  {
+    key:"design",
+    name:"設計繪圖",
+    wc:"工程",
+    days:3,
+    pre:[]
+  },
+
+  {
+    key:"weld",
+    name:"加工焊接",
+    wc:"加工／焊接",
+    days:5,
+    pre:["design"]
+  },
+
+  {
+    key:"purchase",
+    name:"採購",
+    wc:"採購",
+    days:7,
+    pre:["design"]
+  },
+
+  {
+    key:"outsourcing",
+    name:"委外製造",
+    wc:"委外",
+    days:6,
+    pre:["design"]
+  },
+
+  {
+    key:"assembly",
+    name:"組裝進度",
+    wc:"組裝",
+    days:4,
+    pre:["weld","purchase","outsourcing"]
+  },
+
+  {
+    key:"electrical",
+    name:"電控進度",
+    wc:"電控",
+    days:3,
+    pre:["assembly"]
+  },
+
+  {
+    key:"test",
+    name:"包裝測試",
+    wc:"測試／包裝",
+    days:2,
+    pre:["electrical"]
+  },
+
+  {
+    key:"close",
+    name:"結案",
+    wc:"交機／結案",
+    days:1,
+    pre:["test"]
+  }
+
+];
+
+
+const STORAGE_KEY = "PMC_V3_ORDERS";
+
+const DEFAULT_PROCESS_RULES={
+  semi:{design:3,weld:5,purchase:7,outsourcing:6,assembly:4,electrical:3,test:2,close:1},
+  auto:{design:2,weld:4,purchase:5,outsourcing:4,assembly:3,electrical:2,test:2,close:1}
+};
+let processRules={};
+try{processRules=JSON.parse(localStorage.getItem("PMC_V3_PROCESS_RULES")||"null")||{};}catch(e){processRules={};}
+processRules={semi:{...DEFAULT_PROCESS_RULES.semi,...(processRules.semi||{})},auto:{...DEFAULT_PROCESS_RULES.auto,...(processRules.auto||{})}};
+
+let orders=[];
+let editingNo=null;
+let processEditState=null;
+let scheduleMode=localStorage.getItem("PMC_V3_SCHEDULE_MODE")||"semi";
+let purchaseRows=JSON.parse(localStorage.getItem("PMC_V3_PURCHASE_ROWS")||"[]");
+let purchasePage=1;
+const PURCHASE_PAGE_SIZE=50;
+let boardPage=1;
+const BOARD_PAGE_SIZE=10;
+let orderPage=1;
+const ORDER_PAGE_SIZE=10;
+let isAdmin=sessionStorage.getItem("PMC_V3_ADMIN_LOGIN")==="1";
+const ADMIN_USER="CTI";
+const ADMIN_PASS="123";
+
+/* =========================
+   TODAY
+========================= */
+
+function todayDate(){
+
+  const d = new Date();
+
+  d.setHours(0,0,0,0);
+
+  return d;
+
+}
+
+const TODAY = todayDate();
+
+
+/* =========================
+   DEMO DATA
+========================= */
+
+const DEMO_ORDERS = [
+
+  {
+    no:"2609001",
+    customer:"示範客戶A",
+    product:"PS700BT-DS",
+    orderDate:"2026-09-09",
+    due:"2026-10-30",
+    priority:"一般",
+    status:"生產中",
+    actualClose:"",
+    durations:{
+      design:3,
+      weld:5,
+      purchase:7,
+      outsourcing:6,
+      assembly:4,
+      electrical:3,
+      test:2,
+      close:1
+    },
+    actual:{}
+  },
+
+  {
+    no:"2609002",
+    customer:"示範客戶B",
+    product:"PS800",
+    orderDate:"2026-09-05",
+    due:"2026-09-25",
+    priority:"高",
+    status:"待生產",
+    actualClose:"",
+    durations:{
+      design:3,
+      weld:5,
+      purchase:7,
+      outsourcing:6,
+      assembly:4,
+      electrical:3,
+      test:2,
+      close:1
+    },
+    actual:{}
+  },
+
+  {
+    no:"2608008",
+    customer:"示範客戶C",
+    product:"PS600",
+    orderDate:"2026-08-20",
+    due:"2026-09-12",
+    priority:"急件",
+    status:"生產中",
+    actualClose:"",
+    durations:{
+      design:2,
+      weld:4,
+      purchase:5,
+      outsourcing:4,
+      assembly:3,
+      electrical:2,
+      test:2,
+      close:1
+    },
+    actual:{}
+  }
+
+];
+
+
+/* =========================================================
+   BASIC FUNCTIONS
+========================================================= */
+
+function esc(value){
+
+  return String(value ?? "")
+    .replace(/[&<>"']/g,function(m){
+
+      return {
+
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#039;"
+
+      }[m];
+
+    });
+
+}
+
+
+function parseDate(value){
+
+  if(!value) return null;
+
+  const d =
+    new Date(value + "T00:00:00");
+
+  return isNaN(d)
+    ? null
+    : d;
+
+}
+
+
+function fmt(date){
+
+  if(!date) return "";
+
+  return date
+    .toISOString()
+    .slice(0,10);
+
+}
+
+
+function addDays(date,days){
+
+  const d =
+    new Date(date);
+
+  d.setDate(
+    d.getDate()+Number(days)
+  );
+
+  return d;
+
+}
+
+
+function diffDays(a,b){
+  return Math.round((b-a)/86400000);
+}
+
+function isWorkday(d){
+  const day=d.getDay();
+  return day!==0 && day!==6;
+}
+
+function addWorkdays(date, days){
+  const d=new Date(date);
+  let n=Math.abs(Number(days)||0);
+  const step=Number(days)<0?-1:1;
+  while(n>0){
+    d.setDate(d.getDate()+step);
+    if(isWorkday(d)) n--;
+  }
+  return d;
+}
+
+function workdayStartFromEnd(end,days){
+  const d=new Date(end);
+  let n=Math.max(1,Number(days)||1)-1;
+  while(n>0){
+    d.setDate(d.getDate()-1);
+    if(isWorkday(d)) n--;
+  }
+  return d;
+}
+
+function workdayEndFromStart(start,days){
+  const d=new Date(start);
+  let n=Math.max(1,Number(days)||1)-1;
+  while(n>0){
+    d.setDate(d.getDate()+1);
+    if(isWorkday(d)) n--;
+  }
+  return d;
+}
+
+function previousWorkday(date){
+  return addWorkdays(date,-1);
+}
+
+
+function daysLeft(date){
+
+  const d =
+    parseDate(date);
+
+  if(!d) return 99999;
+
+  return diffDays(
+    TODAY,
+    d
+  );
+
+}
+
+
+/* =========================================================
+   BADGE
+========================================================= */
+
+function badge(status){
+
+  const statusColors={
+    "待生產":"gray",
+    "生產中":"blue",
+    "已完成":"ok",
+    "逾期":"danger",
+    "即將到期":"orange",
+    "維修":"purple",
+    "繪圖":"indigo",
+    "組裝":"teal",
+    "電控":"cyan",
+    "測試中":"orange",
+    "待結案":"pink"
+  };
+
+  const cls=statusColors[status] || "gray";
+
+  return `
+    <span class="badge ${cls}">
+      ${esc(status)}
+    </span>
+  `;
+
+}
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+function processStatus(order){
+  if(order.status==="維修" && !(order.actual && Object.keys(order.actual).length)) return "維修";
+  const a=order.actual||{};
+  if(a.close?.end || order.status==="已完成") return "已完成";
+  if(a.close?.start) return "待結案";
+  const statusByProcess={design:"繪圖",weld:"生產中",purchase:"生產中",outsourcing:"生產中",assembly:"組裝",electrical:"電控",test:"測試中",close:"待結案"};
+  const parallelKeys=["weld","purchase","outsourcing"];
+  const parallelNames={weld:"加工焊接",purchase:"採購",outsourcing:"委外製造"};
+  if(a.design?.end){
+    const pendingParallel=parallelKeys.filter(key=>!a[key]?.end);
+    if(pendingParallel.length===1)return parallelNames[pendingParallel[0]];
+  }
+  const activeProcess=["test","electrical","assembly","weld","purchase","outsourcing","design"].find(key=>a[key]?.start&&!a[key]?.end);
+  if(activeProcess)return statusByProcess[activeProcess] || "生產中";
+  return statusByProcess[currentProcessKey(order)] || "繪圖";
+}
+function currentProcessKey(order){
+  const a=order.actual||{};
+  for(const key of ["close","test","electrical","assembly","weld","purchase","outsourcing","design"]){
+    if(a[key]?.start && !a[key]?.end) return key;
+  }
+  for(const process of PROCESS){
+    if(a[process.key]?.end) continue;
+    if((process.pre||[]).every(key=>a[key]?.end)) return process.key;
+  }
+  return "design";
+}
+function overallStatus(order){
+  if(order.status==="維修" && !(order.actual && Object.keys(order.actual).length)) return "維修";
+  const ps=processStatus(order);
+  if(ps==="已完成") return "已完成";
+  if(daysLeft(order.due)<0) return "逾期";
+  return ps;
+}
+function processFilterMatch(order,key){
+  if(!key) return true;
+  return currentProcessKey(order)===key;
+}
+
+
+/* =========================================================
+   STORAGE
+========================================================= */
+
+function saveData(){
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(orders));
+}
+
+function applyServerData(data){
+  if(!data || !Array.isArray(data.orders) || !data.orders.length){
+    throw new Error("PMC_Data.json 格式錯誤或沒有工單資料");
+  }
+
+  orders=data.orders.map(normalizeOrder);
+  orders.forEach(function(order){order.schedule=buildSchedule(order);});
+
+  if(data.processRules && typeof data.processRules==="object"){
+    processRules={
+      semi:{...DEFAULT_PROCESS_RULES.semi,...(data.processRules.semi||{})},
+      auto:{...DEFAULT_PROCESS_RULES.auto,...(data.processRules.auto||{})}
+    };
+    localStorage.setItem("PMC_V3_PROCESS_RULES",JSON.stringify(processRules));
+  }
+
+  if(data.scheduleMode==="semi" || data.scheduleMode==="auto"){
+    scheduleMode=data.scheduleMode;
+    localStorage.setItem("PMC_V3_SCHEDULE_MODE",scheduleMode);
+  }
+
+  if(Array.isArray(data.purchaseRows)){
+    purchaseRows=data.purchaseRows;
+    localStorage.setItem("PMC_V3_PURCHASE_ROWS",JSON.stringify(purchaseRows));
+  }
+
+  saveData();
+}
+
+async function loadData(){
+  try{
+    const response=await fetch("./PMC_Data.json?ts="+Date.now(),{cache:"no-store"});
+    if(!response.ok) throw new Error("HTTP "+response.status);
+    const data=await response.json();
+    applyServerData(data);
+    return {source:"server",ok:true};
+  }catch(serverError){
+    console.warn("中央 PMC_Data.json 讀取失敗，改用本機快取：",serverError);
+    try{
+      const saved=localStorage.getItem(STORAGE_KEY);
+      if(saved){
+        const parsed=JSON.parse(saved);
+        if(Array.isArray(parsed) && parsed.length){
+          orders=parsed.map(normalizeOrder);
+          return {source:"local",ok:true};
+        }
+      }
+    }catch(error){
+      console.error("讀取本機快取失敗",error);
+    }
+
+    orders=JSON.parse(JSON.stringify(DEMO_ORDERS));
+    orders.forEach(function(order){
+      normalizeOrder(order);
+      order.schedule=buildSchedule(order);
+    });
+    saveData();
+    return {source:"demo",ok:false};
+  }
+}
+
+async function refreshServerData(showMessage=true){
+  const result=await loadData();
+  renderAll();
+  updateDataSourceUI(result);
+  if(showMessage){
+    if(result.source==="server"){
+      alert("已重新讀取公司伺服器最新資料。");
+    }else if(result.source==="local"){
+      alert("無法讀取公司伺服器的 PMC_Data.json，目前使用本機快取資料。");
+    }else{
+      alert("無法讀取公司伺服器的 PMC_Data.json，目前使用示範資料。");
+    }
+  }
+  return result;
+}
+
+function updateDataSourceUI(result){
+  const button=document.getElementById("openDataFileBtn");
+  if(!button)return;
+  button.style.display=result?.source==="server"?"none":"inline-block";
+  button.title=result?.source==="local"?"目前使用本機快取；可選擇最新的 PMC_Data.json":"Server 無法讀取中央資料；請選擇最新的 PMC_Data.json";
+}
+
+function loadDataFromFile(file){
+  const reader=new FileReader();
+  reader.onload=function(){
+    try{
+      const data=JSON.parse(reader.result);
+      applyServerData(data);
+      renderAll();
+      updateDataSourceUI({source:"file"});
+      alert("已載入選取的 PMC_Data.json");
+    }catch(error){
+      console.error(error);
+      alert("載入失敗：請選擇有效的 PMC_Data.json");
+    }
+  };
+  reader.onerror=function(){alert("載入失敗：無法讀取所選檔案");};
+  reader.readAsText(file);
+}
+
+
+/* =========================================================
+   NORMALIZE
+========================================================= */
+
+function normalizeOrder(order){
+  order.processMode=order.processMode||"semi";
+  if(!processRules[order.processMode])order.processMode="semi";
+  order.durations=order.durations||{};
+  PROCESS.forEach(function(p){
+    if(!order.durations[p.key])order.durations[p.key]=Number(processRules[order.processMode]?.[p.key]||p.days);
+  });
+  order.actual=order.actual||{};
+  Object.keys(order.actual).forEach(function(k){if(order.actual[k]===true)order.actual[k]={start:order.schedule?.[k]?.start||"",end:order.schedule?.[k]?.end||""};});
+  order.schedule=order.schedule||buildSchedule(order);
+  return order;
+}
+
+/* =========================================================
+   BACKWARD SCHEDULING
+========================================================= */
+
+function buildSchedule(order){
+  const result={};
+  const due=parseDate(order.due)||addWorkdays(TODAY,30);
+  const memo={};
+  const visiting={};
+  function schedule(key, childStart){
+    if(memo[key]){
+      if(childStart){
+        const maxEnd=previousWorkday(parseDate(childStart));
+        if(parseDate(memo[key].end)>maxEnd){
+          const p=PROCESS.find(x=>x.key===key);
+          const days=Number(order.durations[key]||p.days);
+          memo[key]={start:fmt(workdayStartFromEnd(maxEnd,days)),end:fmt(maxEnd),days};
+        }
+      }
+      return memo[key];
+    }
+    if(visiting[key]) return null;
+    visiting[key]=true;
+    const p=PROCESS.find(x=>x.key===key);
+    if(!p){delete visiting[key];return null;}
+    let endDate=new Date(childStart ? previousWorkday(parseDate(childStart)) : due);
+    if(!isWorkday(endDate)) while(!isWorkday(endDate)) endDate.setDate(endDate.getDate()-1);
+    const days=Math.max(1,Number(order.durations[key]||p.days));
+    const startDate=workdayStartFromEnd(endDate,days);
+    memo[key]={start:fmt(startDate),end:fmt(endDate),days};
+    (p.pre||[]).forEach(dep=>schedule(dep,fmt(startDate)));
+    delete visiting[key];
+    return memo[key];
+  }
+  schedule("close",null);
+  PROCESS.forEach(p=>schedule(p.key,null));
+  // 強制處理三線並行後組裝，確保三條線都在組裝前完成
+  Object.assign(result,memo);
+  const a=result.assembly;
+  if(a){
+    ["weld","purchase","outsourcing"].forEach(key=>{
+      const p=PROCESS.find(x=>x.key===key),days=Number(order.durations[key]||p.days);
+      const end=previousWorkday(parseDate(a.start));
+      const st=workdayStartFromEnd(end,days);
+      result[key]={start:fmt(st),end:fmt(end),days};
+    });
+    const earliest=Math.min(...["weld","purchase","outsourcing"].map(k=>parseDate(result[k].start).getTime()));
+    const designEnd=previousWorkday(new Date(earliest));
+    const dp=PROCESS.find(x=>x.key==="design"),dd=Number(order.durations.design||dp.days);
+    result.design={start:fmt(workdayStartFromEnd(designEnd,dd)),end:fmt(designEnd),days:dd};
+  }
+  return result;
+}
+
+
+/* =========================================================
+   RECALCULATE
+========================================================= */
+
+function recalcAll(){
+  if(!requireAdmin()) return;
+
+  orders =
+    orders.map(function(order){
+
+      normalizeOrder(order);
+
+      order.schedule =
+        buildSchedule(order);
+
+      return order;
+
+    });
+
+
+  saveData();
+
+  renderAll();
+
+}
+
+
+/* =========================================================
+   PROGRESS
+========================================================= */
+
+function progressValue(order){
+
+  if(
+    order.status==="已完成"
+  )
+    return 100;
+
+
+  let total=0;
+
+  let completed=0;
+
+
+  PROCESS.forEach(function(p){
+
+    const days =
+      Number(
+        order.durations[p.key] ||
+        p.days
+      );
+
+    total += days;
+
+    if(order.actual && order.actual[p.key] && (order.actual[p.key].end || order.actual[p.key]===true)){
+      completed += days;
+    }
+
+  });
+
+
+  if(completed>0){
+
+    return Math.round(
+      completed / total * 100
+    );
+
+  }
+
+
+  if(order.status==="生產中")
+    return 35;
+
+
+  if(
+    overallStatus(order)==="逾期"
+  )
+    return 35;
+
+
+  return 0;
+
+}
+
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
+function renderBoard(){
+  const active=orders.filter(o=>overallStatus(o)!=="已完成").sort((a,b)=>daysLeft(a.due)-daysLeft(b.due));
+  const totalPages=Math.max(1,Math.ceil(active.length/BOARD_PAGE_SIZE));
+  if(boardPage>totalPages)boardPage=totalPages;
+  const start=(boardPage-1)*BOARD_PAGE_SIZE;
+  const pageOrders=active.slice(start,start+BOARD_PAGE_SIZE);
+  const parallelCount=key=>orders.filter(o=>o.actual?.design?.end&&!o.actual?.[key]?.end&&overallStatus(o)!=="已完成").length;
+  const kpis=[["工單總數",orders.length,"筆"],["維修",orders.filter(o=>o.status==="維修").length,"筆"],["繪圖",orders.filter(o=>overallStatus(o)==="繪圖").length,"筆"],["加工",parallelCount("weld"),"筆"],["採購",parallelCount("purchase"),"筆"],["委外",parallelCount("outsourcing"),"筆"],["組裝",orders.filter(o=>overallStatus(o)==="組裝").length,"筆"],["測試中",orders.filter(o=>overallStatus(o)==="測試中").length,"筆"],["待結案",orders.filter(o=>overallStatus(o)==="待結案").length,"筆"],["逾期",orders.filter(o=>overallStatus(o)==="逾期").length,"筆"]];
+  document.getElementById("boardKpis").innerHTML=kpis.filter(x=>x[1]>0).map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}${x[2]}</div></div>`).join("");
+  document.getElementById("boardOrders").innerHTML=active.length?pageOrders.map(o=>`<div class="board-order-row"><b>${esc(o.no)}</b><span>${esc(o.customer)}</span><span>${esc(o.product)}</span><span>${badge(overallStatus(o))}</span><span>${daysLeft(o.due)<0?"逾期 "+Math.abs(daysLeft(o.due))+" 天":"剩 "+daysLeft(o.due)+" 天"}</span></div>`).join(""):`<div class="empty">目前沒有未完成工單</div>`;
+  document.getElementById("boardPagination").innerHTML=active.length?`<span>顯示 ${start+1}–${Math.min(start+BOARD_PAGE_SIZE,active.length)} / ${active.length} 筆</span><div class="board-page-buttons"><button class="btn secondary small" type="button" data-board-page="prev" ${boardPage<=1?"disabled":""}>上一頁</button>${Array.from({length:totalPages},(_,i)=>i+1).map(n=>`<button class="btn ${n===boardPage?"":"secondary"} small" type="button" data-board-page="${n}">${n}</button>`).join("")}<button class="btn secondary small" type="button" data-board-page="next" ${boardPage>=totalPages?"disabled":""}>下一頁</button></div>`:"";
+  const repairs=orders.filter(o=>o.status==="維修");
+  document.getElementById("boardMaintenance").innerHTML=repairs.length?`<div style="font-size:22px;font-weight:800">${repairs.length} 筆維修工單</div><div class="footer-note">${repairs.slice(0,8).map(o=>`${esc(o.no)}｜${esc(o.customer)}`).join("、")}${repairs.length>8?"…":""}</div>`:`<div class="empty">目前沒有維修工單</div>`;
+}
+
+function renderDashboard(){
+
+  renderKPI();
+
+  renderRisk();
+
+  renderStatusChart();
+
+
+  const active =
+    orders.filter(function(o){
+
+      return o.status!=="已完成";
+
+    });
+
+
+  const avg =
+    orders.length
+      ? Math.round(
+          orders.reduce(
+            function(sum,o){
+
+              return sum+
+                progressValue(o);
+
+            },
+            0
+          ) /
+          orders.length
+        )
+      : 0;
+
+
+
+
+  const centers={};
+
+
+  orders.forEach(function(order){
+
+    PROCESS.forEach(function(p){
+
+      centers[p.wc] =
+        (centers[p.wc]||0)+1;
+
+    });
+
+  });
+
+
+  const top =
+    Object.entries(centers)
+      .sort(function(a,b){
+
+        return b[1]-a[1];
+
+      })
+      .slice(0,5);
+
+
+  document.getElementById(
+    "bottleneck"
+  ).innerHTML =
+
+    top.length
+
+      ? top.map(function(item){
+
+          return `
+
+            <div class="statline">
+
+              <span>
+                ${esc(item[0])}
+              </span>
+
+              <b>
+                ${item[1]} 工單
+              </b>
+
+            </div>
+
+          `;
+
+        }).join("")
+
+      : `
+        <div class="empty">
+          無資料
+        </div>
+      `;
+
+
+  document.getElementById(
+    "systemInfo"
+  ).innerHTML = `
+
+    <div class="statline">
+      <span>版本</span>
+      <b>PMC V3</b>
+    </div>
+
+    <div class="statline">
+      <span>工單數</span>
+      <b>${orders.length}</b>
+    </div>
+
+    <div class="statline">
+      <span>製程數</span>
+      <b>${PROCESS.length}</b>
+    </div>
+
+    <div class="statline">
+      <span>資料保存</span>
+      <b>公司伺服器 PMC_Data.json</b>
+    </div>
+
+    <div class="statline">
+      <span>排程模式</span>
+      <b>${scheduleMode==="auto"?"全自動":"半自動"}</b>
+    </div>
+
+  `;
+
+}
+
+
+function renderKPI(){
+
+  const data=[
+
+    [
+      "工單總數",
+      orders.length,
+      "筆"
+    ],
+
+    [
+      "生產中",
+      orders.filter(
+        o=>o.status==="生產中"
+      ).length,
+      "筆"
+    ],
+
+    [
+      "待生產",
+      orders.filter(
+        o=>o.status==="待生產"
+      ).length,
+      "筆"
+    ],
+
+    [
+      "已完成",
+      orders.filter(
+        o=>o.status==="已完成"
+      ).length,
+      "筆"
+    ],
+
+    [
+      "逾期",
+      orders.filter(
+        o=>overallStatus(o)==="逾期"
+      ).length,
+      "筆"
+    ],
+
+    [
+      "急件",
+      orders.filter(
+        o=>o.priority==="急件" &&
+        o.status!=="已完成"
+      ).length,
+      "筆"
+    ]
+
+  ];
+
+
+  document.getElementById(
+    "kpis"
+  ).innerHTML =
+
+    data.map(function(item){
+
+      return `
+
+        <div class="card kpi">
+
+          <div class="label">
+            ${item[0]}
+          </div>
+
+          <div class="value">
+            ${item[1]}
+          </div>
+
+          <div class="sub">
+            ${item[2]}
+          </div>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+}
+
+
+function renderRisk(){
+
+  const list =
+    orders
+      .filter(
+        o=>o.status!=="已完成"
+      )
+      .sort(
+        (a,b)=>
+          daysLeft(a.due)-
+          daysLeft(b.due)
+      )
+      .slice(0,8);
+
+
+  document.getElementById(
+    "riskList"
+  ).innerHTML =
+
+    list.length
+
+      ? list.map(function(o){
+
+          const d =
+            daysLeft(o.due);
+
+          let text="";
+
+          if(d<0){
+
+            text =
+              `逾期 ${Math.abs(d)} 天`;
+
+          }else if(d===0){
+
+            text="今天到期";
+
+          }else{
+
+            text =
+              `剩 ${d} 天`;
+
+          }
+
+
+          return `
+
+            <div class="statline">
+
+              <span>
+
+                <b>
+                  ${esc(o.no)}
+                </b>
+
+                ${esc(o.customer)}
+
+              </span>
+
+              <span>
+
+                ${badge(
+                  overallStatus(o)
+                )}
+
+                ${text}
+
+              </span>
+
+            </div>
+
+          `;
+
+        }).join("")
+
+      : `
+
+        <div class="empty">
+          目前沒有風險工單
+        </div>
+
+      `;
+
+}
+
+
+function renderStatusChart(){
+
+  const total =
+    orders.length || 1;
+
+
+  const states=[
+    "待生產",
+    "生產中",
+    "已完成",
+    "逾期"
+  ];
+
+
+  document.getElementById(
+    "statusChart"
+  ).innerHTML =
+
+    states.map(function(state){
+
+      const count =
+        state==="逾期"
+
+          ? orders.filter(
+              o=>overallStatus(o)==="逾期"
+            ).length
+
+          : orders.filter(
+              o=>o.status===state
+            ).length;
+
+
+      const width =
+        Math.round(
+          count/total*100
+        );
+
+
+      return `
+
+        <div class="statline">
+
+          <span>
+            ${state}
+          </span>
+
+          <b>
+            ${count}
+          </b>
+
+        </div>
+
+        <div class="progress">
+
+          <i style="width:${width}%"></i>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+}
+
+
+/* =========================================================
+   ORDER LIST
+========================================================= */
+
+function getFilteredOrders(){
+  const val=id=>(document.getElementById(id)?.value||"").toString().trim().toLowerCase();
+  const keyword=val("orderSearch"), customer=val("orderCustomerFilter");
+  const from=document.getElementById("orderDateFrom")?.value||"", to=document.getElementById("orderDateTo")?.value||"";
+  const status=document.getElementById("orderStatusFilter")?.value||"", priority=document.getElementById("orderPriorityFilter")?.value||"", process=document.getElementById("orderProcessFilter")?.value||"";
+  const filtered=orders.filter(o=>{
+    const text=[o.no,o.customer,o.product].join(" ").toLowerCase();
+    return (!keyword||text.includes(keyword)) && (!customer||String(o.customer||"").toLowerCase().includes(customer))
+      && (!from||String(o.orderDate||"")>=from) && (!to||String(o.orderDate||"")<=to)
+      && (!priority||o.priority===priority) && (!status||overallStatus(o)===status) && processFilterMatch(o,process);
+  });
+  const priorityRank={"急件":0,"一般":2};
+  return filtered.sort(function(a,b){
+    const aCompleted=overallStatus(a)==="已完成"?1:0;
+    const bCompleted=overallStatus(b)==="已完成"?1:0;
+    if(aCompleted!==bCompleted)return aCompleted-bCompleted;
+    const getPriorityRank=order=>order.status==="維修"?1:(priorityRank[order.priority]??99);
+    const priorityDiff=getPriorityRank(a)-getPriorityRank(b);
+    if(priorityDiff!==0)return priorityDiff;
+    return String(a.no||"").localeCompare(String(b.no||""),undefined,{numeric:true});
+  });
+}
+
+
+function renderOrders(){
+
+  const list =
+    getFilteredOrders();
+
+  const totalPages=Math.max(1,Math.ceil(list.length/ORDER_PAGE_SIZE));
+  if(orderPage>totalPages)orderPage=totalPages;
+  const start=(orderPage-1)*ORDER_PAGE_SIZE;
+  const pageList=list.slice(start,start+ORDER_PAGE_SIZE);
+
+
+  const body =
+    document.getElementById(
+      "ordersBody"
+    );
+
+
+  if(!list.length){
+
+    body.innerHTML = `
+
+      <tr>
+
+        <td
+          colspan="9"
+          class="empty">
+
+          沒有符合條件的工單
+
+        </td>
+
+      </tr>
+
+    `;
+    document.getElementById("orderPagination").innerHTML="";
+
+    return;
+
+  }
+
+
+  body.innerHTML =
+
+    pageList.map(function(o){
+
+      const progress =
+        progressValue(o);
+
+
+      return `
+
+        <tr>
+
+          <td>
+            <b>
+              ${esc(o.no)}
+            </b>
+          </td>
+
+          <td>
+            ${esc(o.customer)}
+          </td>
+
+          <td>
+            ${esc(o.product)}
+          </td>
+
+          <td>
+            ${esc(o.orderDate)}
+          </td>
+
+          <td>
+            ${esc(o.due)}
+          </td>
+
+          <td>
+            ${badge(o.priority)}
+          </td>
+
+          <td>
+            ${badge(
+              overallStatus(o)
+            )}
+          </td>
+
+          <td
+            style="min-width:130px">
+
+            <div class="progress">
+
+              <i
+                style="width:${progress}%">
+              </i>
+
+            </div>
+
+            <small>
+              ${progress}%
+            </small>
+
+          </td>
+
+          <td>
+
+            <div class="order-row-actions"><button class="btn small secondary" type="button" onclick="openOrderWorkflow('schedule','${esc(o.no)}')">排程</button><button class="btn small secondary" type="button" onclick="openOrderWorkflow('progress','${esc(o.no)}')">進度</button><button class="btn small secondary" type="button" onclick="openOrderWorkflow('purchase','${esc(o.no)}')">採購</button>${isAdmin ? `<button class="btn small secondary" type="button" onclick="editOrderByNo('${esc(o.no)}')">編輯</button><button class="btn small danger" type="button" onclick="deleteOrderByNo('${esc(o.no)}')">刪除</button>` : ``}</div>
+
+          </td>
+
+        </tr>
+
+      `;
+
+    }).join("");
+
+  document.getElementById("orderPagination").innerHTML=`<span>顯示 ${start+1}–${Math.min(start+ORDER_PAGE_SIZE,list.length)} / ${list.length} 筆</span><div class="order-page-buttons"><button class="btn secondary small" type="button" data-order-page="prev" ${orderPage<=1?"disabled":""}>上一頁</button>${Array.from({length:totalPages},(_,i)=>i+1).map(n=>`<button class="btn ${n===orderPage?"":"secondary"} small" type="button" data-order-page="${n}">${n}</button>`).join("")}<button class="btn secondary small" type="button" data-order-page="next" ${orderPage>=totalPages?"disabled":""}>下一頁</button></div>`;
+
+}
+
+
+/* =========================================================
+   SELECTOR
+========================================================= */
+
+function renderSelectors(){
+
+  const schedule =
+    document.getElementById(
+      "scheduleOrder"
+    );
+
+
+  const gantt =
+    document.getElementById(
+      "ganttOrder"
+    );
+
+
+  const currentSchedule =
+    schedule.value;
+
+
+  const currentGantt =
+    gantt.value;
+
+
+  const scheduleSearch=(document.getElementById("scheduleOrderSearch")?.value||"").trim().toLowerCase();
+  const scheduleOrders=orders.filter(function(o){
+    if(!scheduleSearch)return true;
+    return [o.no,o.customer,o.product].join(" ").toLowerCase().includes(scheduleSearch);
+  });
+
+  const options =
+
+    orders.map(function(o){
+
+      return `
+
+        <option
+          value="${esc(o.no)}">
+
+          ${esc(o.no)}
+          ｜${esc(o.customer)}
+          ｜${esc(o.product)}
+
+        </option>
+
+      `;
+
+    }).join("");
+
+  const scheduleOptions=scheduleOrders.map(function(o){
+    return `
+
+      <option
+        value="${esc(o.no)}">
+
+        ${esc(o.no)}
+        ｜${esc(o.customer)}
+        ｜${esc(o.product)}
+
+      </option>
+
+    `;
+  }).join("");
+
+
+  schedule.innerHTML =
+    scheduleOptions ||
+    `<option value="">無工單</option>`;
+
+
+  gantt.innerHTML =
+    `<option value="">全部工單</option>`+
+    options;
+
+
+  if(
+    scheduleOrders.some(
+      o=>o.no===currentSchedule
+    )
+  ){
+
+    schedule.value =
+      currentSchedule;
+
+  }
+
+
+  if(
+    orders.some(
+      o=>o.no===currentGantt
+    )
+  ){
+
+    gantt.value =
+      currentGantt;
+
+  }
+
+}
+
+
+/* =========================================================
+   SCHEDULE
+========================================================= */
+
+function renderSchedule(){
+
+  renderSelectors();
+
+
+  const select =
+    document.getElementById(
+      "scheduleOrder"
+    );
+
+
+  let no =
+    select.value;
+
+
+  if(!no && orders.length){
+
+    no =
+      orders[0].no;
+
+    select.value=no;
+
+  }
+
+
+  const order =
+    orders.find(
+      o=>o.no===no
+    );
+
+
+  if(!order){
+
+    document.getElementById(
+      "scheduleBody"
+    ).innerHTML="";
+
+    return;
+
+  }
+
+
+  normalizeOrder(order);
+
+
+  document.getElementById(
+    "scheduleSummary"
+  ).innerHTML = `
+
+    <div class="alert">
+
+      <b>
+        ${esc(order.no)}
+      </b>
+
+      ｜
+
+      ${esc(order.customer)}
+
+      ｜
+
+      ${esc(order.product)}
+
+      ｜交期：
+
+      <b>
+        ${esc(order.due)}
+      </b>
+
+      ｜
+
+      ${badge(
+        overallStatus(order)
+      )}
+
+      ｜進度：
+
+      <b>
+        ${progressValue(order)}%
+      </b>
+
+    </div>
+
+  `;
+
+
+  document.getElementById(
+    "scheduleBody"
+  ).innerHTML =
+
+    PROCESS.map(function(p){
+
+      const s =
+        order.schedule[p.key];
+
+
+      let state =
+        "排程中";
+
+
+      if(order.actual && order.actual[p.key] && (order.actual[p.key].end || order.actual[p.key]===true)){state="已完成";}else if(
+        parseDate(s.end)<TODAY
+      ){
+
+        state="逾期";
+
+      }
+
+
+      return `
+
+        <tr>
+
+          <td>
+            <b>
+              ${p.name}
+            </b>
+          </td>
+
+          <td>
+            ${p.wc}
+          </td>
+
+          <td>
+            ${
+              p.pre.length
+                ? p.pre.join("、")
+                : "—"
+            }
+          </td>
+
+          <td>
+            ${s.start}
+          </td>
+
+          <td>
+            ${s.end}
+          </td>
+
+          <td>
+            ${order.actual?.[p.key]?.end ? esc(order.actual[p.key].end) : "—"}
+          </td>
+
+          <td>
+            ${s.days}
+          </td>
+
+          <td>
+            ${badge(state)}
+            ${p.key==="purchase"?purchaseSummaryHtml(order.no):""}
+          </td>
+
+        </tr>
+
+      `;
+
+    }).join("");
+
+}
+
+
+/* =========================================================
+   PROGRESS
+========================================================= */
+
+function getFilteredProgressOrders(){
+  const val=id=>(document.getElementById(id)?.value||"").toString().trim().toLowerCase();
+  const keyword=val("progressSearch"), customer=val("progressCustomerFilter");
+  const from=document.getElementById("progressDateFrom")?.value||"", to=document.getElementById("progressDateTo")?.value||"";
+  const priority=document.getElementById("progressPriorityFilter")?.value||"", filter=document.getElementById("progressFilter")?.value||"", process=document.getElementById("progressProcessFilter")?.value||"";
+  return orders.filter(o=>{
+    const text=[o.no,o.customer,o.product].join(" ").toLowerCase();
+    return (!keyword||text.includes(keyword)) && (!customer||String(o.customer||"").toLowerCase().includes(customer))
+      && (!from||String(o.orderDate||"")>=from) && (!to||String(o.orderDate||"")<=to)
+      && (!priority||o.priority===priority) && (!filter||overallStatus(o)===filter) && processFilterMatch(o,process);
+  });
+}
+
+function updateProgressFloatingHead(){
+  const wrap=document.querySelector("#page-progress .table-wrap");
+  const table=document.querySelector("#page-progress table");
+  const head=document.querySelector("#page-progress thead");
+  const floating=document.getElementById("progressFloatingHead");
+  if(!wrap||!table||!head||!floating)return;
+
+  const wrapRect=wrap.getBoundingClientRect();
+  const tableRect=table.getBoundingClientRect();
+  const headerHeight=head.getBoundingClientRect().height;
+  const stickyTop=68;
+  const visible=tableRect.top<stickyTop && tableRect.bottom>stickyTop+headerHeight;
+  if(!visible){
+    floating.style.display="none";
+    return;
+  }
+
+  const headerCells=head.querySelectorAll("th");
+  floating.innerHTML=`<table>${head.outerHTML}</table><div class="progress-floating-fixed order">${esc(headerCells[0]?.textContent||"")}</div><div class="progress-floating-fixed customer">${esc(headerCells[1]?.textContent||"")}</div>`;
+  floating.style.display="block";
+  floating.style.left=wrapRect.left+"px";
+  floating.style.top=stickyTop+"px";
+  floating.style.width=wrap.clientWidth+"px";
+  floating.style.height=headerHeight+"px";
+  const floatingTable=floating.querySelector("table");
+  floatingTable.style.width=table.offsetWidth+"px";
+  const floatingCells=floatingTable.querySelectorAll("th");
+  headerCells.forEach(function(sourceCell,index){
+    const width=sourceCell.getBoundingClientRect().width;
+    const floatingCell=floatingCells[index];
+    if(floatingCell){
+      floatingCell.style.width=width+"px";
+      floatingCell.style.minWidth=width+"px";
+    }
+  });
+  floatingTable.style.transform=`translateX(-${wrap.scrollLeft}px)`;
+}
+
+function setupProgressFloatingHead(){
+  const wrap=document.querySelector("#page-progress .table-wrap");
+  if(!wrap||wrap.dataset.floatingHeadReady)return;
+  wrap.dataset.floatingHeadReady="1";
+  window.addEventListener("scroll",updateProgressFloatingHead,{passive:true});
+  window.addEventListener("resize",updateProgressFloatingHead);
+  wrap.addEventListener("scroll",updateProgressFloatingHead,{passive:true});
+}
+
+function renderProgress(){
+  const list=getFilteredProgressOrders();
+  document.getElementById("progressBody").innerHTML=list.length?list.map(o=>{
+    const cells=PROCESS.map(p=>{const a=o.actual?.[p.key];return `<td><button type="button" class="btn small ${a?.end?"success":"secondary"}" ${isAdmin?'data-process-action="open"':''} data-no="${esc(o.no)}" data-key="${p.key}">${a?.end?`✓ 完成 ${esc(a.end)}`:"未完成"}</button></td>`}).join("");
+    return `<tr><td><b>${esc(o.no)}</b></td><td>${esc(o.customer)}</td>${cells}<td><b>${progressValue(o)}%</b></td></tr>`;
+  }).join(""):`<tr><td colspan="11" class="empty">沒有資料</td></tr>`;
+  setupProgressFloatingHead();
+  updateProgressFloatingHead();
+}
+
+function getDefaultActualStart(order,key){
+  if(key==="design")return order.orderDate||"";
+  if(["weld","purchase","outsourcing"].includes(key))return order.actual?.design?.end||"";
+  if(key==="assembly"){
+    const ends=["weld","purchase","outsourcing"].map(processKey=>order.actual?.[processKey]?.end||"");
+    return ends.every(Boolean)?ends.sort().at(-1):"";
+  }
+  const previous={electrical:"assembly",test:"electrical",close:"test"}[key];
+  return previous?order.actual?.[previous]?.end||"":"";
+}
+
+function openProcessDateModal(no,key){
+  const order=orders.find(o=>o.no===no); if(!order)return;
+  const p=PROCESS.find(x=>x.key===key); if(!p)return;
+  order.actual=order.actual||{};
+  const a=order.actual[key]||{};
+  processEditState={no,key};
+  document.getElementById("processModalTitle").textContent=`${p.name}｜實際日期`;
+  document.getElementById("processModalInfo").innerHTML=`工單 <b>${esc(order.no)}</b>｜預計 ${esc(order.schedule[p.key].start)} ～ ${esc(order.schedule[p.key].end)}`;
+  document.getElementById("actualStartInput").value=a.start||getDefaultActualStart(order,key);
+  document.getElementById("actualEndInput").value=a.end||"";
+  const modal=document.getElementById("processModal");modal.classList.remove("hidden");modal.style.display="flex";modal.setAttribute("aria-hidden","false");document.body.style.overflow="hidden";
+}
+function closeProcessDateModal(){const modal=document.getElementById("processModal");modal.classList.add("hidden");modal.style.display="none";modal.setAttribute("aria-hidden","true");document.body.style.overflow="";processEditState=null;}
+function clearProcessDateInputs(){if(!requireAdmin())return;document.getElementById("actualStartInput").value="";document.getElementById("actualEndInput").value="";}
+function saveProcessDate(){
+  if(!requireAdmin()) return;
+  if(!processEditState)return;
+  const {no,key}=processEditState,order=orders.find(o=>o.no===no);if(!order)return;
+  const st=document.getElementById("actualStartInput").value,en=document.getElementById("actualEndInput").value;
+  order.actual=order.actual||{};
+
+  // 清空完成日期 = 取消此製程的完成狀態，恢復為未完成
+  if(!en){
+    delete order.actual[key];
+    const allDone=PROCESS.every(p=>order.actual?.[p.key]?.end);
+    const anyDone=PROCESS.some(p=>order.actual?.[p.key]?.end);
+    order.status=allDone?"已完成":(anyDone?"生產中":"待生產");
+    order.actualClose=allDone?order.actual["close"]?.end||"":"";
+    saveData();closeProcessDateModal();renderAll();
+    return;
+  }
+
+  if(!st){alert("請填寫實際開始日期；若要取消完成，請將實際完成日期清空。");return;}
+  if(parseDate(en)<parseDate(st)){alert("實際完成日期不可早於實際開始日期。");return;}
+  order.actual[key]={start:st,end:en};
+  const allDone=PROCESS.every(p=>order.actual?.[p.key]?.end);
+  const anyDone=PROCESS.some(p=>order.actual?.[p.key]?.end);
+  order.status=allDone?"已完成":(anyDone?"生產中":"待生產");
+  order.actualClose=allDone?order.actual["close"]?.end||en:"";
+  saveData();closeProcessDateModal();renderAll();
+}
+function clearProcessDate(no,key){
+  if(!requireAdmin()) return;
+  const order=orders.find(o=>o.no===no);if(!order)return;
+  order.actual=order.actual||{};delete order.actual[key];
+  const anyDone=PROCESS.some(p=>order.actual?.[p.key]?.end);order.status=anyDone?"生產中":"待生產";order.actualClose="";
+  saveData();renderAll();
+}
+
+
+/* =========================================================
+   PURCHASE
+========================================================= */
+
+function getPurchaseDisplayStatus(r){
+  const base=String(r.status||"待到貨").trim()||"待到貨";
+  if(base==="已到貨"||base==="已進貨"||base==="完成")return "已到貨";
+  if(r.expected&&parseDate(r.expected)<TODAY)return "逾期";
+  return "待到貨";
+}
+function getFilteredPurchaseRows(){
+  const val=id=>(document.getElementById(id)?.value||"").toString().trim().toLowerCase();
+  const f={supplier:val("purchaseFilterSupplier"),no:val("purchaseFilterNo"),expected:document.getElementById("purchaseFilterExpected")?.value||"",drawing:val("purchaseFilterDrawing"),material:val("purchaseFilterMaterial"),part:val("purchaseFilterPart"),qty:val("purchaseFilterQty"),status:document.getElementById("purchaseFilterStatus")?.value||""};
+  return (purchaseRows||[]).filter(r=>{
+    const st=getPurchaseDisplayStatus(r);
+    return (!f.supplier||String(r.supplier||"").toLowerCase().includes(f.supplier))&&(!f.no||String(r.no||"").toLowerCase().includes(f.no))&&(!f.expected||String(r.expected||"")===f.expected)&&(!f.drawing||String(r.drawing||r.desc||"").toLowerCase().includes(f.drawing))&&(!f.material||String(r.material||"").toLowerCase().includes(f.material))&&(!f.part||String(r.part||"").toLowerCase().includes(f.part))&&(!f.qty||String(r.qty||"").toLowerCase().includes(f.qty))&&(!f.status||st===f.status);
+  });
+}
+function purchaseStatsForOrder(no){
+  const rows=(purchaseRows||[]).filter(r=>String(r.no||"").trim()===String(no||"").trim());
+  if(!rows.length)return {total:0,pending:0,overdue:0};
+  const pending=rows.filter(r=>getPurchaseDisplayStatus(r)!=="已到貨").length;
+  const overdue=rows.filter(r=>getPurchaseDisplayStatus(r)==="逾期").length;
+  return {total:rows.length,pending,overdue};
+}
+function purchaseSummaryHtml(no){
+  const st=purchaseStatsForOrder(no);
+  if(!st.total)return `<div class="purchase-detail">尚無採購明細</div>`;
+  if(st.pending===0)return `<div class="purchase-detail"><b style="color:var(--ok)">全數進貨完成</b></div>`;
+  return `<div class="purchase-detail"><b>待進貨 ${st.pending} 筆</b> ｜ <b style="color:var(--danger)">逾期 ${st.overdue} 筆</b></div>`;
+}
+function renderPurchase(){
+  const rows=purchaseRows||[],overdue=rows.filter(r=>getPurchaseDisplayStatus(r)==="逾期"),pending=rows.filter(r=>getPurchaseDisplayStatus(r)!=="已到貨"),filtered=getFilteredPurchaseRows();
+  const totalPages=Math.max(1,Math.ceil(filtered.length/PURCHASE_PAGE_SIZE));if(purchasePage>totalPages)purchasePage=totalPages;
+  const start=(purchasePage-1)*PURCHASE_PAGE_SIZE,pageRows=filtered.slice(start,start+PURCHASE_PAGE_SIZE);
+  document.getElementById("purchaseSummary").innerHTML=`<div class="statline" style="padding:6px 0"><span>匯入明細筆數</span><b>${rows.length}</b></div><div class="statline" style="padding:6px 0"><span>待進貨</span><b>${pending.length}</b></div><div class="statline" style="padding:6px 0"><span>逾期到貨</span><b style="color:var(--danger)">${overdue.length}</b></div>`;
+  const orderNos=new Set(pending.map(r=>String(r.no||"").trim()).filter(Boolean));
+  const orderRiskMap=new Map();
+  pending.forEach(r=>{
+    const no=String(r.no||"").trim();
+    if(!no)return;
+    if(!orderRiskMap.has(no))orderRiskMap.set(no,{pending:0,overdue:0});
+    orderRiskMap.get(no).pending++;
+  });
+  overdue.forEach(r=>{
+    const no=String(r.no||"").trim();
+    if(!no)return;
+    if(!orderRiskMap.has(no))orderRiskMap.set(no,{pending:0,overdue:0});
+    orderRiskMap.get(no).overdue++;
+  });
+  const orderRiskLines=Array.from(orderRiskMap.entries()).map(([no,st])=>{
+    const order=orders.find(o=>String(o.no).trim()===no);
+    return `<div class="purchase-risk-line"><span><b>${esc(no)}</b>${order?.customer?`｜${esc(order.customer)}`:""}</span><span><b>${st.pending} 筆未進貨</b>／<b style="color:var(--danger)">${st.overdue} 筆逾期</b></span></div>`;
+  }).join("");
+  document.getElementById("purchaseRisk").innerHTML=`<div style="font-size:20px;font-weight:800">${orderNos.size} 筆工單未進貨／${overdue.length} 筆逾期</div><div style="margin-top:10px">${orderRiskLines||`<div class="empty">目前沒有未進貨工單</div>`}</div><div class="footer-note">以採購明細中的工單號碼統計；逾期依預計交期判斷。</div>`;
+  document.getElementById("purchaseBody").innerHTML=pageRows.map(r=>`<tr><td>${esc(r.supplier)}</td><td><b>${esc(r.no)}</b></td><td>${esc(r.expected)}</td><td>${esc(r.drawing||r.desc)}</td><td>${esc(r.material)}</td><td>${esc(r.part)}</td><td>${esc(r.qty)}</td><td>${badge(getPurchaseDisplayStatus(r))}</td></tr>`).join("")||`<tr><td colspan="8" class="empty">${filtered.length?"沒有符合篩選條件的資料":"尚未匯入未進貨詳細資料"}</td></tr>`;
+  document.getElementById("purchasePagination").innerHTML=`<div>顯示 ${filtered.length?start+1:0}–${Math.min(start+PURCHASE_PAGE_SIZE,filtered.length)} / ${filtered.length} 筆　｜　每頁 50 筆</div><div class="purchase-page-buttons"><button class="btn secondary small" type="button" data-purchase-page="prev" ${purchasePage<=1?"disabled":""}>上一頁</button>${Array.from({length:totalPages},(_,i)=>i+1).slice(Math.max(0,purchasePage-3),Math.min(totalPages,purchasePage+2)).map(n=>`<button class="btn ${n===purchasePage?"":"secondary"} small" type="button" data-purchase-page="${n}">${n}</button>`).join("")}<button class="btn secondary small" type="button" data-purchase-page="next" ${purchasePage>=totalPages?"disabled":""}>下一頁</button></div>`;
+}
+
+function normalizePurchaseHeader(v){return String(v||"").replace(/[\s　_\/\\]/g,"").toLowerCase();}
+function findPurchaseCol(headers,names){for(const n of names){const i=headers.indexOf(normalizePurchaseHeader(n));if(i>=0)return i;}return -1;}
+function parseExcelDate(v){
+  if(v instanceof Date)return fmt(v);
+  if(typeof v==="number" && window.XLSX?.SSF?.parse_date_code){const x=XLSX.SSF.parse_date_code(v);if(x)return `${x.y}-${String(x.m).padStart(2,"0")}-${String(x.d).padStart(2,"0")}`;}
+  const str=String(v||"").trim();if(!str)return "";const m=str.match(/(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/);return m?`${m[1]}-${String(m[2]).padStart(2,"0")}-${String(m[3]).padStart(2,"0")}`:str;
+}
+function importPurchaseExcel(file){
+  const reader=new FileReader();reader.onload=function(e){
+    try{
+      let rows=[];
+      if(/\.csv$/i.test(file.name)){const text=e.target.result;rows=text.split(/\r?\n/).filter(x=>x.trim()).map(line=>line.split(","));}
+      else{if(!window.XLSX)throw new Error("XLSX 元件未載入");const wb=XLSX.read(new Uint8Array(e.target.result),{type:"array",cellDates:true});const sheetName=wb.SheetNames.find(n=>String(n).replace(/\s/g,"")==="未進貨詳細資料")||wb.SheetNames.find(n=>String(n).includes("未進貨"))||wb.SheetNames[0];rows=XLSX.utils.sheet_to_json(wb.Sheets[sheetName],{header:1,defval:""});}
+      if(rows.length<2)throw new Error("沒有資料");
+      const headers=rows[0].map(normalizePurchaseHeader);
+      const ci={supplier:findPurchaseCol(headers,["廠商","供應商","A廠商"]),no:findPurchaseCol(headers,["工單號碼","工單號","工單","工令","B工單號碼"]),expected:findPurchaseCol(headers,["預計交期","預計到貨","預計交貨","預計到貨日","交期","預交日","C預計交期"]),drawing:findPurchaseCol(headers,["圖名","圖號","品名","品項","圖號/品名","D圖名"]),material:findPurchaseCol(headers,["材質","材料","E材質"]),part:findPurchaseCol(headers,["零件編號","料號","料件編號","料品編號","料號/規格","F零件編號"]),qty:findPurchaseCol(headers,["數量","需求數量","G數量"]),status:findPurchaseCol(headers,["狀態","進貨狀態"])};
+      purchaseRows=rows.slice(1).map(r=>({supplier:ci.supplier>=0?r[ci.supplier]:"",no:ci.no>=0?r[ci.no]:"",expected:ci.expected>=0?parseExcelDate(r[ci.expected]):"",drawing:ci.drawing>=0?r[ci.drawing]:"",material:ci.material>=0?r[ci.material]:"",part:ci.part>=0?r[ci.part]:"",qty:ci.qty>=0?r[ci.qty]:"",status:ci.status>=0?(r[ci.status]||"待到貨"):"待到貨"})).filter(r=>Object.values(r).some(v=>String(v).trim()!==""));
+      purchasePage=1;localStorage.setItem("PMC_V3_PURCHASE_ROWS",JSON.stringify(purchaseRows));renderPurchase();renderAll();alert(`已匯入 ${purchaseRows.length} 筆未進貨明細`);
+    }catch(err){console.error(err);alert("Excel 匯入失敗："+err.message);}
+  };
+  if(/\.csv$/i.test(file.name))reader.readAsText(file,"utf-8");else reader.readAsArrayBuffer(file);
+}
+
+
+/* =========================================================
+   SETTINGS
+========================================================= */
+
+function renderSettings(){
+  document.querySelectorAll('input[name="scheduleMode"]').forEach(r=>r.checked=r.value===scheduleMode);
+  const mode=document.querySelector('input[name="scheduleMode"]:checked')?.value||scheduleMode;
+  document.getElementById("processSettings").innerHTML=PROCESS.map(function(p){const value=Number(processRules[mode]?.[p.key]||p.days||1);return `<div class="statline" style="gap:10px;align-items:center"><span style="flex:1"><b>${esc(p.name)}</b>｜${esc(p.wc)}<small style="display:block;color:#6b7785">前置：${p.pre.length?p.pre.map(k=>PROCESS.find(x=>x.key===k)?.name||k).join("、"):"無"}</small></span><input data-setting-key="${p.key}" type="number" min="1" step="1" value="${value}" style="width:100px"><span>工作天</span></div>`;}).join("");
+}
+
+
+/* =========================================================
+   GANTT
+========================================================= */
+
+function renderGantt(){
+
+  const container =
+    document.getElementById(
+      "ganttContainer"
+    );
+
+
+  const start =
+    parseDate(
+      document.getElementById(
+        "ganttStart"
+      ).value
+    ) ||
+    addDays(TODAY,-7);
+
+
+  const end =
+    parseDate(
+      document.getElementById(
+        "ganttEnd"
+      ).value
+    ) ||
+    addDays(TODAY,45);
+
+
+  const selected =
+    document.getElementById(
+      "ganttOrder"
+    ).value;
+  const search =
+    (document.getElementById("ganttOrderSearch")?.value || "").trim().toLowerCase();
+
+  const list =
+    orders.filter(function(o){
+      const text=[o.no,o.customer].join(" ").toLowerCase();
+      return (!selected || o.no===selected) && (!search || text.includes(search));
+    });
+
+
+  const total =
+    Math.max(
+      1,
+      diffDays(start,end)+1
+    );
+
+
+  if(!list.length){
+
+    container.innerHTML = `
+
+      <div class="empty">
+        沒有符合條件的工單
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  let html = `
+
+    <div class="gantt-wrap">
+
+      <div
+        class="gantt"
+        style="--days:${total}">
+
+        <div class="g-head">
+
+          <div class="g-label">
+            工單／製程
+          </div>
+
+          ${
+            Array.from(
+              {length:total},
+              (_,i)=>{
+
+                const d =
+                  addDays(
+                    start,
+                    i
+                  );
+
+                return `
+
+                  <div class="g-cell">
+
+                    ${d.getMonth()+1}/
+                    ${d.getDate()}
+
+                  </div>
+
+                `;
+
+              }
+            ).join("")
+          }
+
+        </div>
+
+  `;
+
+
+  list.forEach(function(order){
+
+    normalizeOrder(order);
+
+
+    PROCESS.forEach(function(p){
+
+      const s =
+        order.schedule[p.key];
+
+
+      const ps =
+        parseDate(s.start);
+
+
+      const pe =
+        parseDate(s.end);
+
+
+      const startIndex =
+        diffDays(
+          start,
+          ps
+        );
+
+
+      const endIndex =
+        diffDays(
+          start,
+          pe
+        );
+
+
+      const left =
+        Math.max(
+          0,
+          startIndex
+        )*34;
+
+
+      const right =
+        (
+          Math.min(
+            total-1,
+            endIndex
+          )+1
+        )*34;
+
+
+      const width =
+        Math.max(
+          12,
+          right-left
+        );
+
+
+      const actual = order.actual && order.actual[p.key];
+      let actualHtml="";
+      if(actual && actual.start){
+        const aps=parseDate(actual.start), ape=parseDate(actual.end||actual.start);
+        const asi=diffDays(start,aps), aei=diffDays(start,ape);
+        const al=Math.max(0,asi)*34;
+        const ar=(Math.min(total-1,aei)+1)*34;
+        const aw=Math.max(12,ar-al);
+        actualHtml=`<div class="g-task actual" style="left:${al}px;width:${aw}px">${p.name} ${actual.end?"✓":""}</div>`;
+      }
+
+      html += `
+
+        <div class="g-row">
+
+          <div class="g-label">
+
+            ${esc(order.no)}
+            ｜${p.name}
+
+          </div>
+
+
+          <div class="g-bar-area">
+
+            ${
+              Array.from(
+                {length:total},
+                ()=>
+                  `<div class="g-day"></div>`
+              ).join("")
+            }
+
+
+            <div
+              class="g-task planned"
+              style="
+                left:${left}px;
+                width:${width}px;
+              ">
+
+              ${p.name}
+
+            </div>
+
+
+            ${actualHtml}
+
+          </div>
+
+        </div>
+
+      `;
+
+    });
+
+  });
+
+
+  /* 今天標示：使用整張甘特圖的垂直線，明顯覆蓋計畫／實際長條 */
+  const todayIndex = diffDays(start,TODAY);
+  if(todayIndex>=0 && todayIndex<total){
+    const todayLeft=240 + todayIndex*34 + 17;
+    html += `
+      <div class="today-line" style="left:${todayLeft}px"></div>
+      <div class="today-label" style="left:${todayLeft}px">今天</div>
+    `;
+  }
+
+  html += `
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  container.innerHTML =
+    html;
+
+  // 將畫面捲到今天附近，讓「回到今天」真的回到今天
+  const wrap = container.querySelector(".gantt-wrap");
+  if(wrap){
+    const todayIndex2 = diffDays(start,TODAY);
+    if(todayIndex2>=0 && todayIndex2<total){
+      wrap.scrollLeft = Math.max(0, 240 + todayIndex2*34 - 240);
+    }else{
+      wrap.scrollLeft = 0;
+    }
+  }
+
+}
+
+function showFullOrderGantt(){
+  const no=document.getElementById("ganttOrder").value;
+  const order=orders.find(o=>o.no===no);
+  if(!order){
+    alert("請先選擇單一工單。");
+    return;
+  }
+  normalizeOrder(order);
+  const start=order.orderDate||order.schedule?.design?.start;
+  const end=order.schedule?.close?.end||order.due;
+  if(!start||!end){
+    alert("此工單缺少訂單日期或結案日期，無法顯示完整期間。");
+    return;
+  }
+  document.getElementById("ganttStart").value=start;
+  document.getElementById("ganttEnd").value=end;
+  renderGantt();
+}
+
+function exportGanttImage(){
+  const no=document.getElementById("ganttOrder").value;
+  const order=orders.find(o=>o.no===no);
+  if(!order){
+    alert("請先選擇單一工單，再匯出甘特圖圖片。");
+    return;
+  }
+  normalizeOrder(order);
+  const start=parseDate(order.orderDate)||parseDate(order.schedule?.design?.start);
+  const end=parseDate(order.schedule?.close?.end)||parseDate(order.due);
+  if(!start||!end||end<=start){
+    alert("此工單缺少有效的訂單日期或結案日期，無法匯出圖片。");
+    return;
+  }
+
+  const width=1400;
+  const labelWidth=300;
+  const timelineWidth=width-labelWidth-40;
+  const headerHeight=76;
+  const rowHeight=44;
+  const footerHeight=46;
+  const height=headerHeight+PROCESS.length*rowHeight+footerHeight;
+  const canvas=document.createElement("canvas");
+  canvas.width=width*2;
+  canvas.height=height*2;
+  const ctx=canvas.getContext("2d");
+  ctx.scale(2,2);
+  ctx.fillStyle="#ffffff";
+  ctx.fillRect(0,0,width,height);
+
+  const left=20;
+  const timelineLeft=left+labelWidth;
+  const timelineRight=timelineLeft+timelineWidth;
+  const totalMs=end-start;
+  const toX=date=>timelineLeft+Math.max(0,Math.min(1,(date-start)/totalMs))*timelineWidth;
+  const dateNodes=[0.25,0.5,0.75].map(r=>new Date(start.getTime()+totalMs*r));
+  const nodes=[start,...dateNodes,end];
+
+  ctx.fillStyle="#172033";
+  ctx.fillRect(0,0,width,headerHeight);
+  ctx.fillStyle="#ffffff";
+  ctx.font="700 22px Microsoft JhengHei, sans-serif";
+  ctx.fillText("PMC 生產甘特圖",left,30);
+  ctx.font="14px Microsoft JhengHei, sans-serif";
+  ctx.fillText(`工單 ${order.no}｜${order.customer}｜${order.product}`,left,56);
+
+  ctx.fillStyle="#f7f9fc";
+  ctx.fillRect(left,headerHeight,timelineLeft-left,height-headerHeight-footerHeight);
+  ctx.fillStyle="#17212b";
+  ctx.font="700 14px Microsoft JhengHei, sans-serif";
+  ctx.fillText("工單／製程",left+12,headerHeight-18);
+  ctx.fillStyle="#6b7785";
+  ctx.font="12px Microsoft JhengHei, sans-serif";
+  nodes.forEach(function(date,index){
+    const x=toX(date);
+    ctx.strokeStyle="#dfe5ec";
+    ctx.lineWidth=1;
+    ctx.beginPath();
+    ctx.moveTo(x,headerHeight);
+    ctx.lineTo(x,headerHeight+PROCESS.length*rowHeight);
+    ctx.stroke();
+    ctx.textAlign=index===0?"left":index===nodes.length-1?"right":"center";
+    ctx.fillText(fmt(date),x,headerHeight-18);
+  });
+  ctx.textAlign="left";
+
+  PROCESS.forEach(function(p,index){
+    const y=headerHeight+index*rowHeight;
+    ctx.fillStyle=index%2===0?"#ffffff":"#fbfcfe";
+    ctx.fillRect(left,y,width-left, rowHeight);
+    ctx.strokeStyle="#dfe5ec";
+    ctx.beginPath();
+    ctx.moveTo(left,y+rowHeight);
+    ctx.lineTo(width-left,y+rowHeight);
+    ctx.stroke();
+    ctx.fillStyle="#17212b";
+    ctx.font="14px Microsoft JhengHei, sans-serif";
+    ctx.fillText(`${order.no}｜${p.name}`,left+12,y+27);
+
+    const planned=order.schedule?.[p.key];
+    if(planned?.start&&planned?.end){
+      const x1=toX(parseDate(planned.start)),x2=toX(parseDate(planned.end));
+      ctx.fillStyle="#60a5fa";
+      ctx.fillRect(x1,y+8,Math.max(4,x2-x1),12);
+    }
+    const actual=order.actual?.[p.key];
+    if(actual?.start){
+      const x1=toX(parseDate(actual.start)),x2=toX(parseDate(actual.end||actual.start));
+      ctx.fillStyle="#22c55e";
+      ctx.fillRect(x1,y+25,Math.max(4,x2-x1),12);
+    }
+  });
+
+  const legendY=height-20;
+  ctx.fillStyle="#60a5fa";
+  ctx.fillRect(left,legendY-10,14,10);
+  ctx.fillStyle="#17212b";
+  ctx.font="12px Microsoft JhengHei, sans-serif";
+  ctx.fillText("計畫",left+22,legendY);
+  ctx.fillStyle="#22c55e";
+  ctx.fillRect(left+70,legendY-10,14,10);
+  ctx.fillStyle="#17212b";
+  ctx.fillText("實際",left+92,legendY);
+
+  canvas.toBlob(function(blob){
+    if(!blob)return;
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement("a");
+    link.href=url;
+    link.download=`PMC_Gantt_${order.no}.png`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  },"image/png");
+}
+
+
+/* =========================================================
+   SHOW PAGE
+========================================================= */
+
+function showPage(page){
+
+  document
+    .querySelectorAll(".page")
+    .forEach(function(section){
+
+      section.classList.remove(
+        "active"
+      );
+
+    });
+
+
+  const target =
+    document.getElementById(
+      "page-"+page
+    );
+
+
+  if(target){
+
+    target.classList.add(
+      "active"
+    );
+
+  }
+
+
+  document
+    .querySelectorAll(".nav")
+    .forEach(function(nav){
+
+      nav.classList.toggle(
+        "active",
+        nav.dataset.page===page
+      );
+
+    });
+
+
+  const titles={
+
+    board:"生產控制台",
+
+
+    orders:"工單管理",
+
+    schedule:"單一工單製程",
+
+    gantt:"生產時間軸",
+
+    progress:"實際進度回報",
+
+    purchase:"採購供應狀況",
+
+    settings:"系統設定"
+
+  };
+
+
+  document.getElementById(
+    "pageTitle"
+  ).textContent =
+    titles[page] ||
+    "PMC V3";
+
+  document.querySelectorAll("[data-workflow-page]").forEach(function(step){
+    step.classList.toggle("active", step.dataset.workflowPage===page);
+  });
+
+}
+
+function openOrderWorkflow(page,no){
+  const orderNo=String(no||"");
+  if(page==="schedule"){
+    const search=document.getElementById("scheduleOrderSearch");
+    if(search) search.value=orderNo;
+    renderSchedule();
+    const sel=document.getElementById("scheduleOrder");
+    if(sel && Array.from(sel.options).some(o=>o.value===orderNo)){ sel.value=orderNo; renderSchedule(); }
+  }else if(page==="gantt"){
+    const search=document.getElementById("ganttOrderSearch");
+    if(search) search.value=orderNo;
+    renderSelectors();
+    const sel=document.getElementById("ganttOrder");
+    if(sel && Array.from(sel.options).some(o=>o.value===orderNo)){ sel.value=orderNo; }
+    renderGantt();
+  }else if(page==="progress"){
+    const input=document.getElementById("progressSearch");
+    if(input) input.value=orderNo;
+    renderProgress();
+  }else if(page==="purchase"){
+    const input=document.getElementById("purchaseFilterNo");
+    if(input) input.value=orderNo;
+    purchasePage=1;
+    renderPurchase();
+  }
+  showPage(page);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function goFlowPage(page){
+  showPage(page);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+
+/* =========================================================
+   MODAL
+   ★ 這裡是這次重新修好的重點
+========================================================= */
+
+
+/*
+  開啟新增工單
+*/
+
+function openNewOrderModal(){
+  if(!requireAdmin()) return;
+
+  openOrderModal(null);
+
+}
+
+
+/*
+  開啟編輯工單
+*/
+
+function editOrderByNo(no){
+  if(!requireAdmin()) return;
+
+  openOrderModal(no);
+
+}
+
+
+/*
+  開啟視窗
+*/
+
+function openOrderModal(no){
+
+  editingNo = no;
+
+
+  const modal =
+    document.getElementById(
+      "orderModal"
+    );
+
+
+  const title =
+    document.getElementById(
+      "modalTitle"
+    );
+
+
+  const saveButton =
+    document.getElementById(
+      "saveOrderBtn"
+    );
+
+
+  /*
+    如果是編輯
+  */
+
+  const order =
+    no
+      ? orders.find(
+          o=>o.no===no
+        )
+      : null;
+
+
+  title.textContent =
+    order
+      ? "編輯工單"
+      : "新增工單";
+
+
+  saveButton.textContent =
+    order
+      ? "儲存修改"
+      : "建立工單";
+
+
+  /*
+    填入資料
+  */
+
+  document.getElementById(
+    "f_no"
+  ).value =
+    order?.no || "";
+
+
+  document.getElementById(
+    "f_customer"
+  ).value =
+    order?.customer || "";
+
+
+  document.getElementById(
+    "f_product"
+  ).value =
+    order?.product || "";
+
+
+  document.getElementById(
+    "f_orderDate"
+  ).value =
+    order?.orderDate ||
+    fmt(TODAY);
+
+
+  document.getElementById(
+    "f_due"
+  ).value =
+    order?.due ||
+    fmt(
+      addDays(
+        TODAY,
+        30
+      )
+    );
+
+
+  document.getElementById(
+    "f_priority"
+  ).value =
+    order?.priority ||
+    "一般";
+
+
+  const processMode=order?.processMode||scheduleMode||"semi";
+  document.getElementById("f_processMode").value=processMode;
+
+  document.getElementById(
+    "f_status"
+  ).value =
+    order?.status ||
+    "待生產";
+
+
+  /*
+    製程工期
+  */
+
+  document.getElementById(
+    "processInputs"
+  ).innerHTML =
+
+    PROCESS.map(function(p){
+
+      const value =
+        order?.durations?.[p.key] ||
+        Number(processRules[processMode]?.[p.key]||p.days);
+
+
+      const schedule=order?.schedule?.[p.key] || buildSchedule({...order,durations:{...(order?.durations||{}),[p.key]:value}})[p.key];
+      return `
+        <div class="process-item">
+          <label style="font-size:12px;font-weight:800">${p.name}</label>
+          <input type="number" min="1" step="1" id="dur_${p.key}" value="${value}" style="width:100%;margin-top:5px">
+          <div id="date_${p.key}" class="footer-note">${schedule?.start||"-"} ～ ${schedule?.end||"-"}</div>
+        </div>
+      `;
+
+    }).join("");
+
+
+  /*
+    ★ 真正開啟視窗
+  */
+
+  modal.classList.remove(
+    "hidden"
+  );
+
+
+  modal.setAttribute(
+    "aria-hidden",
+    "false"
+  );
+
+
+  /*
+    保險：
+    即使 CSS 被其他東西覆蓋，
+    仍強制顯示
+  */
+
+  modal.style.display =
+    "flex";
+
+
+  document.body.style.overflow =
+    "hidden";
+
+
+  /*
+    游標
+  */
+
+  function applyOrderProcessMode(){
+    const mode=document.getElementById("f_processMode").value||"semi";
+    PROCESS.forEach(function(p){const input=document.getElementById("dur_"+p.key);if(input&&!editingNo)input.value=Number(processRules[mode]?.[p.key]||p.days);});
+    refreshModalSchedule();
+  }
+  document.getElementById("f_processMode").addEventListener("change",applyOrderProcessMode);
+
+  function refreshModalSchedule(){
+    const temp={...(order||{}),due:document.getElementById("f_due").value,durations:{...(order?.durations||{})}};
+    PROCESS.forEach(function(p){const input=document.getElementById("dur_"+p.key);if(input)temp.durations[p.key]=Math.max(1,Number(input.value)||1);});
+    const sc=buildSchedule(temp);
+    PROCESS.forEach(function(p){const e=document.getElementById("date_"+p.key);if(e&&sc[p.key])e.textContent=sc[p.key].start+" ～ "+sc[p.key].end;});
+  }
+  PROCESS.forEach(function(p){const input=document.getElementById("dur_"+p.key);if(input)input.addEventListener("input",refreshModalSchedule);});
+  document.getElementById("f_due").addEventListener("change",refreshModalSchedule);
+  setTimeout(function(){document.getElementById("f_no").focus();},50);
+
+}
+
+
+/*
+  ★ 關閉視窗
+*/
+
+function closeOrderModal(){
+
+  const modal =
+    document.getElementById(
+      "orderModal"
+    );
+
+
+  /*
+    同時移除 hidden
+    + 強制 display none
+  */
+
+  modal.classList.add(
+    "hidden"
+  );
+
+
+  modal.setAttribute(
+    "aria-hidden",
+    "true"
+  );
+
+
+  modal.style.display =
+    "none";
+
+
+  document.body.style.overflow =
+    "";
+
+
+  editingNo = null;
+
+}
+
+
+/* =========================================================
+   SAVE ORDER
+========================================================= */
+
+function saveOrder(){
+  if(!requireAdmin()) return;
+
+  const no =
+    document.getElementById(
+      "f_no"
+    ).value.trim();
+
+
+  const customer =
+    document.getElementById(
+      "f_customer"
+    ).value.trim();
+
+
+  const product =
+    document.getElementById(
+      "f_product"
+    ).value.trim();
+
+
+  const orderDate =
+    document.getElementById(
+      "f_orderDate"
+    ).value;
+
+
+  const due =
+    document.getElementById(
+      "f_due"
+    ).value;
+
+
+  const priority =
+    document.getElementById(
+      "f_priority"
+    ).value;
+
+
+  const status =
+    document.getElementById(
+      "f_status"
+    ).value;
+
+  const processMode=document.getElementById("f_processMode").value||"semi";
+
+
+  /*
+    必填
+  */
+
+  if(!no){
+
+    alert(
+      "請輸入工單號"
+    );
+
+    return;
+
+  }
+
+
+  if(!customer){
+
+    alert(
+      "請輸入客戶名稱"
+    );
+
+    return;
+
+  }
+
+
+  if(!product){
+
+    alert(
+      "請輸入產品／機型"
+    );
+
+    return;
+
+  }
+
+
+  if(!due){
+
+    alert(
+      "請輸入預計交期"
+    );
+
+    return;
+
+  }
+
+
+  /*
+    工單號重複檢查
+  */
+
+  const duplicate =
+    orders.some(function(o){
+
+      return (
+        o.no===no &&
+        o.no!==editingNo
+      );
+
+    });
+
+
+  if(duplicate){
+
+    alert(
+      "工單號已存在，請換一個工單號"
+    );
+
+    return;
+
+  }
+
+
+  /*
+    工期
+  */
+
+  const durations={};
+
+
+  PROCESS.forEach(function(p){
+
+    const input =
+      document.getElementById(
+        "dur_"+p.key
+      );
+
+
+    const value =
+      Number(input.value);
+
+
+    durations[p.key] =
+      value>0
+        ? value
+        : p.days;
+
+  });
+
+
+  /*
+    編輯既有工單
+  */
+
+  if(editingNo){
+
+    const order =
+      orders.find(
+        o=>o.no===editingNo
+      );
+
+
+    if(!order){
+
+      alert(
+        "找不到要修改的工單"
+      );
+
+      return;
+
+    }
+
+
+    order.no=no;
+    order.customer=customer;
+    order.product=product;
+    order.orderDate=orderDate;
+    order.due=due;
+    order.priority=priority;
+    order.status=status;
+    order.processMode=processMode;
+    order.durations=durations;
+
+
+    /*
+      保留實際進度
+    */
+
+    order.actual =
+      order.actual || {};
+
+
+    order.schedule =
+      buildSchedule(order);
+
+  }
+
+
+  /*
+    新增工單
+  */
+
+  else{
+
+    const newOrder={
+
+      no:no,
+
+      customer:customer,
+
+      product:product,
+
+      orderDate:orderDate,
+
+      due:due,
+
+      priority:priority,
+
+      status:status,
+      processMode:processMode,
+
+      actualClose:"",
+
+      durations:durations,
+
+      actual:{}
+
+    };
+
+
+    newOrder.schedule =
+      buildSchedule(
+        newOrder
+      );
+
+
+    orders.push(
+      newOrder
+    );
+
+  }
+
+
+  saveData();
+
+
+  /*
+    ★ 儲存完成後關閉視窗
+  */
+
+  closeOrderModal();
+
+
+  renderAll();
+
+
+  showPage("orders");
+
+}
+
+
+/* =========================================================
+   DELETE
+========================================================= */
+
+function deleteOrderByNo(no){
+  if(!requireAdmin()) return;
+
+  const order =
+    orders.find(
+      o=>o.no===no
+    );
+
+
+  if(!order)
+    return;
+
+
+  const ok =
+    confirm(
+      `確定要刪除工單 ${no}？`
+    );
+
+
+  if(!ok)
+    return;
+
+
+  orders =
+    orders.filter(
+      o=>o.no!==no
+    );
+
+
+  saveData();
+
+  renderAll();
+
+}
+
+
+/* =========================================================
+   AUTO SCHEDULE
+========================================================= */
+
+function autoSchedule(){
+  if(!requireAdmin()) return;
+
+  const no =
+    document.getElementById(
+      "scheduleOrder"
+    ).value;
+
+
+  const order =
+    orders.find(
+      o=>o.no===no
+    );
+
+
+  if(!order)
+    return;
+
+
+  order.schedule =
+    buildSchedule(order);
+
+
+  saveData();
+
+  renderAll();
+
+
+  alert(
+    `工單 ${order.no} 已依 ${order.due} 完成倒排。`
+  );
+
+}
+
+
+/* =========================================================
+   EXPORT
+========================================================= */
+
+function exportData(){
+  if(!requireAdmin()) return;
+
+  const data={
+    version:"3.1",
+    exportedAt:new Date().toISOString(),
+    source:"PMC central JSON",
+    orders:orders,
+    processRules:processRules,
+    scheduleMode:scheduleMode,
+    purchaseRows:purchaseRows
+  };
+
+  const blob=new Blob(
+    [JSON.stringify(data,null,2)],
+    {type:"application/json"}
+  );
+
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download="PMC_Data.json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+
+  alert("已匯出 PMC_Data.json。請將此檔案覆蓋公司伺服器 PMC 資料夾中的 PMC_Data.json。");
+}
+
+
+
+/* =========================================================
+   IMPORT
+========================================================= */
+
+function importData(file){
+
+  const reader =
+    new FileReader();
+
+
+  reader.onload =
+    function(){
+
+      try{
+
+        const data =
+          JSON.parse(
+            reader.result
+          );
+
+
+        if(
+          !data ||
+          !Array.isArray(
+            data.orders
+          )
+        ){
+
+          throw new Error(
+            "invalid"
+          );
+
+        }
+
+
+        applyServerData(data);
+
+        renderAll();
+
+        alert(
+          "資料匯入完成"
+        );
+
+
+      }catch(error){
+
+        console.error(error);
+
+        alert(
+          "匯入失敗：JSON 格式不正確"
+        );
+
+      }
+
+    };
+
+
+  reader.readAsText(file);
+
+}
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+function resetDemoData(){
+  if(!requireAdmin()) return;
+
+  const ok =
+    confirm(
+      "確定要恢復 V3 示範資料嗎？\n目前瀏覽器中的工單資料會被覆蓋。"
+    );
+
+
+  if(!ok)
+    return;
+
+
+  orders =
+    JSON.parse(
+      JSON.stringify(
+        DEMO_ORDERS
+      )
+    );
+
+
+  orders.forEach(function(o){
+
+    o.schedule =
+      buildSchedule(o);
+
+  });
+
+
+  saveData();
+
+  renderAll();
+
+
+  alert(
+    "已恢復 V3 示範資料"
+  );
+
+}
+
+
+/* =========================================================
+   RENDER ALL
+========================================================= */
+
+function renderAll(){
+
+  renderBoard();
+
+  renderOrders();
+
+  renderSchedule();
+
+  renderProgress();
+
+  renderPurchase();
+
+  renderSettings();
+
+  renderSelectors();
+
+  renderGantt();
+
+}
+
+
+/* =========================================================
+   權限
+========================================================= */
+function openLoginModal(){const m=document.getElementById("loginModal");m.classList.remove("hidden");m.style.display="flex";m.setAttribute("aria-hidden","false");document.getElementById("loginError").style.display="none";document.getElementById("loginUser").value="";document.getElementById("loginPass").value="";setTimeout(()=>document.getElementById("loginUser").focus(),50);}
+function closeLoginModal(){const m=document.getElementById("loginModal");m.classList.add("hidden");m.style.display="none";m.setAttribute("aria-hidden","true");}
+function doLogin(){const u=document.getElementById("loginUser").value.trim(),p=document.getElementById("loginPass").value;if(u===ADMIN_USER&&p===ADMIN_PASS){isAdmin=true;sessionStorage.setItem("PMC_V3_ADMIN_LOGIN","1");closeLoginModal();updatePermissions();renderAll();alert("管理者登入成功");}else document.getElementById("loginError").style.display="block";}
+function doLogout(){isAdmin=false;sessionStorage.removeItem("PMC_V3_ADMIN_LOGIN");updatePermissions();showPage("board");renderAll();}
+function updatePermissions(){
+  const b=document.getElementById("permissionBadge");b.textContent=isAdmin?"權限：管理者":"權限：訪客查詢";b.classList.toggle("admin",isAdmin);
+  document.getElementById("loginBtn").textContent=isAdmin?"登出":"登入";
+  ["openOrderBtn","orderAddBtn","purchaseImportBtn","purchaseClearBtn","resetBtn","exportBtn","saveProcessSettingsBtn"].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display=isAdmin?"inline-block":"none";});
+  const note=document.getElementById("orderReadonlyNote");if(note)note.textContent=isAdmin?"管理者可新增／編輯／刪除":"訪客模式：僅查詢";
+}
+function requireAdmin(){if(isAdmin)return true;alert("目前為訪客查詢模式，請先登入管理者帳號。");return false;}
+
+/* =========================================================
+   EVENTS
+   ★ 所有按鈕統一在這裡綁定
+========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  async function(){
+    updatePermissions();
+    document.getElementById("openDataFileBtn").addEventListener("click",function(){document.getElementById("dataFileInput").click();});
+    document.getElementById("dataFileInput").addEventListener("change",function(e){if(e.target.files[0])loadDataFromFile(e.target.files[0]);e.target.value="";});
+    document.getElementById("loginBtn").addEventListener("click",function(){isAdmin?doLogout():openLoginModal();});
+    document.getElementById("loginCloseBtn").addEventListener("click",closeLoginModal);
+    document.getElementById("loginCancelBtn").addEventListener("click",closeLoginModal);
+    document.getElementById("loginSubmitBtn").addEventListener("click",doLogin);
+    document.getElementById("loginPass").addEventListener("keydown",function(e){if(e.key==="Enter")doLogin();});
+    document.getElementById("loginModal").addEventListener("click",function(e){if(e.target===e.currentTarget)closeLoginModal();});
+
+    /* 讀取半自動／全自動兩套製程規則 */
+    try{
+      const savedRules=JSON.parse(localStorage.getItem("PMC_V3_PROCESS_RULES")||"null");
+      if(savedRules){processRules.semi={...processRules.semi,...(savedRules.semi||{})};processRules.auto={...processRules.auto,...(savedRules.auto||{})};}
+    }catch(e){}
+    purchaseRows=JSON.parse(localStorage.getItem("PMC_V3_PURCHASE_ROWS")||"[]");
+    const initialDataResult=await loadData();
+
+
+    /*
+      Sidebar
+    */
+
+    document
+      .querySelectorAll(".nav")
+      .forEach(function(nav){
+
+        nav.addEventListener(
+          "click",
+          function(){
+
+            showPage(
+              nav.dataset.page
+            );
+
+          }
+        );
+
+      });
+
+    document.querySelectorAll("[data-workflow-page]").forEach(function(step){
+      step.addEventListener("click",function(){ goFlowPage(step.dataset.workflowPage); });
+    });
+
+    document.querySelectorAll("[data-flow-nav]").forEach(function(btn){
+      btn.addEventListener("click",function(){ goFlowPage(btn.dataset.flowNav); });
+    });
+
+    document.querySelectorAll("[data-flow-action]").forEach(function(btn){
+      btn.addEventListener("click",function(){
+        const action=btn.dataset.flowAction;
+        if(action==="new-order") openNewOrderModal();
+        else goFlowPage(action);
+      });
+    });
+
+
+    /*
+      新增工單
+    */
+
+    document
+      .getElementById(
+        "openOrderBtn"
+      )
+      .addEventListener(
+        "click",
+        openNewOrderModal
+      );
+
+
+    document
+      .getElementById(
+        "orderAddBtn"
+      )
+      .addEventListener(
+        "click",
+        openNewOrderModal
+      );
+
+    const orderQuickAddBtn = document.getElementById("orderQuickAddBtn");
+    if(orderQuickAddBtn){
+      orderQuickAddBtn.addEventListener("click", openNewOrderModal);
+    }
+
+
+    /*
+      ★ X 關閉
+    */
+
+    document
+      .getElementById(
+        "closeModalBtn"
+      )
+      .addEventListener(
+        "click",
+        closeOrderModal
+      );
+
+
+    /*
+      ★ 取消關閉
+    */
+
+    document
+      .getElementById(
+        "cancelOrderBtn"
+      )
+      .addEventListener(
+        "click",
+        closeOrderModal
+      );
+
+
+    /*
+      儲存
+    */
+
+    document
+      .getElementById(
+        "saveOrderBtn"
+      )
+      .addEventListener(
+        "click",
+        saveOrder
+      );
+
+
+    /*
+      ★ 點擊黑色背景關閉
+    */
+
+    /* 新增工單視窗：刻意取消「點背景關閉」 */
+
+
+    /*
+      ★ ESC 關閉
+    */
+
+    document.addEventListener(
+      "keydown",
+      function(event){
+
+        if(
+          event.key==="Escape"
+        ){
+
+          const modal =
+            document.getElementById(
+              "orderModal"
+            );
+
+
+          if(
+            !modal.classList.contains(
+              "hidden"
+            )
+          ){
+
+            closeOrderModal();
+
+          }
+
+        }
+
+      }
+    );
+
+
+    /*
+      重新整理
+    */
+
+    document
+      .getElementById(
+        "refreshBtn"
+      )
+      .addEventListener(
+        "click",
+        async function(){
+          await refreshServerData(true);
+        }
+      );
+
+
+    /*
+      工單搜尋
+    */
+
+    ["orderSearch","orderCustomerFilter","orderDateFrom","orderDateTo","orderPriorityFilter","orderStatusFilter","orderProcessFilter"].forEach(function(id){const el=document.getElementById(id);if(el)el.addEventListener(el.tagName==="SELECT"||el.type==="date"?"change":"input",function(){orderPage=1;renderOrders();});});
+    document.getElementById("orderClearFilterBtn").addEventListener("click",function(){["orderSearch","orderCustomerFilter","orderDateFrom","orderDateTo","orderPriorityFilter","orderStatusFilter","orderProcessFilter"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});orderPage=1;renderOrders();});
+
+
+    /*
+      排程
+    */
+
+    document
+      .getElementById(
+        "scheduleOrder"
+      )
+      .addEventListener(
+        "change",
+        renderSchedule
+      );
+
+    document
+      .getElementById(
+        "scheduleOrderSearch"
+      )
+      .addEventListener(
+        "input",
+        renderSchedule
+      );
+
+
+    /*
+      進度
+    */
+
+    ["progressSearch","progressCustomerFilter","progressDateFrom","progressDateTo","progressPriorityFilter","progressFilter","progressProcessFilter"].forEach(function(id){const el=document.getElementById(id);if(el)el.addEventListener(el.tagName==="SELECT"||el.type==="date"?"change":"input",renderProgress);});
+    document.getElementById("progressClearFilterBtn").addEventListener("click",function(){["progressSearch","progressCustomerFilter","progressDateFrom","progressDateTo","progressPriorityFilter","progressFilter","progressProcessFilter"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});renderProgress();});
+
+
+    /*
+      甘特圖
+    */
+
+    document
+      .getElementById(
+        "ganttOrder"
+      )
+      .addEventListener(
+        "change",
+        renderGantt
+      );
+
+    document
+      .getElementById("ganttOrderSearch")
+      .addEventListener("input",renderGantt);
+
+
+    document
+      .getElementById(
+        "ganttStart"
+      )
+      .addEventListener(
+        "change",
+        renderGantt
+      );
+
+
+    document
+      .getElementById(
+        "ganttEnd"
+      )
+      .addEventListener(
+        "change",
+        renderGantt
+      );
+
+
+    document
+      .getElementById(
+        "ganttToday"
+      )
+      .addEventListener(
+        "click",
+        function(){
+          // 以目前實際日期為中心重新設定範圍
+          const todayNow = new Date();
+          todayNow.setHours(0,0,0,0);
+          document.getElementById("ganttStart").value = fmt(addDays(todayNow,-7));
+          document.getElementById("ganttEnd").value = fmt(addDays(todayNow,45));
+          renderGantt();
+        }
+      );
+
+    document
+      .getElementById("ganttFullOrder")
+      .addEventListener("click",showFullOrderGantt);
+    document
+      .getElementById("ganttExportImage")
+      .addEventListener("click",exportGanttImage);
+
+
+    /*
+      匯出
+    */
+
+    document
+      .getElementById(
+        "exportBtn"
+      )
+      .addEventListener(
+        "click",
+        exportData
+      );
+
+
+    /*
+      匯入
+    */
+
+    document
+      .getElementById(
+        "importFile"
+      )
+      .addEventListener(
+        "change",
+        function(event){
+
+          const file =
+            event.target.files[0];
+
+
+          if(file){
+
+            importData(file);
+
+          }
+
+
+          event.target.value="";
+
+        }
+      );
+
+
+    /*
+      重置
+    */
+
+    document
+      .getElementById(
+        "resetBtn"
+      )
+      .addEventListener(
+        "click",
+        resetDemoData
+      );
+
+
+    /*
+      甘特預設日期
+    */
+
+    document.getElementById(
+      "ganttStart"
+    ).value =
+      fmt(
+        addDays(
+          TODAY,
+          -7
+        )
+      );
+
+
+    document.getElementById(
+      "ganttEnd"
+    ).value =
+      fmt(
+        addDays(
+          TODAY,
+          45
+        )
+      );
+
+
+    /* 製程實際日期視窗 */
+    document.getElementById("processModalClose").addEventListener("click",closeProcessDateModal);
+    document.getElementById("processModalCancel").addEventListener("click",closeProcessDateModal);
+    document.getElementById("processDatesClear").addEventListener("click",clearProcessDateInputs);
+    document.getElementById("processModalSave").addEventListener("click",saveProcessDate);
+    document.getElementById("processModal").addEventListener("click",function(e){if(e.target===e.currentTarget){return;}});
+
+    document.addEventListener("click",function(e){
+      const b=e.target.closest("[data-process-action]");
+      if(b && b.dataset.processAction==="open") openProcessDateModal(b.dataset.no,b.dataset.key);
+    });
+
+    /* 製程設定：半自動／全自動 */
+    document.querySelectorAll('input[name="scheduleMode"]').forEach(function(r){r.addEventListener("change",function(){if(!requireAdmin()){renderSettings();return;}scheduleMode=r.value;localStorage.setItem("PMC_V3_SCHEDULE_MODE",scheduleMode);renderSettings();});});
+    document.getElementById("saveProcessSettingsBtn").addEventListener("click",function(){
+      const mode=document.querySelector('input[name="scheduleMode"]:checked')?.value||"semi";
+      processRules[mode]=processRules[mode]||{};
+      document.querySelectorAll("[data-setting-key]").forEach(function(input){processRules[mode][input.dataset.settingKey]=Math.max(1,Number(input.value)||1);});
+      localStorage.setItem("PMC_V3_PROCESS_RULES",JSON.stringify(processRules));
+      alert(`${mode==="auto"?"全自動":"半自動"}製程規則已儲存`);
+      renderSettings();
+    });
+
+    /* 採購 Excel */
+    document.getElementById("purchaseImportBtn").addEventListener("click",function(){if(requireAdmin())document.getElementById("purchaseExcelFile").click();});
+    document.getElementById("purchaseExcelFile").addEventListener("change",function(e){if(e.target.files[0]&&requireAdmin())importPurchaseExcel(e.target.files[0]);e.target.value="";});
+    document.getElementById("purchaseClearBtn").addEventListener("click",function(){if(!requireAdmin())return;if(confirm("確定清除已匯入的未進貨資料？")){purchaseRows=[];purchasePage=1;localStorage.removeItem("PMC_V3_PURCHASE_ROWS");renderPurchase();}});
+    ["purchaseFilterSupplier","purchaseFilterNo","purchaseFilterExpected","purchaseFilterDrawing","purchaseFilterMaterial","purchaseFilterPart","purchaseFilterQty","purchaseFilterStatus"].forEach(function(id){const el=document.getElementById(id);if(el)el.addEventListener(el.tagName==="SELECT"?"change":"input",function(){purchasePage=1;renderPurchase();});});
+    document.addEventListener("click",function(e){const b=e.target.closest("[data-purchase-page]");if(!b)return;const filtered=getFilteredPurchaseRows(),pages=Math.max(1,Math.ceil(filtered.length/PURCHASE_PAGE_SIZE)),action=b.dataset.purchasePage;if(action==="prev")purchasePage=Math.max(1,purchasePage-1);else if(action==="next")purchasePage=Math.min(pages,purchasePage+1);else purchasePage=Math.min(pages,Math.max(1,Number(action)||1));renderPurchase();});
+    document.addEventListener("click",function(e){const b=e.target.closest("[data-board-page]");if(!b)return;const active=orders.filter(o=>overallStatus(o)!=="已完成");const pages=Math.max(1,Math.ceil(active.length/BOARD_PAGE_SIZE)),action=b.dataset.boardPage;if(action==="prev")boardPage=Math.max(1,boardPage-1);else if(action==="next")boardPage=Math.min(pages,boardPage+1);else boardPage=Math.min(pages,Math.max(1,Number(action)||1));renderBoard();});
+    document.addEventListener("click",function(e){const b=e.target.closest("[data-order-page]");if(!b)return;const list=getFilteredOrders(),pages=Math.max(1,Math.ceil(list.length/ORDER_PAGE_SIZE)),action=b.dataset.orderPage;if(action==="prev")orderPage=Math.max(1,orderPage-1);else if(action==="next")orderPage=Math.min(pages,orderPage+1);else orderPage=Math.min(pages,Math.max(1,Number(action)||1));renderOrders();});
+
+    /* 第一次畫面 */
+    renderAll();
+    updateDataSourceUI(initialDataResult);
+
+  }
+);
+
+</script>
+
+</body>
+</html>
