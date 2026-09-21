@@ -1310,6 +1310,36 @@ input,select{min-height:38px}
   .mobile-bottom-nav button{border:0;background:transparent;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#64748b;font-size:10px;font-weight:800;min-width:0}
   .mobile-bottom-nav button .mi{font-size:19px;line-height:1}
   .mobile-bottom-nav button.active{background:#eaf2ff;color:#1d4ed8}
+
+  /* v2：手機篩選操作修正 */
+  #page-orders #orderDateFrom,
+  #page-orders #orderDateTo,
+  #page-progress #progressDateFrom,
+  #page-progress #progressDateTo{display:none!important}
+
+  #page-orders .filter-grid,
+  #page-progress .filter-grid{position:relative;z-index:5}
+  #page-orders .filter-grid select,
+  #page-progress .filter-grid select,
+  #page-schedule .toolbar select,
+  #page-schedule .toolbar input{
+    position:relative!important;
+    z-index:6!important;
+    pointer-events:auto!important;
+    touch-action:manipulation;
+    -webkit-appearance:auto!important;
+    appearance:auto!important;
+  }
+
+  #page-purchase .mobile-purchase-filters{display:grid!important;grid-template-columns:1fr;gap:8px;margin-top:10px}
+  #page-purchase .mobile-purchase-filters label{display:grid;gap:4px;font-size:11px;font-weight:800;color:#64748b}
+  #page-purchase .mobile-purchase-filters input{width:100%!important;min-width:0!important}
+  #page-purchase .mobile-purchase-filter-actions{display:grid;grid-template-columns:1fr;gap:8px}
+  #page-purchase .mobile-purchase-filter-actions .btn{width:100%}
+}
+
+@media(min-width:761px){
+  .mobile-purchase-filters{display:none!important}
 }
 </style>
 </head>
@@ -1736,6 +1766,20 @@ input,select{min-height:38px}
     未進貨明細
   </div>
 
+  <div class="mobile-purchase-filters" aria-label="手機採購篩選">
+    <label>廠商
+      <input id="mobilePurchaseFilterSupplier" placeholder="輸入廠商名稱">
+    </label>
+    <label>工單號碼
+      <input id="mobilePurchaseFilterNo" placeholder="輸入工單號碼">
+    </label>
+    <label>零件編號
+      <input id="mobilePurchaseFilterPart" placeholder="輸入零件編號">
+    </label>
+    <div class="mobile-purchase-filter-actions">
+      <button class="btn secondary small" id="mobilePurchaseClearFilterBtn" type="button">清除採購篩選</button>
+    </div>
+  </div>
 
   <div class="table-wrap">
 
@@ -5516,6 +5560,25 @@ document.addEventListener(
     document.getElementById("purchaseExcelFile").addEventListener("change",function(e){if(e.target.files[0]&&requireAdmin())importPurchaseExcel(e.target.files[0]);e.target.value="";});
     document.getElementById("purchaseClearBtn").addEventListener("click",function(){if(!requireAdmin())return;if(confirm("確定清除已匯入的未進貨資料？")){purchaseRows=[];purchasePage=1;localStorage.removeItem("PMC_V3_PURCHASE_ROWS");renderPurchase();}});
     ["purchaseFilterSupplier","purchaseFilterNo","purchaseFilterExpected","purchaseFilterDrawing","purchaseFilterMaterial","purchaseFilterPart","purchaseFilterQty","purchaseFilterStatus"].forEach(function(id){const el=document.getElementById(id);if(el)el.addEventListener(el.tagName==="SELECT"?"change":"input",function(){purchasePage=1;renderPurchase();});});
+
+    // 手機版採購快速篩選：同步到原本 PC 篩選欄位，沿用同一套篩選邏輯
+    [["mobilePurchaseFilterSupplier","purchaseFilterSupplier"],["mobilePurchaseFilterNo","purchaseFilterNo"],["mobilePurchaseFilterPart","purchaseFilterPart"]].forEach(function(pair){
+      const mobile=document.getElementById(pair[0]);
+      const desktop=document.getElementById(pair[1]);
+      if(!mobile||!desktop)return;
+      mobile.addEventListener("input",function(){
+        desktop.value=mobile.value;
+        purchasePage=1;
+        renderPurchase();
+      });
+    });
+    const mobilePurchaseClear=document.getElementById("mobilePurchaseClearFilterBtn");
+    if(mobilePurchaseClear)mobilePurchaseClear.addEventListener("click",function(){
+      ["mobilePurchaseFilterSupplier","mobilePurchaseFilterNo","mobilePurchaseFilterPart"].forEach(function(id){const el=document.getElementById(id);if(el)el.value="";});
+      ["purchaseFilterSupplier","purchaseFilterNo","purchaseFilterPart"].forEach(function(id){const el=document.getElementById(id);if(el)el.value="";});
+      purchasePage=1;
+      renderPurchase();
+    });
     document.addEventListener("click",function(e){const b=e.target.closest("[data-purchase-page]");if(!b)return;const filtered=getFilteredPurchaseRows(),pages=Math.max(1,Math.ceil(filtered.length/PURCHASE_PAGE_SIZE)),action=b.dataset.purchasePage;if(action==="prev")purchasePage=Math.max(1,purchasePage-1);else if(action==="next")purchasePage=Math.min(pages,purchasePage+1);else purchasePage=Math.min(pages,Math.max(1,Number(action)||1));renderPurchase();});
     document.addEventListener("click",function(e){const b=e.target.closest("[data-board-page]");if(!b)return;const active=orders.filter(o=>overallStatus(o)!=="已完成");const pages=Math.max(1,Math.ceil(active.length/BOARD_PAGE_SIZE)),action=b.dataset.boardPage;if(action==="prev")boardPage=Math.max(1,boardPage-1);else if(action==="next")boardPage=Math.min(pages,boardPage+1);else boardPage=Math.min(pages,Math.max(1,Number(action)||1));renderBoard();});
     document.addEventListener("click",function(e){const b=e.target.closest("[data-order-page]");if(!b)return;const list=getFilteredOrders(),pages=Math.max(1,Math.ceil(list.length/ORDER_PAGE_SIZE)),action=b.dataset.orderPage;if(action==="prev")orderPage=Math.max(1,orderPage-1);else if(action==="next")orderPage=Math.min(pages,orderPage+1);else orderPage=Math.min(pages,Math.max(1,Number(action)||1));renderOrders();});
