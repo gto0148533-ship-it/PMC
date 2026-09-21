@@ -1331,6 +1331,22 @@ input,select{min-height:38px}
     appearance:auto!important;
   }
 
+
+  /* v3：手機自訂下拉選單，避免部分手機瀏覽器原生 select 無法展開 */
+  .mobile-select-wrap{position:relative;width:100%;z-index:30}
+  .mobile-select-trigger{width:100%;min-height:42px;padding:9px 38px 9px 12px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#0f172a;text-align:left;font-size:16px;line-height:1.3;position:relative;cursor:pointer}
+  .mobile-select-trigger::after{content:'▾';position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#64748b;font-size:16px;pointer-events:none}
+  .mobile-select-menu{position:fixed;left:10px;right:10px;top:auto;max-height:55vh;overflow-y:auto;background:#fff;border:1px solid #cbd5e1;border-radius:12px;box-shadow:0 12px 30px rgba(15,23,42,.18);z-index:100000;padding:5px;display:none}
+  .mobile-select-menu.open{display:block}
+  .mobile-select-option{display:block;width:100%;border:0;background:#fff;text-align:left;padding:12px 10px;border-radius:8px;font-size:16px;color:#0f172a}
+  .mobile-select-option:active,.mobile-select-option.selected{background:#eaf2ff;color:#1d4ed8;font-weight:800}
+  .mobile-select-backdrop{position:fixed;inset:0;background:transparent;z-index:99999;display:none}
+  .mobile-select-backdrop.open{display:block}
+
+  #page-schedule .toolbar{gap:6px!important}
+  #page-schedule #scheduleOrderSearch{min-height:38px!important;font-size:14px!important;padding:7px 10px!important}
+  #page-schedule .mobile-select-trigger{min-height:38px!important;font-size:14px!important;padding:7px 34px 7px 10px!important}
+
   #page-purchase .mobile-purchase-filters{display:grid!important;grid-template-columns:1fr;gap:8px;margin-top:10px}
   #page-purchase .mobile-purchase-filters label{display:grid;gap:4px;font-size:11px;font-weight:800;color:#64748b}
   #page-purchase .mobile-purchase-filters input{width:100%!important;min-width:0!important}
@@ -5592,6 +5608,72 @@ document.addEventListener(
 
 </script>
 
+
+<script>
+(function(){
+  if(window.matchMedia && !window.matchMedia('(max-width:760px)').matches) return;
+  function initMobileSelects(){
+    if(document.querySelector('.mobile-select-backdrop')) return;
+    const targets=[
+      '#page-orders #orderPriorityFilter','#page-orders #orderStatusFilter','#page-orders #orderProcessFilter',
+      '#page-progress #progressPriorityFilter','#page-progress #progressFilter','#page-progress #progressProcessFilter',
+      '#page-schedule #scheduleOrder'
+    ];
+    const selects=targets.map(s=>document.querySelector(s)).filter(Boolean);
+    if(!selects.length)return;
+    const backdrop=document.createElement('div');
+    backdrop.className='mobile-select-backdrop';
+    document.body.appendChild(backdrop);
+    let openWrap=null;
+    function close(){
+      document.querySelectorAll('.mobile-select-menu.open').forEach(m=>m.classList.remove('open'));
+      backdrop.classList.remove('open');
+      openWrap=null;
+    }
+    backdrop.addEventListener('click',close);
+    selects.forEach(function(sel){
+      if(sel.dataset.mobileCustom==='1')return;
+      sel.dataset.mobileCustom='1';
+      const wrap=document.createElement('div'); wrap.className='mobile-select-wrap';
+      const trigger=document.createElement('button'); trigger.type='button'; trigger.className='mobile-select-trigger';
+      const menu=document.createElement('div'); menu.className='mobile-select-menu';
+      sel.parentNode.insertBefore(wrap,sel); wrap.appendChild(sel); wrap.appendChild(trigger); wrap.appendChild(menu);
+      sel.style.display='none';
+      function refresh(){
+        const opt=sel.options[sel.selectedIndex];
+        trigger.textContent=opt?opt.textContent.trim():'';
+        menu.querySelectorAll('.mobile-select-option').forEach((b,i)=>b.classList.toggle('selected',i===sel.selectedIndex));
+      }
+      Array.from(sel.options).forEach(function(opt,i){
+        const b=document.createElement('button'); b.type='button'; b.className='mobile-select-option'; b.textContent=opt.textContent.trim();
+        b.addEventListener('click',function(){
+          sel.selectedIndex=i;
+          sel.dispatchEvent(new Event('change',{bubbles:true}));
+          refresh(); close();
+        });
+        menu.appendChild(b);
+      });
+      trigger.addEventListener('click',function(e){
+        e.preventDefault(); e.stopPropagation();
+        if(openWrap===wrap){close();return;}
+        close();
+        const r=trigger.getBoundingClientRect();
+        menu.style.top=Math.min(r.bottom+5,window.innerHeight-menu.offsetHeight-10)+'px';
+        menu.classList.add('open'); backdrop.classList.add('open'); openWrap=wrap;
+        const rr=trigger.getBoundingClientRect();
+        const mh=Math.min(menu.scrollHeight,window.innerHeight*.55);
+        menu.style.maxHeight=mh+'px';
+        menu.style.top=Math.max(10,Math.min(rr.bottom+5,window.innerHeight-mh-10))+'px';
+      });
+      sel.addEventListener('change',refresh);
+      refresh();
+    });
+    window.addEventListener('resize',close);
+    document.addEventListener('scroll',function(){if(openWrap)close();},true);
+  }
+  document.addEventListener('DOMContentLoaded',initMobileSelects);
+})();
+</script>
 
 <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="手機快速導覽">
   <button type="button" data-mobile-page="board" class="active"><span class="mi">⌂</span><span>看板</span></button>
