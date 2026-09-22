@@ -917,6 +917,50 @@ tr:hover td{
 
 
 /* =========================================================
+   OUTSOURCING UI
+========================================================= */
+.outsourcing-kpi-grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:14px;align-items:stretch}
+.outsourcing-import-actions{align-items:center;margin-top:4px}
+.outsourcing-import-actions .footer-note{flex:1;min-width:220px}
+.outsourcing-detail-title{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.outsourcing-status-label{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:#64748b}
+.outsourcing-status-label select{min-width:105px}
+.outsourcing-searchbar{margin-top:10px}
+.outsourcing-searchbar input{flex:1;min-width:180px}
+.outsourcing-risk-line{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.outsourcing-risk-line:last-child{border-bottom:0}
+.outsourcing-file-name{max-width:460px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.outsourcing-source{color:var(--muted);font-size:12px}
+.outsourcing-status-select{min-width:82px}
+.nav-sub{padding-left:28px!important;font-size:12px!important}
+@media(max-width:900px){.outsourcing-kpi-grid{grid-template-columns:1fr}}
+@media(max-width:760px){
+  .outsourcing-kpi-grid{display:grid!important;grid-template-columns:1fr!important;gap:10px!important}
+  .outsourcing-import-actions{display:grid!important;grid-template-columns:1fr 1fr;gap:8px}
+  .outsourcing-import-actions .btn{width:100%}
+  .outsourcing-import-actions .footer-note{grid-column:1/-1;min-width:0}
+  .outsourcing-detail-title{align-items:flex-start;flex-direction:column}
+  .outsourcing-status-label{width:100%;justify-content:space-between}
+  .outsourcing-status-label select{flex:1}
+  .outsourcing-searchbar{display:grid!important;grid-template-columns:1fr auto;gap:8px}
+  #page-outsourcing table{min-width:0!important;width:100%!important;border-collapse:separate!important;border-spacing:0 9px!important}
+  #page-outsourcing thead{display:none!important}
+  #page-outsourcing tbody{display:block;width:100%}
+  #page-outsourcing tbody tr{display:grid!important;width:100%!important;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 11px;box-shadow:0 2px 8px rgba(20,35,55,.04);overflow:hidden}
+  #page-outsourcing tbody td{position:static!important;display:grid!important;grid-template-columns:92px minmax(0,1fr);align-items:center;gap:8px;width:auto!important;min-width:0!important;padding:7px 0!important;border:0!important;border-bottom:1px dashed #e8edf3!important;background:transparent!important;box-shadow:none!important;white-space:normal!important;font-size:13px}
+  #page-outsourcing tbody td:last-child{border-bottom:0!important}
+  #page-outsourcing tbody td::before{font-size:11px;color:#64748b;font-weight:800}
+  #page-outsourcing tbody td:nth-child(1)::before{content:'工單號碼'}
+  #page-outsourcing tbody td:nth-child(2)::before{content:'客戶名稱'}
+  #page-outsourcing tbody td:nth-child(3)::before{content:'PDF檔名'}
+  #page-outsourcing tbody td:nth-child(4)::before{content:'來源資料夾'}
+  #page-outsourcing tbody td:nth-child(5)::before{content:'匯入日期'}
+  #page-outsourcing tbody td:nth-child(6)::before{content:'狀態'}
+  #page-outsourcing .outsourcing-file-name{max-width:none;white-space:normal;overflow:visible;text-overflow:clip}
+  #page-outsourcing .outsourcing-risk-line{grid-template-columns:1fr;gap:5px}
+}
+
+/* =========================================================
    UX 版面優化：降低視覺雜訊、固定操作位置、提高可讀性
    不改變既有資料結構與功能 ID
 ========================================================= */
@@ -1165,42 +1209,6 @@ input,select{min-height:38px}
 .page-flow-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.order-row-actions{display:flex;gap:5px;flex-wrap:wrap;min-width:210px}.order-row-actions .btn{padding-left:8px;padding-right:8px}
 @media(max-width:1100px){.workflow-step small{display:none}.workflow-strip{padding-left:12px;padding-right:12px}.workflow-quick{align-items:flex-start;flex-direction:column}}
 @media(max-width:700px){.workflow-arrow{display:none}.workflow-step{padding:7px 8px}.workflow-step b{font-size:12px}.workflow-strip{gap:2px}.workflow-quick-actions{width:100%}.workflow-quick-actions .btn{flex:1 1 45%}.page-flow-actions{width:100%}.page-flow-actions .btn{flex:1 1 auto}}
-
-
-/* v5：跨頁快速操作／看板狀態明細 */
-.board-kpi-clickable{cursor:pointer;transition:transform .12s,box-shadow .12s}
-.board-kpi-clickable:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,23,42,.10)}
-.board-kpi-clickable:active{transform:translateY(0)}
-.board-order-no-btn{border:0;background:transparent;padding:0;color:#1d4ed8;font:inherit;font-weight:800;cursor:pointer;text-align:left;text-decoration:underline;text-underline-offset:2px}
-.board-status-modal{position:fixed;inset:0;z-index:2147483000;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(15,23,42,.34)}
-.board-status-modal.open{display:flex}
-.board-status-box{width:min(720px,94vw);max-height:min(78vh,720px);overflow:hidden;background:#fff;border-radius:16px;box-shadow:0 24px 70px rgba(15,23,42,.28);display:flex;flex-direction:column}
-.board-status-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px;border-bottom:1px solid #e5e7eb}
-.board-status-head b{font-size:17px}
-.board-status-body{overflow:auto;padding:10px 16px 16px;-webkit-overflow-scrolling:touch}
-.board-status-row{display:grid;grid-template-columns:minmax(120px,1.1fr) minmax(120px,1fr) 100px minmax(210px,auto);gap:10px;align-items:center;padding:11px 4px;border-bottom:1px solid #edf1f5}
-.board-status-row:last-child{border-bottom:0}
-.board-status-actions{display:flex;gap:5px;justify-content:flex-end;flex-wrap:wrap}
-.board-status-actions .btn{min-width:58px}
-.purchase-link-btn{border:0;background:transparent;padding:0;cursor:pointer;color:#1d4ed8;font:inherit;font-weight:800;text-decoration:underline;text-underline-offset:2px}
-.purchase-link-btn.overdue{color:var(--danger)}
-.purchase-detail-actions{display:inline-flex;gap:4px;flex-wrap:wrap;margin-left:5px}
-.purchase-detail-actions .btn{font-size:11px;padding:3px 7px;min-height:28px}
-@media(max-width:760px){
-  .board-status-modal{align-items:flex-end;padding:0}
-  .board-status-box{width:100%;max-height:86vh;border-radius:16px 16px 0 0}
-  .board-status-head{padding:13px 14px}
-  .board-status-body{padding:6px 12px 16px}
-  .board-status-row{grid-template-columns:1fr auto;gap:4px 8px;padding:11px 2px}
-  .board-status-row .status-customer{grid-column:1/2;font-size:12px;color:#475569}
-  .board-status-row .status-badge{grid-column:2/3;grid-row:1/3;align-self:start}
-  .board-status-actions{grid-column:1/3;justify-content:stretch}
-  .board-status-actions .btn{flex:1;min-width:0;min-height:34px}
-  #page-purchase .mobile-purchase-import-card{display:none!important}
-  .purchase-detail-actions{display:flex;margin:5px 0 0}
-  .purchase-detail-actions .btn{min-height:32px}
-}
-
 </style>
 <style>
 
@@ -1369,22 +1377,19 @@ input,select{min-height:38px}
 
 
   /* v3：手機自訂下拉選單，避免部分手機瀏覽器原生 select 無法展開 */
-  /* v4：自訂下拉改為 Portal 到 body，避免被篩選卡片／父層 stacking context 蓋住 */
   .mobile-select-wrap{position:relative;width:100%;z-index:30}
-  .mobile-select-trigger{width:100%;min-height:42px;padding:9px 38px 9px 12px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#0f172a;text-align:left;font-size:16px;line-height:1.3;position:relative;cursor:pointer;touch-action:manipulation}
+  .mobile-select-trigger{width:100%;min-height:42px;padding:9px 38px 9px 12px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#0f172a;text-align:left;font-size:16px;line-height:1.3;position:relative;cursor:pointer}
   .mobile-select-trigger::after{content:'▾';position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#64748b;font-size:16px;pointer-events:none}
-  .mobile-select-menu{position:fixed;left:10px;right:10px;top:0;max-height:72vh;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;background:#fff;border:1px solid #cbd5e1;border-radius:12px;box-shadow:0 16px 40px rgba(15,23,42,.24);z-index:2147483646;padding:5px;display:none;pointer-events:auto}
+  .mobile-select-menu{position:fixed;left:10px;right:10px;top:auto;max-height:55vh;overflow-y:auto;background:#fff;border:1px solid #cbd5e1;border-radius:12px;box-shadow:0 12px 30px rgba(15,23,42,.18);z-index:100000;padding:5px;display:none}
   .mobile-select-menu.open{display:block}
-  .mobile-select-option{display:block;width:100%;border:0;background:#fff;text-align:left;padding:12px 10px;border-radius:8px;font-size:16px;color:#0f172a;touch-action:manipulation}
+  .mobile-select-option{display:block;width:100%;border:0;background:#fff;text-align:left;padding:12px 10px;border-radius:8px;font-size:16px;color:#0f172a}
   .mobile-select-option:active,.mobile-select-option.selected{background:#eaf2ff;color:#1d4ed8;font-weight:800}
-  .mobile-select-backdrop{position:fixed;inset:0;background:transparent;z-index:2147483645;display:none;pointer-events:none}
-  .mobile-select-backdrop.open{display:block;pointer-events:auto}
+  .mobile-select-backdrop{position:fixed;inset:0;background:transparent;z-index:99999;display:none}
+  .mobile-select-backdrop.open{display:block}
 
-  #page-schedule .toolbar{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(135px,34%);gap:6px!important;align-items:center}
-  #page-schedule .toolbar>*{width:auto!important}
-  #page-schedule #scheduleOrderSearch{min-height:38px!important;font-size:14px!important;padding:7px 10px!important;min-width:0!important}
-  #page-schedule .mobile-select-wrap{min-width:0}
-  #page-schedule .mobile-select-trigger{min-height:38px!important;font-size:14px!important;padding:7px 34px 7px 10px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #page-schedule .toolbar{gap:6px!important}
+  #page-schedule #scheduleOrderSearch{min-height:38px!important;font-size:14px!important;padding:7px 10px!important}
+  #page-schedule .mobile-select-trigger{min-height:38px!important;font-size:14px!important;padding:7px 34px 7px 10px!important}
 
   #page-purchase .mobile-purchase-filters{display:grid!important;grid-template-columns:1fr;gap:8px;margin-top:10px}
   #page-purchase .mobile-purchase-filters label{display:grid;gap:4px;font-size:11px;font-weight:800;color:#64748b}
@@ -1397,59 +1402,6 @@ input,select{min-height:38px}
   .mobile-purchase-filters{display:none!important}
 }
 </style>
-
-<style>
-/* =========================================================
-   PMC V6：全站搜尋／目前工單／返回／最近查看
-========================================================= */
-.pmc-global-tools{position:relative;display:flex;align-items:center;gap:10px;padding:8px 22px;background:#fff;border-bottom:1px solid #e6ebf1;z-index:7000}
-.pmc-global-search-wrap{position:relative;flex:1;max-width:620px}
-.pmc-global-search-wrap input{width:100%;height:38px;padding:8px 38px 8px 34px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;font-size:14px;outline:none}
-.pmc-global-search-wrap input:focus{border-color:#60a5fa;background:#fff;box-shadow:0 0 0 3px rgba(96,165,250,.12)}
-.pmc-search-icon{position:absolute;left:11px;top:8px;font-size:19px;color:#64748b;z-index:1}
-#pmcGlobalSearchClear{position:absolute;right:7px;top:5px;width:30px;height:30px;border:0;background:transparent;color:#64748b;font-size:20px;display:none;cursor:pointer}
-.pmc-global-search-results{position:absolute;left:0;right:0;top:44px;background:#fff;border:1px solid #dbe3ec;border-radius:12px;box-shadow:0 18px 45px rgba(15,23,42,.16);display:none;max-height:420px;overflow:auto;z-index:2147483000}
-.pmc-global-search-results.open{display:block}
-.pmc-search-result{width:100%;border:0;background:#fff;text-align:left;padding:11px 13px;border-bottom:1px solid #eef2f6;cursor:pointer;display:grid;grid-template-columns:150px 1fr auto;gap:8px;align-items:center}
-.pmc-search-result:last-child{border-bottom:0}
-.pmc-search-result:hover{background:#f8fbff}
-.pmc-search-result .no{font-weight:800;color:#0f172a}
-.pmc-search-result .customer{color:#334155;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pmc-search-result .status{justify-self:end}
-.pmc-search-empty{padding:16px;color:#64748b;text-align:center}
-.pmc-recent-orders{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
-.pmc-recent-label{font-size:11px;color:#64748b;white-space:nowrap}
-.pmc-recent-chip{border:1px solid #dbe3ec;background:#f8fafc;border-radius:999px;padding:6px 9px;font-size:11px;font-weight:800;color:#334155;cursor:pointer;white-space:nowrap}
-.pmc-recent-chip:hover{background:#eaf2ff;color:#1d4ed8}
-.pmc-current-order-bar{display:none;align-items:center;justify-content:space-between;gap:10px;padding:8px 22px;background:#eef6ff;border-bottom:1px solid #cfe3fb;position:relative;z-index:6000}
-.pmc-current-order-bar.open{display:flex}
-.pmc-current-order-info,.pmc-current-actions{display:flex;align-items:center;gap:8px;min-width:0}
-.pmc-current-label{font-size:11px;color:#64748b;white-space:nowrap}
-#pmcCurrentOrderNo{font-size:15px;color:#0f172a;white-space:nowrap}
-#pmcCurrentOrderCustomer{font-size:12px;color:#334155;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#pmcCurrentOrderStatus{white-space:nowrap}
-@media(max-width:760px){
-  .pmc-global-tools{padding:6px 10px;display:block}
-  .pmc-global-search-wrap{max-width:none}
-  .pmc-global-search-wrap input{height:40px;font-size:16px}
-  .pmc-global-search-results{top:46px;max-height:58vh}
-  .pmc-search-result{grid-template-columns:1fr auto;gap:4px 8px;padding:11px}
-  .pmc-search-result .no{grid-column:1/2}
-  .pmc-search-result .customer{grid-column:1/2;font-size:12px}
-  .pmc-search-result .status{grid-column:2/3;grid-row:1/3}
-  .pmc-recent-orders{padding-top:5px;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}
-  .pmc-recent-label{display:none}
-  .pmc-current-order-bar{padding:7px 10px;display:none;flex-direction:column;align-items:stretch;gap:7px}
-  .pmc-current-order-bar.open{display:flex}
-  .pmc-current-order-info{width:100%;gap:6px;flex-wrap:nowrap}
-  .pmc-current-order-info .btn{min-height:32px;flex:0 0 auto}
-  .pmc-current-label{display:none}
-  #pmcCurrentOrderCustomer{font-size:11px;flex:1}
-  .pmc-current-actions{width:100%;display:grid;grid-template-columns:repeat(3,1fr)}
-  .pmc-current-actions .btn{min-height:34px}
-}
-</style>
-
 </head>
 
 <body>
@@ -1478,6 +1430,7 @@ input,select{min-height:38px}
 
   <div class="nav-group-title">採購與系統</div>
   <button class="nav" data-page="purchase"><span class="ico">▣</span><span class="nav-text">採購管理</span></button>
+  <button class="nav nav-sub" data-page="outsourcing"><span class="ico">↳</span><span class="nav-text">委外製造</span></button>
   <button class="nav" data-page="settings"><span class="ico">⚙</span><span class="nav-text">系統設定</span></button>
 
   <div class="sidebar-tip">
@@ -1511,31 +1464,6 @@ input,select{min-height:38px}
   </div>
 </header>
 
-<div class="pmc-global-tools">
-  <div class="pmc-global-search-wrap">
-    <span class="pmc-search-icon">⌕</span>
-    <input id="pmcGlobalSearch" type="search" autocomplete="off" placeholder="搜尋工單號碼／客戶／產品…">
-    <button id="pmcGlobalSearchClear" type="button" aria-label="清除搜尋">×</button>
-    <div id="pmcGlobalSearchResults" class="pmc-global-search-results"></div>
-  </div>
-  <div id="pmcRecentOrders" class="pmc-recent-orders"></div>
-</div>
-
-<div id="pmcCurrentOrderBar" class="pmc-current-order-bar" aria-live="polite">
-  <div class="pmc-current-order-info">
-    <button id="pmcCurrentBack" class="btn secondary small" type="button">← 返回</button>
-    <span class="pmc-current-label">目前工單</span>
-    <b id="pmcCurrentOrderNo"></b>
-    <span id="pmcCurrentOrderCustomer"></span>
-    <span id="pmcCurrentOrderStatus"></span>
-  </div>
-  <div class="pmc-current-actions">
-    <button type="button" class="btn small secondary" data-current-action="schedule">排程</button>
-    <button type="button" class="btn small secondary" data-current-action="progress">進度</button>
-    <button type="button" class="btn small secondary" data-current-action="purchase">採購</button>
-  </div>
-</div>
-
 <div class="workflow-strip" aria-label="PMC 操作流程">
   <button type="button" class="workflow-step" data-workflow-page="board"><span class="workflow-num">⌂</span><span><b>總覽</b><small>先看異常與工單</small></span></button>
   <span class="workflow-arrow">›</span>
@@ -1565,7 +1493,7 @@ input,select{min-height:38px}
     </div>
     <div class="board-system-info">
       <div class="label">系統資訊</div>
-      <div class="version">PMC V3-20260916</div>
+      <div class="version">PMC V7-20260923</div>
     </div>
   </div>
   <div class="workflow-quick card">
@@ -1874,7 +1802,7 @@ input,select{min-height:38px}
     <div id="purchaseSummary"></div>
   </div>
 
-  <div class="card mobile-purchase-import-card">
+  <div class="card">
     <div class="section-title">匯入 Excel：未進貨詳細資料</div>
     <div class="toolbar" style="margin-top:4px">
       <button class="btn" id="purchaseImportBtn" type="button">選擇 Excel</button>
@@ -1942,6 +1870,61 @@ input,select{min-height:38px}
   </div>
   <div id="purchasePagination" class="purchase-pagination"></div>
 
+</div>
+
+</section>
+
+
+<!-- =========================================================
+     OUTSOURCING
+========================================================= -->
+
+<section id="page-outsourcing" class="page">
+
+<div class="page-intro">
+  <div><b>委外製造</b><span>資料夾 PDF 檔名匯入｜快速確認工單委外未回</span></div>
+</div>
+
+<div class="grid outsourcing-kpi-grid">
+  <div class="card"><div class="section-title">委外製造彙總</div><div id="outsourcingSummary"></div></div>
+  <div class="card"><div class="section-title">資料夾 PDF 檔名匯入</div>
+    <div class="toolbar outsourcing-import-actions">
+      <button class="btn" id="outsourcingFolderBtn" type="button">📁 選擇資料夾</button>
+      <button class="btn secondary" id="outsourcingScanBtn" type="button">↻ 掃描資料夾</button>
+      <input id="outsourcingFolderInput" type="file" webkitdirectory directory multiple accept=".pdf,application/pdf" hidden>
+      <span id="outsourcingFolderName" class="footer-note">可依序選擇不同資料夾加入；相同來源資料夾＋檔名不重複匯入。</span>
+    </div>
+    <div id="outsourcingImportResult" class="footer-note"></div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:14px">
+  <div class="section-title">工單委外未回</div>
+  <div id="outsourcingRisk"></div>
+</div>
+
+<div class="card" style="margin-top:14px">
+  <div class="section-title outsourcing-detail-title">
+    <span>委外製造明細</span>
+    <label class="outsourcing-status-label">狀態
+      <select id="outsourcingStatusFilter">
+        <option value="未回" selected>未回</option>
+        <option value="全部">全部</option>
+        <option value="已回">已回</option>
+      </select>
+    </label>
+  </div>
+  <div class="toolbar outsourcing-searchbar">
+    <input id="outsourcingOrderSearch" placeholder="搜尋工單號碼／客戶名稱">
+    <button class="btn secondary small" id="outsourcingSearchClear" type="button">清除搜尋</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>工單號碼</th><th>客戶名稱</th><th>PDF檔名</th><th>來源資料夾</th><th>匯入日期</th><th>狀態</th></tr></thead>
+      <tbody id="outsourcingBody"></tbody>
+    </table>
+  </div>
+  <div id="outsourcingPagination" class="purchase-pagination"></div>
 </div>
 
 </section>
@@ -2402,6 +2385,11 @@ let scheduleMode=localStorage.getItem("PMC_V3_SCHEDULE_MODE")||"semi";
 let purchaseRows=JSON.parse(localStorage.getItem("PMC_V3_PURCHASE_ROWS")||"[]");
 let purchasePage=1;
 const PURCHASE_PAGE_SIZE=50;
+let outsourcingRows=JSON.parse(localStorage.getItem("PMC_V3_OUTSOURCING_ROWS")||"[]");
+let outsourcingPage=1;
+const OUTSOURCING_PAGE_SIZE=30;
+let outsourcingFolderFiles=[];
+let outsourcingLastFolderName="";
 let boardPage=1;
 const BOARD_PAGE_SIZE=10;
 let orderPage=1;
@@ -2733,6 +2721,11 @@ function applyServerData(data){
     localStorage.setItem("PMC_V3_PURCHASE_ROWS",JSON.stringify(purchaseRows));
   }
 
+  if(Array.isArray(data.outsourcingRows)){
+    outsourcingRows=data.outsourcingRows;
+    localStorage.setItem("PMC_V3_OUTSOURCING_ROWS",JSON.stringify(outsourcingRows));
+  }
+
   saveData();
 }
 
@@ -2979,8 +2972,8 @@ function renderBoard(){
   const pageOrders=active.slice(start,start+BOARD_PAGE_SIZE);
   const parallelCount=key=>orders.filter(o=>o.actual?.design?.end&&!o.actual?.[key]?.end&&overallStatus(o)!=="已完成").length;
   const kpis=[["工單總數",orders.length,"筆"],["維修",orders.filter(o=>o.status==="維修").length,"筆"],["繪圖",orders.filter(o=>overallStatus(o)==="繪圖").length,"筆"],["加工",parallelCount("weld"),"筆"],["採購",parallelCount("purchase"),"筆"],["委外",parallelCount("outsourcing"),"筆"],["組裝",orders.filter(o=>overallStatus(o)==="組裝").length,"筆"],["測試中",orders.filter(o=>overallStatus(o)==="測試中").length,"筆"],["待結案",orders.filter(o=>overallStatus(o)==="待結案").length,"筆"],["逾期",orders.filter(o=>overallStatus(o)==="逾期").length,"筆"]];
-  document.getElementById("boardKpis").innerHTML=kpis.filter(x=>x[1]>0).map(x=>`<button type="button" class="card kpi board-kpi-clickable" data-board-status="${esc(x[0])}"><div class="label">${x[0]}</div><div class="value">${x[1]}${x[2]}</div></button>`).join("");
-  document.getElementById("boardOrders").innerHTML=active.length?pageOrders.map(o=>`<div class="board-order-row"><b><button type="button" class="board-order-no-btn" onclick="openOrderWorkflow('schedule','${esc(o.no)}')">${esc(o.no)}</button></b><span>${esc(o.customer)}</span><span>${esc(o.product)}</span><span>${badge(overallStatus(o))}</span><span>${daysLeft(o.due)<0?"逾期 "+Math.abs(daysLeft(o.due))+" 天":"剩 "+daysLeft(o.due)+" 天"}</span></div>`).join(""):`<div class="empty">目前沒有未完成工單</div>`;
+  document.getElementById("boardKpis").innerHTML=kpis.filter(x=>x[1]>0).map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}${x[2]}</div></div>`).join("");
+  document.getElementById("boardOrders").innerHTML=active.length?pageOrders.map(o=>`<div class="board-order-row"><b>${esc(o.no)}</b><span>${esc(o.customer)}</span><span>${esc(o.product)}</span><span>${badge(overallStatus(o))}</span><span>${daysLeft(o.due)<0?"逾期 "+Math.abs(daysLeft(o.due))+" 天":"剩 "+daysLeft(o.due)+" 天"}</span></div>`).join(""):`<div class="empty">目前沒有未完成工單</div>`;
   document.getElementById("boardPagination").innerHTML=active.length?`<span>顯示 ${start+1}–${Math.min(start+BOARD_PAGE_SIZE,active.length)} / ${active.length} 筆</span><div class="board-page-buttons"><button class="btn secondary small" type="button" data-board-page="prev" ${boardPage<=1?"disabled":""}>上一頁</button>${Array.from({length:totalPages},(_,i)=>i+1).map(n=>`<button class="btn ${n===boardPage?"":"secondary"} small" type="button" data-board-page="${n}">${n}</button>`).join("")}<button class="btn secondary small" type="button" data-board-page="next" ${boardPage>=totalPages?"disabled":""}>下一頁</button></div>`:"";
   const repairs=orders.filter(o=>o.status==="維修");
   document.getElementById("boardMaintenance").innerHTML=repairs.length?`<div style="font-size:22px;font-weight:800">${repairs.length} 筆維修工單</div><div class="footer-note">${repairs.slice(0,8).map(o=>`${esc(o.no)}｜${esc(o.customer)}`).join("、")}${repairs.length>8?"…":""}</div>`:`<div class="empty">目前沒有維修工單</div>`;
@@ -3929,7 +3922,7 @@ function purchaseSummaryHtml(no){
   const st=purchaseStatsForOrder(no);
   if(!st.total)return `<div class="purchase-detail">尚無採購明細</div>`;
   if(st.pending===0)return `<div class="purchase-detail"><b style="color:var(--ok)">全數進貨完成</b></div>`;
-  return `<div class="purchase-detail"><span class="purchase-detail-actions"><button type="button" class="purchase-link-btn" onclick="openPurchaseDetail('${esc(no)}','待到貨')">待進貨 ${st.pending} 筆</button><span>｜</span><button type="button" class="purchase-link-btn overdue" onclick="openPurchaseDetail('${esc(no)}','逾期')">逾期 ${st.overdue} 筆</button></span></div>`;
+  return `<div class="purchase-detail"><b>待進貨 ${st.pending} 筆</b> ｜ <b style="color:var(--danger)">逾期 ${st.overdue} 筆</b></div>`;
 }
 function renderPurchase(){
   const rows=purchaseRows||[],overdue=rows.filter(r=>getPurchaseDisplayStatus(r)==="逾期"),pending=rows.filter(r=>getPurchaseDisplayStatus(r)!=="已到貨"),filtered=getFilteredPurchaseRows();
@@ -3952,7 +3945,7 @@ function renderPurchase(){
   });
   const orderRiskLines=Array.from(orderRiskMap.entries()).map(([no,st])=>{
     const order=orders.find(o=>String(o.no).trim()===no);
-    return `<div class="purchase-risk-line"><span><b>${esc(no)}</b>${order?.customer?`｜${esc(order.customer)}`:""}</span><span><button type="button" class="purchase-link-btn" onclick="openPurchaseDetail('${esc(no)}','待到貨')">${st.pending} 筆未進貨</button>／<button type="button" class="purchase-link-btn overdue" onclick="openPurchaseDetail('${esc(no)}','逾期')">${st.overdue} 筆逾期</button></span></div>`;
+    return `<div class="purchase-risk-line"><span><b>${esc(no)}</b>${order?.customer?`｜${esc(order.customer)}`:""}</span><span><b>${st.pending} 筆未進貨</b>／<b style="color:var(--danger)">${st.overdue} 筆逾期</b></span></div>`;
   }).join("");
   document.getElementById("purchaseRisk").innerHTML=`<div style="font-size:20px;font-weight:800">${orderNos.size} 筆工單未進貨／${overdue.length} 筆逾期</div><div style="margin-top:10px">${orderRiskLines||`<div class="empty">目前沒有未進貨工單</div>`}</div><div class="footer-note">以採購明細中的工單號碼統計；逾期依預計交期判斷。</div>`;
   document.getElementById("purchaseBody").innerHTML=pageRows.map(r=>`<tr><td>${esc(r.supplier)}</td><td><b>${esc(r.no)}</b></td><td>${esc(r.expected)}</td><td>${esc(r.drawing||r.desc)}</td><td>${esc(r.material)}</td><td>${esc(r.part)}</td><td>${esc(r.qty)}</td><td>${badge(getPurchaseDisplayStatus(r))}</td></tr>`).join("")||`<tr><td colspan="8" class="empty">${filtered.length?"沒有符合篩選條件的資料":"尚未匯入未進貨詳細資料"}</td></tr>`;
@@ -3982,6 +3975,107 @@ function importPurchaseExcel(file){
   if(/\.csv$/i.test(file.name))reader.readAsText(file,"utf-8");else reader.readAsArrayBuffer(file);
 }
 
+
+/* =========================================================
+   OUTSOURCING MANUFACTURING
+========================================================= */
+function outsourcingToday(){return TODAY instanceof Date?TODAY:new Date();}
+function outsourcingOrders(row){
+  const nos=Array.isArray(row.orderNos)?row.orderNos:[row.no].filter(Boolean);
+  return nos.map(outsourcingOrder).filter(Boolean);
+}
+function outsourcingIsOverdue(row){
+  if(row.status!=="未回") return false;
+  return outsourcingOrders(row).some(order=>order?.due && parseDate(order.due)<outsourcingToday());
+}
+function extractOutsourcingOrderNos(fileName){
+  const base=String(fileName||"").replace(/\.pdf$/i,"");
+  const found=[]; const re=/(^|[^0-9])(\d{7})(?!\d)/g; let m;
+  while((m=re.exec(base))!==null){if(!found.includes(m[2]))found.push(m[2]);}
+  return found;
+}
+function outsourcingDate(){return fmt(new Date());}
+function outsourcingRowKey(row){return `${String(row.sourceFolder||"").trim()}||${String(row.fileName||"").trim()}`;}
+function saveOutsourcing(){localStorage.setItem("PMC_V3_OUTSOURCING_ROWS",JSON.stringify(outsourcingRows));}
+function addOutsourcingFiles(files,folderName){
+  const now=outsourcingDate(); const existing=new Set(outsourcingRows.map(outsourcingRowKey));
+  let added=0,skipped=0,invalid=0;
+  Array.from(files||[]).filter(f=>/\.pdf$/i.test(f.name)).forEach(file=>{
+    const key=`${String(folderName||"").trim()}||${String(file.name||"").trim()}`;
+    if(existing.has(key)){skipped++;return;}
+    const nos=extractOutsourcingOrderNos(file.name);
+    if(!nos.length){invalid++;return;}
+    outsourcingRows.push({orderNos:nos,fileName:file.name,sourceFolder:folderName||"未命名資料夾",importDate:now,status:"未回"});
+    existing.add(key); added++;
+  });
+  saveOutsourcing();
+  outsourcingPage=1;
+  renderOutsourcing();
+  return {added,skipped,invalid};
+}
+async function chooseOutsourcingFolder(){
+  if(!requireAdmin()) return;
+  try{
+    if(window.showDirectoryPicker){
+      const handle=await window.showDirectoryPicker({mode:"read"});
+      const files=[];
+      for await(const [name,entry] of handle.entries()){
+        if(entry.kind==="file" && /\.pdf$/i.test(name)) files.push(await entry.getFile());
+      }
+      outsourcingFolderFiles=files; outsourcingLastFolderName=handle.name||"未命名資料夾";
+      document.getElementById("outsourcingFolderName").textContent=`目前資料夾：${outsourcingLastFolderName}｜PDF ${files.length} 份`;
+      const result=addOutsourcingFiles(files,outsourcingLastFolderName);
+      document.getElementById("outsourcingImportResult").textContent=`本次掃描：新增 ${result.added} 份 PDF、跳過 ${result.skipped} 份已存在、${result.invalid} 份找不到 7 位工單號。`;
+      return;
+    }
+    document.getElementById("outsourcingFolderInput").click();
+  }catch(err){if(err?.name!=="AbortError") alert("資料夾選擇失敗："+err.message);}
+}
+function scanOutsourcingFolder(){
+  if(!requireAdmin()) return;
+  if(outsourcingFolderFiles.length){
+    const result=addOutsourcingFiles(outsourcingFolderFiles,outsourcingLastFolderName);
+    document.getElementById("outsourcingImportResult").textContent=`重新掃描 ${outsourcingLastFolderName}：新增 ${result.added} 份 PDF、跳過 ${result.skipped} 份已存在、${result.invalid} 份找不到 7 位工單號。`;
+  }else chooseOutsourcingFolder();
+}
+function renderOutsourcing(){
+  const rows=outsourcingRows||[];
+  const unreturned=rows.filter(r=>r.status!=="已回");
+  const overdue=unreturned.filter(outsourcingIsOverdue);
+  const orderMap=new Map();
+  unreturned.forEach(r=>{
+    (r.orderNos||[r.no]).filter(Boolean).forEach(no=>{
+      const key=String(no).trim(); if(!key)return;
+      if(!orderMap.has(key))orderMap.set(key,{pending:0,overdue:0});
+      orderMap.get(key).pending++;
+      if(outsourcingIsOverdue(r))orderMap.get(key).overdue++;
+    });
+  });
+  const returned=rows.filter(r=>r.status==="已回");
+  document.getElementById("outsourcingSummary").innerHTML=`<div class="statline" style="padding:6px 0"><span>匯入明細筆數</span><b>${rows.length}</b></div><div class="statline" style="padding:6px 0"><span>未回筆數</span><b>${unreturned.length}</b></div><div class="statline" style="padding:6px 0"><span>已回筆數</span><b>${returned.length}</b></div>`;
+  const riskLines=Array.from(orderMap.entries()).map(([no,st])=>{
+    const order=outsourcingOrder(no);
+    return `<div class="outsourcing-risk-line"><span><b>${esc(no)}</b>${order?.customer?`｜${esc(order.customer)}`:""}</span><span><b>${st.pending} 筆未回</b>${st.overdue?`／<b style="color:var(--danger)">${st.overdue} 筆逾期</b>`:""}</span></div>`;
+  }).join("");
+  document.getElementById("outsourcingRisk").innerHTML=`<div style="font-size:20px;font-weight:800">${orderMap.size} 筆工單委外未回 ／ ${overdue.length} 筆逾期</div><div style="margin-top:10px">${riskLines||`<div class="empty">目前沒有委外未回資料</div>`}</div><div class="footer-note">逾期判斷：對應工單的預計交機日已過，且委外 PDF 仍為「未回」。</div>`;
+  const status=document.getElementById("outsourcingStatusFilter")?.value||"未回";
+  const q=(document.getElementById("outsourcingOrderSearch")?.value||"").trim().toLowerCase();
+  let filtered=rows.filter(r=>{
+    const nos=(r.orderNos||[r.no]).filter(Boolean); const customers=outsourcingOrders(r).map(o=>String(o.customer||""));
+    const statusMatch=status==="全部"||r.status===status;
+    const hay=[...nos,...customers,r.fileName||"",r.sourceFolder||""].join(" ").toLowerCase();
+    return statusMatch&&(!q||hay.includes(q));
+  });
+  const totalPages=Math.max(1,Math.ceil(filtered.length/OUTSOURCING_PAGE_SIZE));
+  if(outsourcingPage>totalPages)outsourcingPage=totalPages;
+  const start=(outsourcingPage-1)*OUTSOURCING_PAGE_SIZE, pageRows=filtered.slice(start,start+OUTSOURCING_PAGE_SIZE);
+  document.getElementById("outsourcingBody").innerHTML=pageRows.map(r=>{
+    const nos=(r.orderNos||[r.no]).filter(Boolean); const customerNames=[...new Set(outsourcingOrders(r).map(o=>o.customer).filter(Boolean))];
+    const statusHtml=isAdmin?`<select class="outsourcing-status-select" data-outsourcing-status="1" data-outsourcing-file="${escAttr(r.fileName)}" data-outsourcing-source="${escAttr(r.sourceFolder)}"><option value="未回" ${r.status!=="已回"?"selected":""}>未回</option><option value="已回" ${r.status==="已回"?"selected":""}>已回</option></select>`:badge(r.status||"未回");
+    return `<tr><td><b>${esc(nos.join(" + "))}</b></td><td>${esc(customerNames.join(" + ")||"未對應工單")}</td><td><div class="outsourcing-file-name" title="${escAttr(r.fileName)}">${esc(r.fileName)}</div></td><td><span class="outsourcing-source">${esc(r.sourceFolder||"")}</span></td><td>${esc(r.importDate||"")}</td><td>${statusHtml}</td></tr>`;
+  }).join("")||`<tr><td colspan="6" class="empty">目前沒有符合條件的委外資料</td></tr>`;
+  document.getElementById("outsourcingPagination").innerHTML=`<div>顯示 ${filtered.length?start+1:0}–${Math.min(start+OUTSOURCING_PAGE_SIZE,filtered.length)} / ${filtered.length} 筆</div><div class="purchase-page-buttons"><button class="btn secondary small" type="button" data-outsourcing-page="prev" ${outsourcingPage<=1?"disabled":""}>上一頁</button>${Array.from({length:totalPages},(_,i)=>i+1).slice(Math.max(0,outsourcingPage-3),Math.min(totalPages,outsourcingPage+2)).map(n=>`<button class="btn ${n===outsourcingPage?"":"secondary"} small" type="button" data-outsourcing-page="${n}">${n}</button>`).join("")}<button class="btn secondary small" type="button" data-outsourcing-page="next" ${outsourcingPage>=totalPages?"disabled":""}>下一頁</button></div>`;
+}
 
 /* =========================================================
    SETTINGS
@@ -4392,87 +4486,11 @@ function exportGanttImage(){
 }
 
 
-
-/* =========================================================
-   v5：跨頁快速操作
-========================================================= */
-function getBoardStatusOrders(status){
-  const parallel={
-    "加工": "weld",
-    "採購": "purchase",
-    "委外": "outsourcing"
-  };
-  if(parallel[status]){
-    const key=parallel[status];
-    return orders.filter(o=>o.actual?.design?.end&&!o.actual?.[key]?.end&&overallStatus(o)!=="已完成");
-  }
-  if(status==="繪圖") return orders.filter(o=>overallStatus(o)==="繪圖");
-  if(status==="組裝") return orders.filter(o=>overallStatus(o)==="組裝");
-  if(status==="測試中") return orders.filter(o=>overallStatus(o)==="測試中");
-  if(status==="待結案") return orders.filter(o=>overallStatus(o)==="待結案");
-  if(status==="逾期") return orders.filter(o=>overallStatus(o)==="逾期");
-  if(status==="維修") return orders.filter(o=>o.status==="維修");
-  if(status==="工單總數") return orders.slice();
-  return [];
-}
-function openBoardStatusModal(status){
-  const list=getBoardStatusOrders(status);
-  const modal=document.getElementById("boardStatusModal");
-  const title=document.getElementById("boardStatusModalTitle");
-  const body=document.getElementById("boardStatusModalBody");
-  if(!modal||!title||!body)return;
-  title.textContent=`${status}｜${list.length} 筆工單`;
-  body.innerHTML=list.length?list.map(o=>`<div class="board-status-row">
-    <div><button type="button" class="board-order-no-btn" onclick="closeBoardStatusModal();openOrderWorkflow('schedule','${esc(o.no)}')">${esc(o.no)}</button></div>
-    <div class="status-customer">${esc(o.customer||"")}</div>
-    <div class="status-badge">${badge(overallStatus(o))}</div>
-    <div class="board-status-actions">
-      <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('schedule','${esc(o.no)}')">排程</button>
-      <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('progress','${esc(o.no)}')">進度</button>
-      <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('purchase','${esc(o.no)}')">採購</button>
-    </div>
-  </div>`).join(""):`<div class="empty">目前沒有符合的工單</div>`;
-  modal.classList.add("open");
-  modal.setAttribute("aria-hidden","false");
-  document.body.style.overflow="hidden";
-}
-function closeBoardStatusModal(){
-  const modal=document.getElementById("boardStatusModal");
-  if(!modal)return;
-  modal.classList.remove("open");
-  modal.setAttribute("aria-hidden","true");
-  document.body.style.overflow="";
-}
-function openPurchaseDetail(no,status){
-  const n=String(no||"").trim();
-  const st=status==="逾期"?"逾期":"待到貨";
-  const desktopNo=document.getElementById("purchaseFilterNo");
-  const desktopStatus=document.getElementById("purchaseFilterStatus");
-  const mobileNo=document.getElementById("mobilePurchaseFilterNo");
-  if(desktopNo)desktopNo.value=n;
-  if(desktopStatus)desktopStatus.value=st;
-  if(mobileNo)mobileNo.value=n;
-  purchasePage=1;
-  showPage("purchase");
-  renderPurchase();
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-
 /* =========================================================
    SHOW PAGE
 ========================================================= */
 
 function showPage(page){
-
-  if(window.__pmcV6HistoryReady && !window.__pmcV6SkipHistory){
-    const activeNow=document.querySelector(".page.active");
-    const currentNow=activeNow?.id?.replace("page-","");
-    if(currentNow && currentNow!==page){
-      window.__pmcV6PageHistory=window.__pmcV6PageHistory||[];
-      window.__pmcV6PageHistory.push(currentNow);
-    }
-  }
-  window.__pmcV6SkipHistory=false;
 
   document
     .querySelectorAll(".page")
@@ -4527,6 +4545,8 @@ function showPage(page){
 
     purchase:"採購管理",
 
+    outsourcing:"委外製造",
+
     settings:"系統設定"
 
   };
@@ -4546,7 +4566,6 @@ function showPage(page){
 
 function openOrderWorkflow(page,no){
   const orderNo=String(no||"");
-  if(window.pmcSetCurrentOrder) window.pmcSetCurrentOrder(orderNo,true);
   if(page==="schedule"){
     const search=document.getElementById("scheduleOrderSearch");
     if(search) search.value=orderNo;
@@ -5196,7 +5215,8 @@ function exportData(){
     orders:orders,
     processRules:processRules,
     scheduleMode:scheduleMode,
-    purchaseRows:purchaseRows
+    purchaseRows:purchaseRows,
+    outsourcingRows:outsourcingRows
   };
 
   const blob=new Blob(
@@ -5341,6 +5361,8 @@ function renderAll(){
 
   renderPurchase();
 
+  renderOutsourcing();
+
   renderSettings();
 
   renderSelectors();
@@ -5360,7 +5382,7 @@ function doLogout(){isAdmin=false;sessionStorage.removeItem("PMC_V3_ADMIN_LOGIN"
 function updatePermissions(){
   const b=document.getElementById("permissionBadge");b.textContent=isAdmin?"權限：管理者":"權限：訪客查詢";b.classList.toggle("admin",isAdmin);
   document.getElementById("loginBtn").textContent=isAdmin?"登出":"登入";
-  ["openOrderBtn","orderAddBtn","purchaseImportBtn","purchaseClearBtn","resetBtn","exportBtn","saveProcessSettingsBtn"].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display=isAdmin?"inline-block":"none";});
+  ["openOrderBtn","orderAddBtn","purchaseImportBtn","purchaseClearBtn","outsourcingFolderBtn","outsourcingScanBtn","resetBtn","exportBtn","saveProcessSettingsBtn"].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display=isAdmin?"inline-block":"none";});
   const note=document.getElementById("orderReadonlyNote");if(note)note.textContent=isAdmin?"管理者可新增／編輯／刪除":"訪客模式：僅查詢";
 }
 function requireAdmin(){if(isAdmin)return true;alert("目前為訪客查詢模式，請先登入管理者帳號。");return false;}
@@ -5769,6 +5791,31 @@ document.addEventListener(
     document.getElementById("purchaseImportBtn").addEventListener("click",function(){if(requireAdmin())document.getElementById("purchaseExcelFile").click();});
     document.getElementById("purchaseExcelFile").addEventListener("change",function(e){if(e.target.files[0]&&requireAdmin())importPurchaseExcel(e.target.files[0]);e.target.value="";});
     document.getElementById("purchaseClearBtn").addEventListener("click",function(){if(!requireAdmin())return;if(confirm("確定清除已匯入的未進貨資料？")){purchaseRows=[];purchasePage=1;localStorage.removeItem("PMC_V3_PURCHASE_ROWS");renderPurchase();}});
+    /* 委外製造：多資料夾 PDF 檔名匯入 */
+    document.getElementById("outsourcingFolderBtn").addEventListener("click",chooseOutsourcingFolder);
+    document.getElementById("outsourcingScanBtn").addEventListener("click",scanOutsourcingFolder);
+    document.getElementById("outsourcingFolderInput").addEventListener("change",function(e){
+      if(!requireAdmin())return;
+      const files=Array.from(e.target.files||[]).filter(f=>/\.pdf$/i.test(f.name));
+      const first=files[0];
+      const path=first?.webkitRelativePath||"";
+      const folderName=path?path.split("/")[0]:"選取資料夾";
+      outsourcingFolderFiles=files; outsourcingLastFolderName=folderName;
+      document.getElementById("outsourcingFolderName").textContent=`目前資料夾：${folderName}｜PDF ${files.length} 份`;
+      const result=addOutsourcingFiles(files,folderName);
+      document.getElementById("outsourcingImportResult").textContent=`本次掃描：新增 ${result.added} 份 PDF、跳過 ${result.skipped} 份已存在、${result.invalid} 份找不到 7 位工單號。`;
+      e.target.value="";
+    });
+    document.getElementById("outsourcingStatusFilter").addEventListener("change",function(){outsourcingPage=1;renderOutsourcing();});
+    document.getElementById("outsourcingOrderSearch").addEventListener("input",function(){outsourcingPage=1;renderOutsourcing();});
+    document.getElementById("outsourcingSearchClear").addEventListener("click",function(){document.getElementById("outsourcingOrderSearch").value="";outsourcingPage=1;renderOutsourcing();});
+    document.addEventListener("change",function(e){
+      const sel=e.target.closest("[data-outsourcing-status]"); if(!sel)return; if(!requireAdmin()){renderOutsourcing();return;}
+      const file=sel.dataset.outsourcingFile,source=sel.dataset.outsourcingSource;
+      const row=outsourcingRows.find(r=>String(r.fileName)===String(file)&&String(r.sourceFolder)===String(source));
+      if(row){row.status=sel.value;saveOutsourcing();renderOutsourcing();}
+    });
+    document.addEventListener("click",function(e){const b=e.target.closest("[data-outsourcing-page]");if(!b)return;const action=b.dataset.outsourcingPage;const status=document.getElementById("outsourcingStatusFilter")?.value||"未回";const q=(document.getElementById("outsourcingOrderSearch")?.value||"").trim().toLowerCase();const filtered=outsourcingRows.filter(r=>{const nos=(r.orderNos||[r.no]).filter(Boolean),cs=outsourcingOrders(r).map(o=>String(o.customer||""));const hay=[...nos,...cs,r.fileName||"",r.sourceFolder||""].join(" ").toLowerCase();return (status==="全部"||r.status===status)&&(!q||hay.includes(q));});const pages=Math.max(1,Math.ceil(filtered.length/OUTSOURCING_PAGE_SIZE));if(action==="prev")outsourcingPage=Math.max(1,outsourcingPage-1);else if(action==="next")outsourcingPage=Math.min(pages,outsourcingPage+1);else outsourcingPage=Math.min(pages,Math.max(1,Number(action)||1));renderOutsourcing();});
     ["purchaseFilterSupplier","purchaseFilterNo","purchaseFilterExpected","purchaseFilterDrawing","purchaseFilterMaterial","purchaseFilterPart","purchaseFilterQty","purchaseFilterStatus"].forEach(function(id){const el=document.getElementById(id);if(el)el.addEventListener(el.tagName==="SELECT"?"change":"input",function(){purchasePage=1;renderPurchase();});});
 
     // 手機版採購快速篩選：同步到原本 PC 篩選欄位，沿用同一套篩選邏輯
@@ -5806,178 +5853,65 @@ document.addEventListener(
 <script>
 (function(){
   if(window.matchMedia && !window.matchMedia('(max-width:760px)').matches) return;
-
   function initMobileSelects(){
-    if(document.querySelector('.mobile-select-wrap')) return;
-
+    if(document.querySelector('.mobile-select-backdrop')) return;
     const targets=[
-      '#page-orders #orderPriorityFilter',
-      '#page-orders #orderStatusFilter',
-      '#page-orders #orderProcessFilter',
-      '#page-progress #progressPriorityFilter',
-      '#page-progress #progressFilter',
-      '#page-progress #progressProcessFilter',
+      '#page-orders #orderPriorityFilter','#page-orders #orderStatusFilter','#page-orders #orderProcessFilter',
+      '#page-progress #progressPriorityFilter','#page-progress #progressFilter','#page-progress #progressProcessFilter',
       '#page-schedule #scheduleOrder'
     ];
-
-    const selects=targets.map(function(s){return document.querySelector(s);}).filter(Boolean);
-    if(!selects.length) return;
-
+    const selects=targets.map(s=>document.querySelector(s)).filter(Boolean);
+    if(!selects.length)return;
     const backdrop=document.createElement('div');
     backdrop.className='mobile-select-backdrop';
     document.body.appendChild(backdrop);
-
     let openWrap=null;
-    let openSelect=null;
-    let openMenu=null;
-
     function close(){
-      if(openMenu) openMenu.classList.remove('open');
+      document.querySelectorAll('.mobile-select-menu.open').forEach(m=>m.classList.remove('open'));
       backdrop.classList.remove('open');
       openWrap=null;
-      openSelect=null;
-      openMenu=null;
     }
-
     backdrop.addEventListener('click',close);
-
-    function buildOptions(sel,menu){
-      menu.innerHTML='';
+    selects.forEach(function(sel){
+      if(sel.dataset.mobileCustom==='1')return;
+      sel.dataset.mobileCustom='1';
+      const wrap=document.createElement('div'); wrap.className='mobile-select-wrap';
+      const trigger=document.createElement('button'); trigger.type='button'; trigger.className='mobile-select-trigger';
+      const menu=document.createElement('div'); menu.className='mobile-select-menu';
+      sel.parentNode.insertBefore(wrap,sel); wrap.appendChild(sel); wrap.appendChild(trigger); wrap.appendChild(menu);
+      sel.style.display='none';
+      function refresh(){
+        const opt=sel.options[sel.selectedIndex];
+        trigger.textContent=opt?opt.textContent.trim():'';
+        menu.querySelectorAll('.mobile-select-option').forEach((b,i)=>b.classList.toggle('selected',i===sel.selectedIndex));
+      }
       Array.from(sel.options).forEach(function(opt,i){
-        const b=document.createElement('button');
-        b.type='button';
-        b.className='mobile-select-option';
-        b.textContent=opt.textContent.trim();
-        b.dataset.index=String(i);
-        b.addEventListener('click',function(e){
-          e.preventDefault();
-          e.stopPropagation();
+        const b=document.createElement('button'); b.type='button'; b.className='mobile-select-option'; b.textContent=opt.textContent.trim();
+        b.addEventListener('click',function(){
           sel.selectedIndex=i;
           sel.dispatchEvent(new Event('change',{bubbles:true}));
-          refresh(sel);
-          close();
+          refresh(); close();
         });
         menu.appendChild(b);
       });
-    }
-
-    function refresh(sel){
-      const wrap=sel.closest('.mobile-select-wrap');
-      if(!wrap) return;
-      const trigger=wrap.querySelector('.mobile-select-trigger');
-      const menu=wrap._mobileMenu;
-      const opt=sel.options[sel.selectedIndex];
-      trigger.textContent=opt ? opt.textContent.trim() : '';
-      if(menu){
-        menu.querySelectorAll('.mobile-select-option').forEach(function(b){
-          b.classList.toggle('selected',Number(b.dataset.index)===sel.selectedIndex);
-        });
-      }
-    }
-
-    function open(sel){
-      const wrap=sel.closest('.mobile-select-wrap');
-      if(!wrap) return;
-      const trigger=wrap.querySelector('.mobile-select-trigger');
-
-      if(openWrap===wrap){
-        close();
-        return;
-      }
-
-      close();
-
-      const menu=wrap._mobileMenu;
-      buildOptions(sel,menu);
-
-      // Portal menu 已經掛在 body，不會被 filter card / table / transform 蓋住
-      const r=trigger.getBoundingClientRect();
-      const viewportH=window.innerHeight;
-      const gap=5;
-
-      // 先顯示再量高度；原本 menu 是 display:none 時 scrollHeight 幾乎為 0，
-      // 會把 max-height 算成約 120px，手機上因此只能看到前兩項。
-      menu.classList.add('open');
-      const contentH=menu.scrollHeight;
-      const spaceBelow=viewportH-r.bottom-gap;
-      const spaceAbove=r.top-gap;
-      const available=Math.max(120,Math.min(viewportH*0.72,Math.max(spaceBelow,spaceAbove)-8));
-      const maxH=Math.max(120,Math.min(contentH,available));
-
-      menu.style.maxHeight=maxH+'px';
-
-      // 優先往下；下方空間不足就往上
-      let top;
-      if(spaceBelow >= Math.min(260,maxH) || spaceBelow >= spaceAbove){
-        top=Math.min(r.bottom+gap,viewportH-maxH-8);
-      }else{
-        top=Math.max(8,r.top-gap-maxH);
-      }
-
-      const left=Math.max(8,Math.min(r.left,window.innerWidth-8-r.width));
-      const width=Math.min(r.width,window.innerWidth-16);
-
-      menu.style.top=Math.max(8,top)+'px';
-      menu.style.left=left+'px';
-      menu.style.width=width+'px';
-      backdrop.classList.add('open');
-      openWrap=wrap;
-      openSelect=sel;
-      openMenu=menu;
-      refresh(sel);
-    }
-
-    selects.forEach(function(sel){
-      if(sel.dataset.mobileCustom==='1') return;
-      sel.dataset.mobileCustom='1';
-
-      const wrap=document.createElement('div');
-      wrap.className='mobile-select-wrap';
-
-      const trigger=document.createElement('button');
-      trigger.type='button';
-      trigger.className='mobile-select-trigger';
-
-      const menu=document.createElement('div');
-      menu.className='mobile-select-menu';
-
-      // 重要：menu 不放在篩選欄位裡，直接掛到 body，避免 z-index / overflow / stacking context
-      document.body.appendChild(menu);
-
-      sel.parentNode.insertBefore(wrap,sel);
-      wrap.appendChild(sel);
-      wrap.appendChild(trigger);
-      wrap._mobileMenu=menu;
-
-      sel.style.display='none';
-
       trigger.addEventListener('click',function(e){
-        e.preventDefault();
-        e.stopPropagation();
-        open(sel);
+        e.preventDefault(); e.stopPropagation();
+        if(openWrap===wrap){close();return;}
+        close();
+        const r=trigger.getBoundingClientRect();
+        menu.style.top=Math.min(r.bottom+5,window.innerHeight-menu.offsetHeight-10)+'px';
+        menu.classList.add('open'); backdrop.classList.add('open'); openWrap=wrap;
+        const rr=trigger.getBoundingClientRect();
+        const mh=Math.min(menu.scrollHeight,window.innerHeight*.55);
+        menu.style.maxHeight=mh+'px';
+        menu.style.top=Math.max(10,Math.min(rr.bottom+5,window.innerHeight-mh-10))+'px';
       });
-
-      sel.addEventListener('change',function(){
-        refresh(sel);
-      });
-
-      refresh(sel);
-
-      // 排程的工單清單會隨「工單搜尋」動態重建，開啟前重新抓最新 options
-      if(sel.id==='scheduleOrder'){
-        const observer=new MutationObserver(function(){
-          refresh(sel);
-        });
-        observer.observe(sel,{childList:true});
-      }
+      sel.addEventListener('change',refresh);
+      refresh();
     });
-
     window.addEventListener('resize',close);
-    window.addEventListener('orientationchange',close);
-    // 不監聽全頁 scroll 關閉選單；否則手指在選單內上下滑動時，
-    // scroll 事件會被捕捉，導致選單立刻關閉，無法滑到後面的選項。
+    document.addEventListener('scroll',function(){if(openWrap)close();},true);
   }
-
   document.addEventListener('DOMContentLoaded',initMobileSelects);
 })();
 </script>
@@ -6025,142 +5959,6 @@ document.addEventListener(
     });
     document.querySelectorAll('.page').forEach(function(p){pageObserver.observe(p,{attributes:true,attributeFilter:['class']});});
   });
-})();
-</script>
-
-
-
-<div id="boardStatusModal" class="board-status-modal" aria-hidden="true">
-  <div class="board-status-box" role="dialog" aria-modal="true" aria-labelledby="boardStatusModalTitle">
-    <div class="board-status-head">
-      <b id="boardStatusModalTitle">狀態工單</b>
-      <button type="button" class="btn secondary small" onclick="closeBoardStatusModal()">關閉</button>
-    </div>
-    <div id="boardStatusModalBody" class="board-status-body"></div>
-  </div>
-</div>
-
-<script>
-(function(){
-  function bindBoardStatus(){
-    document.addEventListener('click',function(e){
-      const b=e.target.closest('[data-board-status]');
-      if(!b)return;
-      openBoardStatusModal(b.dataset.boardStatus||'');
-    });
-    const modal=document.getElementById('boardStatusModal');
-    if(modal)modal.addEventListener('click',function(e){if(e.target===modal)closeBoardStatusModal();});
-    document.addEventListener('keydown',function(e){if(e.key==='Escape')closeBoardStatusModal();});
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindBoardStatus);else bindBoardStatus();
-})();
-</script>
-
-<script>
-/* =========================================================
-   PMC V6：全站工單搜尋／目前工單／返回／最近查看
-========================================================= */
-(function(){
-  const RECENT_KEY='PMC_V6_RECENT_ORDERS';
-  let pageHistory=[];
-  let historyReady=false;
-
-  function safeRecent(){try{return JSON.parse(localStorage.getItem(RECENT_KEY)||'[]').filter(Boolean).slice(0,6);}catch(e){return [];}}
-  function saveRecent(list){try{localStorage.setItem(RECENT_KEY,JSON.stringify(list.slice(0,6)));}catch(e){}}
-  function getOrder(no){return (typeof orders!=="undefined"?orders:[]).find(o=>String(o.no)===String(no));}
-  function addRecent(no){
-    if(!no)return;
-    const list=safeRecent().filter(x=>String(x)!==String(no));
-    list.unshift(String(no)); saveRecent(list); renderRecent();
-  }
-  function renderRecent(){
-    const el=document.getElementById('pmcRecentOrders'); if(!el)return;
-    const list=safeRecent();
-    if(!list.length){el.innerHTML='';return;}
-    el.innerHTML='<span class="pmc-recent-label">最近查看</span>'+list.map(no=>{
-      const o=getOrder(no);
-      return `<button type="button" class="pmc-recent-chip" data-recent-order="${esc(no)}">${esc(no)}${o&&o.customer?'｜'+esc(o.customer):''}</button>`;
-    }).join('');
-  }
-  function setCurrentOrder(no,add=true){
-    const o=getOrder(no);
-    if(!o)return;
-    window.pmcCurrentOrderNo=String(o.no);
-    if(add)addRecent(o.no);
-    const bar=document.getElementById('pmcCurrentOrderBar');
-    if(!bar)return;
-    document.getElementById('pmcCurrentOrderNo').textContent=o.no||'';
-    document.getElementById('pmcCurrentOrderCustomer').textContent=o.customer||'';
-    const st=document.getElementById('pmcCurrentOrderStatus');
-    if(st)st.innerHTML=badge(overallStatus(o));
-    bar.classList.add('open');
-  }
-  window.pmcSetCurrentOrder=function(no,add=true){setCurrentOrder(no,add);};
-  function clearCurrentOrder(){
-    window.pmcCurrentOrderNo='';
-    const bar=document.getElementById('pmcCurrentOrderBar'); if(bar)bar.classList.remove('open');
-  }
-  function renderSearchResults(q){
-    const box=document.getElementById('pmcGlobalSearchResults');
-    const clear=document.getElementById('pmcGlobalSearchClear');
-    if(!box)return;
-    q=(q||'').trim().toLowerCase();
-    if(clear)clear.style.display=q?'block':'none';
-    if(!q){box.classList.remove('open');box.innerHTML='';return;}
-    const list=(typeof orders!=="undefined"?orders:[]).filter(o=>[o.no,o.customer,o.product].join(' ').toLowerCase().includes(q)).slice(0,30);
-    box.innerHTML=list.length?list.map(o=>`<button type="button" class="pmc-search-result" data-global-order="${esc(o.no)}"><span class="no">${esc(o.no)}</span><span class="customer">${esc(o.customer||'')}｜${esc(o.product||'')}</span><span class="status">${badge(overallStatus(o))}</span></button>`).join(''):'<div class="pmc-search-empty">找不到符合的工單</div>';
-    box.classList.add('open');
-  }
-  function rememberFromPage(page){
-    if(page==='schedule'){const no=document.getElementById('scheduleOrder')?.value;if(no)setCurrentOrder(no,false);}
-    else if(page==='progress'){const q=(document.getElementById('progressSearch')?.value||'').trim();const o=getOrder(q);if(o)setCurrentOrder(o.no,false);}
-    else if(page==='purchase'){const no=(document.getElementById('purchaseFilterNo')?.value||document.getElementById('mobilePurchaseFilterNo')?.value||'').trim();if(no)setCurrentOrder(no,false);}
-  }
-  function v6ShowPage(page,skipHistory){
-    if(historyReady && !skipHistory){
-      const active=document.querySelector('.page.active');
-      const cur=active?.id?.replace('page-','');
-      if(cur && cur!==page) pageHistory.push(cur);
-    }
-    showPage(page);
-    rememberFromPage(page);
-  }
-  window.pmcNavigateWithHistory=function(page,no){
-    if(no)setCurrentOrder(no,true);
-    v6ShowPage(page,false);
-  };
-  window.pmcBack=function(){
-    const stack=window.__pmcV6PageHistory||[]; const prev=stack.pop();
-    if(prev){v6ShowPage(prev,true);return;}
-    if(window.pmcCurrentOrderNo) v6ShowPage('board',true);
-    else history.back();
-  };
-
-  function patchNavigation(){}
-  function bind(){
-    const search=document.getElementById('pmcGlobalSearch');
-    const clear=document.getElementById('pmcGlobalSearchClear');
-    if(search){search.addEventListener('input',()=>renderSearchResults(search.value));search.addEventListener('focus',()=>{if(search.value.trim())renderSearchResults(search.value);});search.addEventListener('keydown',e=>{if(e.key==='Enter'){const first=document.querySelector('[data-global-order]');if(first)first.click();}});}
-    if(clear)clear.addEventListener('click',()=>{search.value='';renderSearchResults('');search.focus();});
-    document.addEventListener('click',function(e){
-      const result=e.target.closest('[data-global-order]');
-      if(result){const no=result.dataset.globalOrder;document.getElementById('pmcGlobalSearch').value='';renderSearchResults('');openOrderWorkflow('schedule',no);return;}
-      const recent=e.target.closest('[data-recent-order]');
-      if(recent){openOrderWorkflow('schedule',recent.dataset.recentOrder);return;}
-      const act=e.target.closest('[data-current-action]');
-      if(act&&window.pmcCurrentOrderNo){openOrderWorkflow(act.dataset.currentAction,window.pmcCurrentOrderNo);return;}
-      const back=e.target.closest('#pmcCurrentBack');
-      if(back){pmcBack();return;}
-      if(!e.target.closest('.pmc-global-search-wrap')){document.getElementById('pmcGlobalSearchResults')?.classList.remove('open');}
-    });
-    window.__pmcV6HistoryReady=true;
-    ['scheduleOrder'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',()=>{if(el.value)setCurrentOrder(el.value,true);});});
-    const ps=document.getElementById('progressSearch'); if(ps)ps.addEventListener('change',()=>{const o=getOrder(ps.value.trim());if(o)setCurrentOrder(o.no,true);});
-    ['purchaseFilterNo','mobilePurchaseFilterNo'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',()=>{const o=getOrder(el.value.trim());if(o)setCurrentOrder(o.no,true);});});
-    renderRecent();
-    patchNavigation();
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
 })();
 </script>
 
