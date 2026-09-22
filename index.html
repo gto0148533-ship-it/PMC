@@ -1165,6 +1165,42 @@ input,select{min-height:38px}
 .page-flow-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.order-row-actions{display:flex;gap:5px;flex-wrap:wrap;min-width:210px}.order-row-actions .btn{padding-left:8px;padding-right:8px}
 @media(max-width:1100px){.workflow-step small{display:none}.workflow-strip{padding-left:12px;padding-right:12px}.workflow-quick{align-items:flex-start;flex-direction:column}}
 @media(max-width:700px){.workflow-arrow{display:none}.workflow-step{padding:7px 8px}.workflow-step b{font-size:12px}.workflow-strip{gap:2px}.workflow-quick-actions{width:100%}.workflow-quick-actions .btn{flex:1 1 45%}.page-flow-actions{width:100%}.page-flow-actions .btn{flex:1 1 auto}}
+
+
+/* v5：跨頁快速操作／看板狀態明細 */
+.board-kpi-clickable{cursor:pointer;transition:transform .12s,box-shadow .12s}
+.board-kpi-clickable:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,23,42,.10)}
+.board-kpi-clickable:active{transform:translateY(0)}
+.board-order-no-btn{border:0;background:transparent;padding:0;color:#1d4ed8;font:inherit;font-weight:800;cursor:pointer;text-align:left;text-decoration:underline;text-underline-offset:2px}
+.board-status-modal{position:fixed;inset:0;z-index:2147483000;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(15,23,42,.34)}
+.board-status-modal.open{display:flex}
+.board-status-box{width:min(720px,94vw);max-height:min(78vh,720px);overflow:hidden;background:#fff;border-radius:16px;box-shadow:0 24px 70px rgba(15,23,42,.28);display:flex;flex-direction:column}
+.board-status-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px;border-bottom:1px solid #e5e7eb}
+.board-status-head b{font-size:17px}
+.board-status-body{overflow:auto;padding:10px 16px 16px;-webkit-overflow-scrolling:touch}
+.board-status-row{display:grid;grid-template-columns:minmax(120px,1.1fr) minmax(120px,1fr) 100px minmax(210px,auto);gap:10px;align-items:center;padding:11px 4px;border-bottom:1px solid #edf1f5}
+.board-status-row:last-child{border-bottom:0}
+.board-status-actions{display:flex;gap:5px;justify-content:flex-end;flex-wrap:wrap}
+.board-status-actions .btn{min-width:58px}
+.purchase-link-btn{border:0;background:transparent;padding:0;cursor:pointer;color:#1d4ed8;font:inherit;font-weight:800;text-decoration:underline;text-underline-offset:2px}
+.purchase-link-btn.overdue{color:var(--danger)}
+.purchase-detail-actions{display:inline-flex;gap:4px;flex-wrap:wrap;margin-left:5px}
+.purchase-detail-actions .btn{font-size:11px;padding:3px 7px;min-height:28px}
+@media(max-width:760px){
+  .board-status-modal{align-items:flex-end;padding:0}
+  .board-status-box{width:100%;max-height:86vh;border-radius:16px 16px 0 0}
+  .board-status-head{padding:13px 14px}
+  .board-status-body{padding:6px 12px 16px}
+  .board-status-row{grid-template-columns:1fr auto;gap:4px 8px;padding:11px 2px}
+  .board-status-row .status-customer{grid-column:1/2;font-size:12px;color:#475569}
+  .board-status-row .status-badge{grid-column:2/3;grid-row:1/3;align-self:start}
+  .board-status-actions{grid-column:1/3;justify-content:stretch}
+  .board-status-actions .btn{flex:1;min-width:0;min-height:34px}
+  #page-purchase .mobile-purchase-import-card{display:none!important}
+  .purchase-detail-actions{display:flex;margin:5px 0 0}
+  .purchase-detail-actions .btn{min-height:32px}
+}
+
 </style>
 <style>
 
@@ -1760,7 +1796,7 @@ input,select{min-height:38px}
     <div id="purchaseSummary"></div>
   </div>
 
-  <div class="card">
+  <div class="card mobile-purchase-import-card">
     <div class="section-title">匯入 Excel：未進貨詳細資料</div>
     <div class="toolbar" style="margin-top:4px">
       <button class="btn" id="purchaseImportBtn" type="button">選擇 Excel</button>
@@ -2865,8 +2901,8 @@ function renderBoard(){
   const pageOrders=active.slice(start,start+BOARD_PAGE_SIZE);
   const parallelCount=key=>orders.filter(o=>o.actual?.design?.end&&!o.actual?.[key]?.end&&overallStatus(o)!=="已完成").length;
   const kpis=[["工單總數",orders.length,"筆"],["維修",orders.filter(o=>o.status==="維修").length,"筆"],["繪圖",orders.filter(o=>overallStatus(o)==="繪圖").length,"筆"],["加工",parallelCount("weld"),"筆"],["採購",parallelCount("purchase"),"筆"],["委外",parallelCount("outsourcing"),"筆"],["組裝",orders.filter(o=>overallStatus(o)==="組裝").length,"筆"],["測試中",orders.filter(o=>overallStatus(o)==="測試中").length,"筆"],["待結案",orders.filter(o=>overallStatus(o)==="待結案").length,"筆"],["逾期",orders.filter(o=>overallStatus(o)==="逾期").length,"筆"]];
-  document.getElementById("boardKpis").innerHTML=kpis.filter(x=>x[1]>0).map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="value">${x[1]}${x[2]}</div></div>`).join("");
-  document.getElementById("boardOrders").innerHTML=active.length?pageOrders.map(o=>`<div class="board-order-row"><b>${esc(o.no)}</b><span>${esc(o.customer)}</span><span>${esc(o.product)}</span><span>${badge(overallStatus(o))}</span><span>${daysLeft(o.due)<0?"逾期 "+Math.abs(daysLeft(o.due))+" 天":"剩 "+daysLeft(o.due)+" 天"}</span></div>`).join(""):`<div class="empty">目前沒有未完成工單</div>`;
+  document.getElementById("boardKpis").innerHTML=kpis.filter(x=>x[1]>0).map(x=>`<button type="button" class="card kpi board-kpi-clickable" data-board-status="${esc(x[0])}"><div class="label">${x[0]}</div><div class="value">${x[1]}${x[2]}</div></button>`).join("");
+  document.getElementById("boardOrders").innerHTML=active.length?pageOrders.map(o=>`<div class="board-order-row"><b><button type="button" class="board-order-no-btn" onclick="openOrderWorkflow('schedule','${esc(o.no)}')">${esc(o.no)}</button></b><span>${esc(o.customer)}</span><span>${esc(o.product)}</span><span>${badge(overallStatus(o))}</span><span>${daysLeft(o.due)<0?"逾期 "+Math.abs(daysLeft(o.due))+" 天":"剩 "+daysLeft(o.due)+" 天"}</span></div>`).join(""):`<div class="empty">目前沒有未完成工單</div>`;
   document.getElementById("boardPagination").innerHTML=active.length?`<span>顯示 ${start+1}–${Math.min(start+BOARD_PAGE_SIZE,active.length)} / ${active.length} 筆</span><div class="board-page-buttons"><button class="btn secondary small" type="button" data-board-page="prev" ${boardPage<=1?"disabled":""}>上一頁</button>${Array.from({length:totalPages},(_,i)=>i+1).map(n=>`<button class="btn ${n===boardPage?"":"secondary"} small" type="button" data-board-page="${n}">${n}</button>`).join("")}<button class="btn secondary small" type="button" data-board-page="next" ${boardPage>=totalPages?"disabled":""}>下一頁</button></div>`:"";
   const repairs=orders.filter(o=>o.status==="維修");
   document.getElementById("boardMaintenance").innerHTML=repairs.length?`<div style="font-size:22px;font-weight:800">${repairs.length} 筆維修工單</div><div class="footer-note">${repairs.slice(0,8).map(o=>`${esc(o.no)}｜${esc(o.customer)}`).join("、")}${repairs.length>8?"…":""}</div>`:`<div class="empty">目前沒有維修工單</div>`;
@@ -3815,7 +3851,7 @@ function purchaseSummaryHtml(no){
   const st=purchaseStatsForOrder(no);
   if(!st.total)return `<div class="purchase-detail">尚無採購明細</div>`;
   if(st.pending===0)return `<div class="purchase-detail"><b style="color:var(--ok)">全數進貨完成</b></div>`;
-  return `<div class="purchase-detail"><b>待進貨 ${st.pending} 筆</b> ｜ <b style="color:var(--danger)">逾期 ${st.overdue} 筆</b></div>`;
+  return `<div class="purchase-detail"><span class="purchase-detail-actions"><button type="button" class="purchase-link-btn" onclick="openPurchaseDetail('${esc(no)}','待到貨')">待進貨 ${st.pending} 筆</button><span>｜</span><button type="button" class="purchase-link-btn overdue" onclick="openPurchaseDetail('${esc(no)}','逾期')">逾期 ${st.overdue} 筆</button></span></div>`;
 }
 function renderPurchase(){
   const rows=purchaseRows||[],overdue=rows.filter(r=>getPurchaseDisplayStatus(r)==="逾期"),pending=rows.filter(r=>getPurchaseDisplayStatus(r)!=="已到貨"),filtered=getFilteredPurchaseRows();
@@ -3838,7 +3874,7 @@ function renderPurchase(){
   });
   const orderRiskLines=Array.from(orderRiskMap.entries()).map(([no,st])=>{
     const order=orders.find(o=>String(o.no).trim()===no);
-    return `<div class="purchase-risk-line"><span><b>${esc(no)}</b>${order?.customer?`｜${esc(order.customer)}`:""}</span><span><b>${st.pending} 筆未進貨</b>／<b style="color:var(--danger)">${st.overdue} 筆逾期</b></span></div>`;
+    return `<div class="purchase-risk-line"><span><b>${esc(no)}</b>${order?.customer?`｜${esc(order.customer)}`:""}</span><span><button type="button" class="purchase-link-btn" onclick="openPurchaseDetail('${esc(no)}','待到貨')">${st.pending} 筆未進貨</button>／<button type="button" class="purchase-link-btn overdue" onclick="openPurchaseDetail('${esc(no)}','逾期')">${st.overdue} 筆逾期</button></span></div>`;
   }).join("");
   document.getElementById("purchaseRisk").innerHTML=`<div style="font-size:20px;font-weight:800">${orderNos.size} 筆工單未進貨／${overdue.length} 筆逾期</div><div style="margin-top:10px">${orderRiskLines||`<div class="empty">目前沒有未進貨工單</div>`}</div><div class="footer-note">以採購明細中的工單號碼統計；逾期依預計交期判斷。</div>`;
   document.getElementById("purchaseBody").innerHTML=pageRows.map(r=>`<tr><td>${esc(r.supplier)}</td><td><b>${esc(r.no)}</b></td><td>${esc(r.expected)}</td><td>${esc(r.drawing||r.desc)}</td><td>${esc(r.material)}</td><td>${esc(r.part)}</td><td>${esc(r.qty)}</td><td>${badge(getPurchaseDisplayStatus(r))}</td></tr>`).join("")||`<tr><td colspan="8" class="empty">${filtered.length?"沒有符合篩選條件的資料":"尚未匯入未進貨詳細資料"}</td></tr>`;
@@ -4277,6 +4313,72 @@ function exportGanttImage(){
   },"image/png");
 }
 
+
+
+/* =========================================================
+   v5：跨頁快速操作
+========================================================= */
+function getBoardStatusOrders(status){
+  const parallel={
+    "加工": "weld",
+    "採購": "purchase",
+    "委外": "outsourcing"
+  };
+  if(parallel[status]){
+    const key=parallel[status];
+    return orders.filter(o=>o.actual?.design?.end&&!o.actual?.[key]?.end&&overallStatus(o)!=="已完成");
+  }
+  if(status==="繪圖") return orders.filter(o=>overallStatus(o)==="繪圖");
+  if(status==="組裝") return orders.filter(o=>overallStatus(o)==="組裝");
+  if(status==="測試中") return orders.filter(o=>overallStatus(o)==="測試中");
+  if(status==="待結案") return orders.filter(o=>overallStatus(o)==="待結案");
+  if(status==="逾期") return orders.filter(o=>overallStatus(o)==="逾期");
+  if(status==="維修") return orders.filter(o=>o.status==="維修");
+  if(status==="工單總數") return orders.slice();
+  return [];
+}
+function openBoardStatusModal(status){
+  const list=getBoardStatusOrders(status);
+  const modal=document.getElementById("boardStatusModal");
+  const title=document.getElementById("boardStatusModalTitle");
+  const body=document.getElementById("boardStatusModalBody");
+  if(!modal||!title||!body)return;
+  title.textContent=`${status}｜${list.length} 筆工單`;
+  body.innerHTML=list.length?list.map(o=>`<div class="board-status-row">
+    <div><button type="button" class="board-order-no-btn" onclick="closeBoardStatusModal();openOrderWorkflow('schedule','${esc(o.no)}')">${esc(o.no)}</button></div>
+    <div class="status-customer">${esc(o.customer||"")}</div>
+    <div class="status-badge">${badge(overallStatus(o))}</div>
+    <div class="board-status-actions">
+      <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('schedule','${esc(o.no)}')">排程</button>
+      <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('progress','${esc(o.no)}')">進度</button>
+      <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('purchase','${esc(o.no)}')">採購</button>
+    </div>
+  </div>`).join(""):`<div class="empty">目前沒有符合的工單</div>`;
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden","false");
+  document.body.style.overflow="hidden";
+}
+function closeBoardStatusModal(){
+  const modal=document.getElementById("boardStatusModal");
+  if(!modal)return;
+  modal.classList.remove("open");
+  modal.setAttribute("aria-hidden","true");
+  document.body.style.overflow="";
+}
+function openPurchaseDetail(no,status){
+  const n=String(no||"").trim();
+  const st=status==="逾期"?"逾期":"待到貨";
+  const desktopNo=document.getElementById("purchaseFilterNo");
+  const desktopStatus=document.getElementById("purchaseFilterStatus");
+  const mobileNo=document.getElementById("mobilePurchaseFilterNo");
+  if(desktopNo)desktopNo.value=n;
+  if(desktopStatus)desktopStatus.value=st;
+  if(mobileNo)mobileNo.value=n;
+  purchasePage=1;
+  showPage("purchase");
+  renderPurchase();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
 
 /* =========================================================
    SHOW PAGE
@@ -5834,6 +5936,34 @@ document.addEventListener(
     });
     document.querySelectorAll('.page').forEach(function(p){pageObserver.observe(p,{attributes:true,attributeFilter:['class']});});
   });
+})();
+</script>
+
+
+
+<div id="boardStatusModal" class="board-status-modal" aria-hidden="true">
+  <div class="board-status-box" role="dialog" aria-modal="true" aria-labelledby="boardStatusModalTitle">
+    <div class="board-status-head">
+      <b id="boardStatusModalTitle">狀態工單</b>
+      <button type="button" class="btn secondary small" onclick="closeBoardStatusModal()">關閉</button>
+    </div>
+    <div id="boardStatusModalBody" class="board-status-body"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  function bindBoardStatus(){
+    document.addEventListener('click',function(e){
+      const b=e.target.closest('[data-board-status]');
+      if(!b)return;
+      openBoardStatusModal(b.dataset.boardStatus||'');
+    });
+    const modal=document.getElementById('boardStatusModal');
+    if(modal)modal.addEventListener('click',function(e){if(e.target===modal)closeBoardStatusModal();});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')closeBoardStatusModal();});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindBoardStatus);else bindBoardStatus();
 })();
 </script>
 
