@@ -1337,7 +1337,7 @@ input,select{min-height:38px}
   .mobile-select-wrap{position:relative;width:100%;z-index:30}
   .mobile-select-trigger{width:100%;min-height:42px;padding:9px 38px 9px 12px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#0f172a;text-align:left;font-size:16px;line-height:1.3;position:relative;cursor:pointer;touch-action:manipulation}
   .mobile-select-trigger::after{content:'▾';position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#64748b;font-size:16px;pointer-events:none}
-  .mobile-select-menu{position:fixed;left:10px;right:10px;top:0;max-height:55vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:#fff;border:1px solid #cbd5e1;border-radius:12px;box-shadow:0 16px 40px rgba(15,23,42,.24);z-index:2147483646;padding:5px;display:none;pointer-events:auto}
+  .mobile-select-menu{position:fixed;left:10px;right:10px;top:0;max-height:72vh;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;background:#fff;border:1px solid #cbd5e1;border-radius:12px;box-shadow:0 16px 40px rgba(15,23,42,.24);z-index:2147483646;padding:5px;display:none;pointer-events:auto}
   .mobile-select-menu.open{display:block}
   .mobile-select-option{display:block;width:100%;border:0;background:#fff;text-align:left;padding:12px 10px;border-radius:8px;font-size:16px;color:#0f172a;touch-action:manipulation}
   .mobile-select-option:active,.mobile-select-option.selected{background:#eaf2ff;color:#1d4ed8;font-weight:800}
@@ -5703,11 +5703,17 @@ document.addEventListener(
       const r=trigger.getBoundingClientRect();
       const viewportH=window.innerHeight;
       const gap=5;
-      const maxH=Math.min(menu.scrollHeight,viewportH*0.55);
+
+      // 先顯示再量高度；原本 menu 是 display:none 時 scrollHeight 幾乎為 0，
+      // 會把 max-height 算成約 120px，手機上因此只能看到前兩項。
+      menu.classList.add('open');
+      const contentH=menu.scrollHeight;
       const spaceBelow=viewportH-r.bottom-gap;
       const spaceAbove=r.top-gap;
+      const available=Math.max(120,Math.min(viewportH*0.72,Math.max(spaceBelow,spaceAbove)-8));
+      const maxH=Math.max(120,Math.min(contentH,available));
 
-      menu.style.maxHeight=Math.max(120,Math.min(maxH,Math.max(spaceBelow,spaceAbove)))+'px';
+      menu.style.maxHeight=maxH+'px';
 
       // 優先往下；下方空間不足就往上
       let top;
@@ -5723,7 +5729,6 @@ document.addEventListener(
       menu.style.top=Math.max(8,top)+'px';
       menu.style.left=left+'px';
       menu.style.width=width+'px';
-      menu.classList.add('open');
       backdrop.classList.add('open');
       openWrap=wrap;
       openSelect=sel;
@@ -5778,9 +5783,8 @@ document.addEventListener(
 
     window.addEventListener('resize',close);
     window.addEventListener('orientationchange',close);
-    document.addEventListener('scroll',function(){
-      if(openWrap) close();
-    },true);
+    // 不監聽全頁 scroll 關閉選單；否則手指在選單內上下滑動時，
+    // scroll 事件會被捕捉，導致選單立刻關閉，無法滑到後面的選項。
   }
 
   document.addEventListener('DOMContentLoaded',initMobileSelects);
