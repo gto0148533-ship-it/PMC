@@ -1397,6 +1397,59 @@ input,select{min-height:38px}
   .mobile-purchase-filters{display:none!important}
 }
 </style>
+
+<style>
+/* =========================================================
+   PMC V6：全站搜尋／目前工單／返回／最近查看
+========================================================= */
+.pmc-global-tools{position:relative;display:flex;align-items:center;gap:10px;padding:8px 22px;background:#fff;border-bottom:1px solid #e6ebf1;z-index:7000}
+.pmc-global-search-wrap{position:relative;flex:1;max-width:620px}
+.pmc-global-search-wrap input{width:100%;height:38px;padding:8px 38px 8px 34px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;font-size:14px;outline:none}
+.pmc-global-search-wrap input:focus{border-color:#60a5fa;background:#fff;box-shadow:0 0 0 3px rgba(96,165,250,.12)}
+.pmc-search-icon{position:absolute;left:11px;top:8px;font-size:19px;color:#64748b;z-index:1}
+#pmcGlobalSearchClear{position:absolute;right:7px;top:5px;width:30px;height:30px;border:0;background:transparent;color:#64748b;font-size:20px;display:none;cursor:pointer}
+.pmc-global-search-results{position:absolute;left:0;right:0;top:44px;background:#fff;border:1px solid #dbe3ec;border-radius:12px;box-shadow:0 18px 45px rgba(15,23,42,.16);display:none;max-height:420px;overflow:auto;z-index:2147483000}
+.pmc-global-search-results.open{display:block}
+.pmc-search-result{width:100%;border:0;background:#fff;text-align:left;padding:11px 13px;border-bottom:1px solid #eef2f6;cursor:pointer;display:grid;grid-template-columns:150px 1fr auto;gap:8px;align-items:center}
+.pmc-search-result:last-child{border-bottom:0}
+.pmc-search-result:hover{background:#f8fbff}
+.pmc-search-result .no{font-weight:800;color:#0f172a}
+.pmc-search-result .customer{color:#334155;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pmc-search-result .status{justify-self:end}
+.pmc-search-empty{padding:16px;color:#64748b;text-align:center}
+.pmc-recent-orders{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
+.pmc-recent-label{font-size:11px;color:#64748b;white-space:nowrap}
+.pmc-recent-chip{border:1px solid #dbe3ec;background:#f8fafc;border-radius:999px;padding:6px 9px;font-size:11px;font-weight:800;color:#334155;cursor:pointer;white-space:nowrap}
+.pmc-recent-chip:hover{background:#eaf2ff;color:#1d4ed8}
+.pmc-current-order-bar{display:none;align-items:center;justify-content:space-between;gap:10px;padding:8px 22px;background:#eef6ff;border-bottom:1px solid #cfe3fb;position:relative;z-index:6000}
+.pmc-current-order-bar.open{display:flex}
+.pmc-current-order-info,.pmc-current-actions{display:flex;align-items:center;gap:8px;min-width:0}
+.pmc-current-label{font-size:11px;color:#64748b;white-space:nowrap}
+#pmcCurrentOrderNo{font-size:15px;color:#0f172a;white-space:nowrap}
+#pmcCurrentOrderCustomer{font-size:12px;color:#334155;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#pmcCurrentOrderStatus{white-space:nowrap}
+@media(max-width:760px){
+  .pmc-global-tools{padding:6px 10px;display:block}
+  .pmc-global-search-wrap{max-width:none}
+  .pmc-global-search-wrap input{height:40px;font-size:16px}
+  .pmc-global-search-results{top:46px;max-height:58vh}
+  .pmc-search-result{grid-template-columns:1fr auto;gap:4px 8px;padding:11px}
+  .pmc-search-result .no{grid-column:1/2}
+  .pmc-search-result .customer{grid-column:1/2;font-size:12px}
+  .pmc-search-result .status{grid-column:2/3;grid-row:1/3}
+  .pmc-recent-orders{padding-top:5px;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}
+  .pmc-recent-label{display:none}
+  .pmc-current-order-bar{padding:7px 10px;display:none;flex-direction:column;align-items:stretch;gap:7px}
+  .pmc-current-order-bar.open{display:flex}
+  .pmc-current-order-info{width:100%;gap:6px;flex-wrap:nowrap}
+  .pmc-current-order-info .btn{min-height:32px;flex:0 0 auto}
+  .pmc-current-label{display:none}
+  #pmcCurrentOrderCustomer{font-size:11px;flex:1}
+  .pmc-current-actions{width:100%;display:grid;grid-template-columns:repeat(3,1fr)}
+  .pmc-current-actions .btn{min-height:34px}
+}
+</style>
+
 </head>
 
 <body>
@@ -1457,6 +1510,31 @@ input,select{min-height:38px}
     <button class="btn secondary" id="loginBtn" type="button">登入</button>
   </div>
 </header>
+
+<div class="pmc-global-tools">
+  <div class="pmc-global-search-wrap">
+    <span class="pmc-search-icon">⌕</span>
+    <input id="pmcGlobalSearch" type="search" autocomplete="off" placeholder="搜尋工單號碼／客戶／產品…">
+    <button id="pmcGlobalSearchClear" type="button" aria-label="清除搜尋">×</button>
+    <div id="pmcGlobalSearchResults" class="pmc-global-search-results"></div>
+  </div>
+  <div id="pmcRecentOrders" class="pmc-recent-orders"></div>
+</div>
+
+<div id="pmcCurrentOrderBar" class="pmc-current-order-bar" aria-live="polite">
+  <div class="pmc-current-order-info">
+    <button id="pmcCurrentBack" class="btn secondary small" type="button">← 返回</button>
+    <span class="pmc-current-label">目前工單</span>
+    <b id="pmcCurrentOrderNo"></b>
+    <span id="pmcCurrentOrderCustomer"></span>
+    <span id="pmcCurrentOrderStatus"></span>
+  </div>
+  <div class="pmc-current-actions">
+    <button type="button" class="btn small secondary" data-current-action="schedule">排程</button>
+    <button type="button" class="btn small secondary" data-current-action="progress">進度</button>
+    <button type="button" class="btn small secondary" data-current-action="purchase">採購</button>
+  </div>
+</div>
 
 <div class="workflow-strip" aria-label="PMC 操作流程">
   <button type="button" class="workflow-step" data-workflow-page="board"><span class="workflow-num">⌂</span><span><b>總覽</b><small>先看異常與工單</small></span></button>
@@ -4386,6 +4464,16 @@ function openPurchaseDetail(no,status){
 
 function showPage(page){
 
+  if(window.__pmcV6HistoryReady && !window.__pmcV6SkipHistory){
+    const activeNow=document.querySelector(".page.active");
+    const currentNow=activeNow?.id?.replace("page-","");
+    if(currentNow && currentNow!==page){
+      window.__pmcV6PageHistory=window.__pmcV6PageHistory||[];
+      window.__pmcV6PageHistory.push(currentNow);
+    }
+  }
+  window.__pmcV6SkipHistory=false;
+
   document
     .querySelectorAll(".page")
     .forEach(function(section){
@@ -4458,6 +4546,7 @@ function showPage(page){
 
 function openOrderWorkflow(page,no){
   const orderNo=String(no||"");
+  if(window.pmcSetCurrentOrder) window.pmcSetCurrentOrder(orderNo,true);
   if(page==="schedule"){
     const search=document.getElementById("scheduleOrderSearch");
     if(search) search.value=orderNo;
@@ -5964,6 +6053,114 @@ document.addEventListener(
     document.addEventListener('keydown',function(e){if(e.key==='Escape')closeBoardStatusModal();});
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindBoardStatus);else bindBoardStatus();
+})();
+</script>
+
+<script>
+/* =========================================================
+   PMC V6：全站工單搜尋／目前工單／返回／最近查看
+========================================================= */
+(function(){
+  const RECENT_KEY='PMC_V6_RECENT_ORDERS';
+  let pageHistory=[];
+  let historyReady=false;
+
+  function safeRecent(){try{return JSON.parse(localStorage.getItem(RECENT_KEY)||'[]').filter(Boolean).slice(0,6);}catch(e){return [];}}
+  function saveRecent(list){try{localStorage.setItem(RECENT_KEY,JSON.stringify(list.slice(0,6)));}catch(e){}}
+  function getOrder(no){return (typeof orders!=="undefined"?orders:[]).find(o=>String(o.no)===String(no));}
+  function addRecent(no){
+    if(!no)return;
+    const list=safeRecent().filter(x=>String(x)!==String(no));
+    list.unshift(String(no)); saveRecent(list); renderRecent();
+  }
+  function renderRecent(){
+    const el=document.getElementById('pmcRecentOrders'); if(!el)return;
+    const list=safeRecent();
+    if(!list.length){el.innerHTML='';return;}
+    el.innerHTML='<span class="pmc-recent-label">最近查看</span>'+list.map(no=>{
+      const o=getOrder(no);
+      return `<button type="button" class="pmc-recent-chip" data-recent-order="${esc(no)}">${esc(no)}${o&&o.customer?'｜'+esc(o.customer):''}</button>`;
+    }).join('');
+  }
+  function setCurrentOrder(no,add=true){
+    const o=getOrder(no);
+    if(!o)return;
+    window.pmcCurrentOrderNo=String(o.no);
+    if(add)addRecent(o.no);
+    const bar=document.getElementById('pmcCurrentOrderBar');
+    if(!bar)return;
+    document.getElementById('pmcCurrentOrderNo').textContent=o.no||'';
+    document.getElementById('pmcCurrentOrderCustomer').textContent=o.customer||'';
+    const st=document.getElementById('pmcCurrentOrderStatus');
+    if(st)st.innerHTML=badge(overallStatus(o));
+    bar.classList.add('open');
+  }
+  window.pmcSetCurrentOrder=function(no,add=true){setCurrentOrder(no,add);};
+  function clearCurrentOrder(){
+    window.pmcCurrentOrderNo='';
+    const bar=document.getElementById('pmcCurrentOrderBar'); if(bar)bar.classList.remove('open');
+  }
+  function renderSearchResults(q){
+    const box=document.getElementById('pmcGlobalSearchResults');
+    const clear=document.getElementById('pmcGlobalSearchClear');
+    if(!box)return;
+    q=(q||'').trim().toLowerCase();
+    if(clear)clear.style.display=q?'block':'none';
+    if(!q){box.classList.remove('open');box.innerHTML='';return;}
+    const list=(typeof orders!=="undefined"?orders:[]).filter(o=>[o.no,o.customer,o.product].join(' ').toLowerCase().includes(q)).slice(0,30);
+    box.innerHTML=list.length?list.map(o=>`<button type="button" class="pmc-search-result" data-global-order="${esc(o.no)}"><span class="no">${esc(o.no)}</span><span class="customer">${esc(o.customer||'')}｜${esc(o.product||'')}</span><span class="status">${badge(overallStatus(o))}</span></button>`).join(''):'<div class="pmc-search-empty">找不到符合的工單</div>';
+    box.classList.add('open');
+  }
+  function rememberFromPage(page){
+    if(page==='schedule'){const no=document.getElementById('scheduleOrder')?.value;if(no)setCurrentOrder(no,false);}
+    else if(page==='progress'){const q=(document.getElementById('progressSearch')?.value||'').trim();const o=getOrder(q);if(o)setCurrentOrder(o.no,false);}
+    else if(page==='purchase'){const no=(document.getElementById('purchaseFilterNo')?.value||document.getElementById('mobilePurchaseFilterNo')?.value||'').trim();if(no)setCurrentOrder(no,false);}
+  }
+  function v6ShowPage(page,skipHistory){
+    if(historyReady && !skipHistory){
+      const active=document.querySelector('.page.active');
+      const cur=active?.id?.replace('page-','');
+      if(cur && cur!==page) pageHistory.push(cur);
+    }
+    showPage(page);
+    rememberFromPage(page);
+  }
+  window.pmcNavigateWithHistory=function(page,no){
+    if(no)setCurrentOrder(no,true);
+    v6ShowPage(page,false);
+  };
+  window.pmcBack=function(){
+    const stack=window.__pmcV6PageHistory||[]; const prev=stack.pop();
+    if(prev){v6ShowPage(prev,true);return;}
+    if(window.pmcCurrentOrderNo) v6ShowPage('board',true);
+    else history.back();
+  };
+
+  function patchNavigation(){}
+  function bind(){
+    const search=document.getElementById('pmcGlobalSearch');
+    const clear=document.getElementById('pmcGlobalSearchClear');
+    if(search){search.addEventListener('input',()=>renderSearchResults(search.value));search.addEventListener('focus',()=>{if(search.value.trim())renderSearchResults(search.value);});search.addEventListener('keydown',e=>{if(e.key==='Enter'){const first=document.querySelector('[data-global-order]');if(first)first.click();}});}
+    if(clear)clear.addEventListener('click',()=>{search.value='';renderSearchResults('');search.focus();});
+    document.addEventListener('click',function(e){
+      const result=e.target.closest('[data-global-order]');
+      if(result){const no=result.dataset.globalOrder;document.getElementById('pmcGlobalSearch').value='';renderSearchResults('');openOrderWorkflow('schedule',no);return;}
+      const recent=e.target.closest('[data-recent-order]');
+      if(recent){openOrderWorkflow('schedule',recent.dataset.recentOrder);return;}
+      const act=e.target.closest('[data-current-action]');
+      if(act&&window.pmcCurrentOrderNo){openOrderWorkflow(act.dataset.currentAction,window.pmcCurrentOrderNo);return;}
+      const back=e.target.closest('#pmcCurrentBack');
+      if(back){pmcBack();return;}
+      if(!e.target.closest('.pmc-global-search-wrap')){document.getElementById('pmcGlobalSearchResults')?.classList.remove('open');}
+    });
+    window.__pmcV6HistoryReady=true;
+    ['scheduleOrder'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',()=>{if(el.value)setCurrentOrder(el.value,true);});});
+    const ps=document.getElementById('progressSearch'); if(ps)ps.addEventListener('change',()=>{const o=getOrder(ps.value.trim());if(o)setCurrentOrder(o.no,true);});
+    ['purchaseFilterNo','mobilePurchaseFilterNo'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',()=>{const o=getOrder(el.value.trim());if(o)setCurrentOrder(o.no,true);});});
+    renderRecent();
+    patchNavigation();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
 })();
 </script>
 
