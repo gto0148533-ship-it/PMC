@@ -1,6 +1,6 @@
 {
   "version": "3.1",
-  "exportedAt": "2026-09-21T03:17:53.676Z",
+  "exportedAt": "2026-09-22T07:32:38.429Z",
   "source": "PMC central JSON",
   "orders": [
     {
@@ -460,7 +460,7 @@
       "orderDate": "2026-06-26",
       "due": "2026-12-31",
       "priority": "一般",
-      "status": "待生產",
+      "status": "生產中",
       "processMode": "auto",
       "actualClose": "",
       "durations": {
@@ -473,7 +473,12 @@
         "test": 14,
         "close": 1
       },
-      "actual": {},
+      "actual": {
+        "design": {
+          "start": "2026-06-26",
+          "end": "2026-09-23"
+        }
+      },
       "schedule": {
         "close": {
           "start": "2026-12-30",
@@ -4258,6 +4263,156 @@
       "status": "待到貨"
     },
     {
+      "supplier": "三綾",
+      "no": 2608001,
+      "expected": "2026-09-29",
+      "drawing": "",
+      "material": 41,
+      "part": "2608001-TW024-01",
+      "qty": 1,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "三綾",
+      "no": 2608001,
+      "expected": "2026-09-29",
+      "drawing": "",
+      "material": 41,
+      "part": "2608001-TW026-01",
+      "qty": 2,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "三綾",
+      "no": 2608001,
+      "expected": "2026-09-29",
+      "drawing": "",
+      "material": 41,
+      "part": "2602001-TW008-01",
+      "qty": 1,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "三綾",
+      "no": 2608001,
+      "expected": "2026-09-29",
+      "drawing": "",
+      "material": 41,
+      "part": "2608001-TW028-01",
+      "qty": 1,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "三綾",
+      "no": 2608001,
+      "expected": "2026-09-29",
+      "drawing": "",
+      "material": 41,
+      "part": "2608001-TW028-02",
+      "qty": 2,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "三綾",
+      "no": 2608001,
+      "expected": "2026-09-29",
+      "drawing": "",
+      "material": 41,
+      "part": "2608001-TW033-01",
+      "qty": 1,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "三綾",
+      "no": 2608001,
+      "expected": "2026-09-29",
+      "drawing": "",
+      "material": 41,
+      "part": "2608001-TW033-03",
+      "qty": 1,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "三綾",
+      "no": 2608001,
+      "expected": "2026-09-29",
+      "drawing": "",
+      "material": 41,
+      "part": "2608001-TW033-04",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "三綾",
+      "no": 2608001,
+      "expected": "2026-09-29",
+      "drawing": "",
+      "material": 41,
+      "part": "EL-TW013-01",
+      "qty": 1,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "三綾",
+      "no": 2608001,
+      "expected": "2026-09-29",
+      "drawing": "",
+      "material": 41,
+      "part": "EL-TW106-01",
+      "qty": 1,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "三綾",
+      "no": 2608001,
+      "expected": "2026-09-29",
+      "drawing": "",
+      "material": 41,
+      "part": "2608001-TW034-01",
+      "qty": 1,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "三綾",
+      "no": 2608001,
+      "expected": "2026-09-29",
+      "drawing": "",
+      "material": 41,
+      "part": "EL-TW109-02",
+      "qty": 1,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "三綾",
+      "no": 2608001,
+      "expected": "2026-09-29",
+      "drawing": "",
+      "material": 41,
+      "part": "EL-TW109-03",
+      "qty": 1,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "三綾",
+      "no": 2608001,
+      "expected": "2026-09-29",
+      "drawing": "",
+      "material": 41,
+      "part": "EL-TW109-04",
+      "qty": 2,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "三綾",
+      "no": 2605008,
+      "expected": "2026-09-29",
+      "drawing": "",
+      "material": 304,
+      "part": "2605008-TW055-02",
+      "qty": 20,
+      "status": "待到貨"
+    },
+    {
       "supplier": "震特-車銑",
       "no": 2607002,
       "expected": "2026-09-29",
@@ -4364,76 +4519,6 @@
       "drawing": "螺帽",
       "material": "黃銅",
       "part": "2205001-WA003",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "達鋒(車銑304)",
-      "no": 2605004,
-      "expected": "2026-08-04",
-      "drawing": "壓克力補強板A",
-      "material": "AL6061",
-      "part": "PV312TX-HH065",
-      "qty": 16,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "達鋒(車銑304)",
-      "no": 2605004,
-      "expected": "2026-08-04",
-      "drawing": "壓克力補強板B",
-      "material": "AL6061",
-      "part": "PV312TX-HH066",
-      "qty": 4,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "達鋒(車銑304)",
-      "no": 2605004,
-      "expected": "2026-08-04",
-      "drawing": "壓克力補強板C",
-      "material": "AL6061",
-      "part": "PV312TX-HH067",
-      "qty": 4,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "達鋒(車銑304)",
-      "no": 2605004,
-      "expected": "2026-08-04",
-      "drawing": "壓克力補強板D",
-      "material": "AL6061",
-      "part": "PV312TX-HH103",
-      "qty": 4,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "達鋒(車銑304)",
-      "no": 2605004,
-      "expected": "2026-08-04",
-      "drawing": "壓克力補強板E",
-      "material": "AL6061",
-      "part": "PV312TX-HH104",
-      "qty": 4,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "達鋒(車銑304)",
-      "no": 2605004,
-      "expected": "2026-08-04",
-      "drawing": "左下中壓克力補強板A",
-      "material": "AL6061",
-      "part": "PV312TX-HH105",
-      "qty": 4,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "達鋒(車銑304)",
-      "no": 2605004,
-      "expected": "2026-08-04",
-      "drawing": "夾爪推板",
-      "material": "S45C",
-      "part": "PV312T-HH121",
       "qty": 2,
       "status": "待到貨"
     },
