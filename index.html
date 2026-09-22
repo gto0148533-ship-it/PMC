@@ -1333,19 +1333,22 @@ input,select{min-height:38px}
 
 
   /* v3：手機自訂下拉選單，避免部分手機瀏覽器原生 select 無法展開 */
+  /* v4：自訂下拉改為 Portal 到 body，避免被篩選卡片／父層 stacking context 蓋住 */
   .mobile-select-wrap{position:relative;width:100%;z-index:30}
-  .mobile-select-trigger{width:100%;min-height:42px;padding:9px 38px 9px 12px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#0f172a;text-align:left;font-size:16px;line-height:1.3;position:relative;cursor:pointer}
+  .mobile-select-trigger{width:100%;min-height:42px;padding:9px 38px 9px 12px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#0f172a;text-align:left;font-size:16px;line-height:1.3;position:relative;cursor:pointer;touch-action:manipulation}
   .mobile-select-trigger::after{content:'▾';position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#64748b;font-size:16px;pointer-events:none}
-  .mobile-select-menu{position:fixed;left:10px;right:10px;top:auto;max-height:55vh;overflow-y:auto;background:#fff;border:1px solid #cbd5e1;border-radius:12px;box-shadow:0 12px 30px rgba(15,23,42,.18);z-index:100000;padding:5px;display:none}
+  .mobile-select-menu{position:fixed;left:10px;right:10px;top:0;max-height:55vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:#fff;border:1px solid #cbd5e1;border-radius:12px;box-shadow:0 16px 40px rgba(15,23,42,.24);z-index:2147483646;padding:5px;display:none;pointer-events:auto}
   .mobile-select-menu.open{display:block}
-  .mobile-select-option{display:block;width:100%;border:0;background:#fff;text-align:left;padding:12px 10px;border-radius:8px;font-size:16px;color:#0f172a}
+  .mobile-select-option{display:block;width:100%;border:0;background:#fff;text-align:left;padding:12px 10px;border-radius:8px;font-size:16px;color:#0f172a;touch-action:manipulation}
   .mobile-select-option:active,.mobile-select-option.selected{background:#eaf2ff;color:#1d4ed8;font-weight:800}
-  .mobile-select-backdrop{position:fixed;inset:0;background:transparent;z-index:99999;display:none}
-  .mobile-select-backdrop.open{display:block}
+  .mobile-select-backdrop{position:fixed;inset:0;background:transparent;z-index:2147483645;display:none;pointer-events:none}
+  .mobile-select-backdrop.open{display:block;pointer-events:auto}
 
-  #page-schedule .toolbar{gap:6px!important}
-  #page-schedule #scheduleOrderSearch{min-height:38px!important;font-size:14px!important;padding:7px 10px!important}
-  #page-schedule .mobile-select-trigger{min-height:38px!important;font-size:14px!important;padding:7px 34px 7px 10px!important}
+  #page-schedule .toolbar{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(135px,34%);gap:6px!important;align-items:center}
+  #page-schedule .toolbar>*{width:auto!important}
+  #page-schedule #scheduleOrderSearch{min-height:38px!important;font-size:14px!important;padding:7px 10px!important;min-width:0!important}
+  #page-schedule .mobile-select-wrap{min-width:0}
+  #page-schedule .mobile-select-trigger{min-height:38px!important;font-size:14px!important;padding:7px 34px 7px 10px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
   #page-purchase .mobile-purchase-filters{display:grid!important;grid-template-columns:1fr;gap:8px;margin-top:10px}
   #page-purchase .mobile-purchase-filters label{display:grid;gap:4px;font-size:11px;font-weight:800;color:#64748b}
@@ -5612,65 +5615,174 @@ document.addEventListener(
 <script>
 (function(){
   if(window.matchMedia && !window.matchMedia('(max-width:760px)').matches) return;
+
   function initMobileSelects(){
-    if(document.querySelector('.mobile-select-backdrop')) return;
+    if(document.querySelector('.mobile-select-wrap')) return;
+
     const targets=[
-      '#page-orders #orderPriorityFilter','#page-orders #orderStatusFilter','#page-orders #orderProcessFilter',
-      '#page-progress #progressPriorityFilter','#page-progress #progressFilter','#page-progress #progressProcessFilter',
+      '#page-orders #orderPriorityFilter',
+      '#page-orders #orderStatusFilter',
+      '#page-orders #orderProcessFilter',
+      '#page-progress #progressPriorityFilter',
+      '#page-progress #progressFilter',
+      '#page-progress #progressProcessFilter',
       '#page-schedule #scheduleOrder'
     ];
-    const selects=targets.map(s=>document.querySelector(s)).filter(Boolean);
-    if(!selects.length)return;
+
+    const selects=targets.map(function(s){return document.querySelector(s);}).filter(Boolean);
+    if(!selects.length) return;
+
     const backdrop=document.createElement('div');
     backdrop.className='mobile-select-backdrop';
     document.body.appendChild(backdrop);
+
     let openWrap=null;
+    let openSelect=null;
+    let openMenu=null;
+
     function close(){
-      document.querySelectorAll('.mobile-select-menu.open').forEach(m=>m.classList.remove('open'));
+      if(openMenu) openMenu.classList.remove('open');
       backdrop.classList.remove('open');
       openWrap=null;
+      openSelect=null;
+      openMenu=null;
     }
+
     backdrop.addEventListener('click',close);
-    selects.forEach(function(sel){
-      if(sel.dataset.mobileCustom==='1')return;
-      sel.dataset.mobileCustom='1';
-      const wrap=document.createElement('div'); wrap.className='mobile-select-wrap';
-      const trigger=document.createElement('button'); trigger.type='button'; trigger.className='mobile-select-trigger';
-      const menu=document.createElement('div'); menu.className='mobile-select-menu';
-      sel.parentNode.insertBefore(wrap,sel); wrap.appendChild(sel); wrap.appendChild(trigger); wrap.appendChild(menu);
-      sel.style.display='none';
-      function refresh(){
-        const opt=sel.options[sel.selectedIndex];
-        trigger.textContent=opt?opt.textContent.trim():'';
-        menu.querySelectorAll('.mobile-select-option').forEach((b,i)=>b.classList.toggle('selected',i===sel.selectedIndex));
-      }
+
+    function buildOptions(sel,menu){
+      menu.innerHTML='';
       Array.from(sel.options).forEach(function(opt,i){
-        const b=document.createElement('button'); b.type='button'; b.className='mobile-select-option'; b.textContent=opt.textContent.trim();
-        b.addEventListener('click',function(){
+        const b=document.createElement('button');
+        b.type='button';
+        b.className='mobile-select-option';
+        b.textContent=opt.textContent.trim();
+        b.dataset.index=String(i);
+        b.addEventListener('click',function(e){
+          e.preventDefault();
+          e.stopPropagation();
           sel.selectedIndex=i;
           sel.dispatchEvent(new Event('change',{bubbles:true}));
-          refresh(); close();
+          refresh(sel);
+          close();
         });
         menu.appendChild(b);
       });
-      trigger.addEventListener('click',function(e){
-        e.preventDefault(); e.stopPropagation();
-        if(openWrap===wrap){close();return;}
+    }
+
+    function refresh(sel){
+      const wrap=sel.closest('.mobile-select-wrap');
+      if(!wrap) return;
+      const trigger=wrap.querySelector('.mobile-select-trigger');
+      const menu=wrap._mobileMenu;
+      const opt=sel.options[sel.selectedIndex];
+      trigger.textContent=opt ? opt.textContent.trim() : '';
+      if(menu){
+        menu.querySelectorAll('.mobile-select-option').forEach(function(b){
+          b.classList.toggle('selected',Number(b.dataset.index)===sel.selectedIndex);
+        });
+      }
+    }
+
+    function open(sel){
+      const wrap=sel.closest('.mobile-select-wrap');
+      if(!wrap) return;
+      const trigger=wrap.querySelector('.mobile-select-trigger');
+
+      if(openWrap===wrap){
         close();
-        const r=trigger.getBoundingClientRect();
-        menu.style.top=Math.min(r.bottom+5,window.innerHeight-menu.offsetHeight-10)+'px';
-        menu.classList.add('open'); backdrop.classList.add('open'); openWrap=wrap;
-        const rr=trigger.getBoundingClientRect();
-        const mh=Math.min(menu.scrollHeight,window.innerHeight*.55);
-        menu.style.maxHeight=mh+'px';
-        menu.style.top=Math.max(10,Math.min(rr.bottom+5,window.innerHeight-mh-10))+'px';
+        return;
+      }
+
+      close();
+
+      const menu=wrap._mobileMenu;
+      buildOptions(sel,menu);
+
+      // Portal menu 已經掛在 body，不會被 filter card / table / transform 蓋住
+      const r=trigger.getBoundingClientRect();
+      const viewportH=window.innerHeight;
+      const gap=5;
+      const maxH=Math.min(menu.scrollHeight,viewportH*0.55);
+      const spaceBelow=viewportH-r.bottom-gap;
+      const spaceAbove=r.top-gap;
+
+      menu.style.maxHeight=Math.max(120,Math.min(maxH,Math.max(spaceBelow,spaceAbove)))+'px';
+
+      // 優先往下；下方空間不足就往上
+      let top;
+      if(spaceBelow >= Math.min(260,maxH) || spaceBelow >= spaceAbove){
+        top=Math.min(r.bottom+gap,viewportH-maxH-8);
+      }else{
+        top=Math.max(8,r.top-gap-maxH);
+      }
+
+      const left=Math.max(8,Math.min(r.left,window.innerWidth-8-r.width));
+      const width=Math.min(r.width,window.innerWidth-16);
+
+      menu.style.top=Math.max(8,top)+'px';
+      menu.style.left=left+'px';
+      menu.style.width=width+'px';
+      menu.classList.add('open');
+      backdrop.classList.add('open');
+      openWrap=wrap;
+      openSelect=sel;
+      openMenu=menu;
+      refresh(sel);
+    }
+
+    selects.forEach(function(sel){
+      if(sel.dataset.mobileCustom==='1') return;
+      sel.dataset.mobileCustom='1';
+
+      const wrap=document.createElement('div');
+      wrap.className='mobile-select-wrap';
+
+      const trigger=document.createElement('button');
+      trigger.type='button';
+      trigger.className='mobile-select-trigger';
+
+      const menu=document.createElement('div');
+      menu.className='mobile-select-menu';
+
+      // 重要：menu 不放在篩選欄位裡，直接掛到 body，避免 z-index / overflow / stacking context
+      document.body.appendChild(menu);
+
+      sel.parentNode.insertBefore(wrap,sel);
+      wrap.appendChild(sel);
+      wrap.appendChild(trigger);
+      wrap._mobileMenu=menu;
+
+      sel.style.display='none';
+
+      trigger.addEventListener('click',function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        open(sel);
       });
-      sel.addEventListener('change',refresh);
-      refresh();
+
+      sel.addEventListener('change',function(){
+        refresh(sel);
+      });
+
+      refresh(sel);
+
+      // 排程的工單清單會隨「工單搜尋」動態重建，開啟前重新抓最新 options
+      if(sel.id==='scheduleOrder'){
+        const observer=new MutationObserver(function(){
+          refresh(sel);
+        });
+        observer.observe(sel,{childList:true});
+      }
     });
+
     window.addEventListener('resize',close);
-    document.addEventListener('scroll',function(){if(openWrap)close();},true);
+    window.addEventListener('orientationchange',close);
+    document.addEventListener('scroll',function(){
+      if(openWrap) close();
+    },true);
   }
+
   document.addEventListener('DOMContentLoaded',initMobileSelects);
 })();
 </script>
