@@ -1342,7 +1342,7 @@ input,select{min-height:38px}
   #page-settings .statline{align-items:flex-start;gap:8px;flex-wrap:wrap}
 
   /* 底部導覽 */
-  .mobile-bottom-nav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:9998;height:64px;padding:5px 6px calc(5px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);border-top:1px solid #dbe3ec;box-shadow:0 -8px 24px rgba(15,23,42,.08);backdrop-filter:blur(10px)}
+  .mobile-bottom-nav{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;z-index:9998;height:64px;padding:5px 6px calc(5px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);border-top:1px solid #dbe3ec;box-shadow:0 -8px 24px rgba(15,23,42,.08);backdrop-filter:blur(10px)}
   .mobile-bottom-nav button{border:0;background:transparent;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#64748b;font-size:10px;font-weight:800;min-width:0}
   .mobile-bottom-nav button .mi{font-size:19px;line-height:1}
   .mobile-bottom-nav button.active{background:#eaf2ff;color:#1d4ed8}
@@ -1450,24 +1450,56 @@ input,select{min-height:38px}
 }
 
 .nav-sub{padding-left:38px!important;font-size:13px!important;opacity:.92}
-.outsourcing-risk-title{font-size:20px;font-weight:800;margin-bottom:10px}
-.outsourcing-risk-line{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #eef2f6}
-.outsourcing-folder-info{margin-top:8px;font-weight:700;color:#334155}
+.outsourcing-kpi-card{padding:10px 14px!important;margin-bottom:0}
+.outsourcing-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
+.outsourcing-kpis>div{padding:2px 16px;border-right:1px solid #e5eaf0;text-align:center}
+.outsourcing-kpis>div:first-child{padding-left:4px}
+.outsourcing-kpis>div:last-child{border-right:0;padding-right:4px}
+.outsourcing-kpis .kpi-label{font-size:11px;color:#64748b;font-weight:800}
+.outsourcing-kpis .kpi-value{font-size:24px;line-height:1.15;margin-top:2px;font-weight:900}
+.outsourcing-risk-title{font-size:18px;font-weight:800;margin-bottom:8px}
+.outsourcing-risk-line{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #eef2f6}
+.outsourcing-folder-info{margin-top:7px;font-weight:700;color:#334155;font-size:12px}
 .outsourcing-filter-toolbar{flex-wrap:wrap}
 .outsourcing-filter-toolbar input{min-width:180px}
 .outsourcing-status-label{display:flex;align-items:center;gap:6px;font-weight:700}
 .outsourcing-status-select{min-width:76px;padding:6px 8px;border:1px solid #cbd5e1;border-radius:7px;background:#fff}
+.outsourcing-file-short{display:block;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.outsourcing-order-nos{line-height:1.55;word-break:normal}
 .danger-text{color:var(--danger,#dc2626)}
 @media(max-width:760px){
-  #page-outsourcing .grid.four{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px}
-  #page-outsourcing .kpi-value{font-size:22px}
-  #page-outsourcing .outsourcing-folder-toolbar{display:grid;grid-template-columns:1fr;gap:8px}
-  #page-outsourcing .outsourcing-folder-toolbar .btn{width:100%}
-  #page-outsourcing .outsourcing-filter-toolbar{display:grid;grid-template-columns:1fr;gap:8px}
-  #page-outsourcing .outsourcing-filter-toolbar input,#page-outsourcing .outsourcing-status-label,#page-outsourcing .outsourcing-filter-toolbar .btn{width:100%;min-width:0}
+  #page-outsourcing .outsourcing-kpi-card{padding:8px 5px!important}
+  #page-outsourcing .outsourcing-kpis{grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
+  #page-outsourcing .outsourcing-kpis>div{padding:2px 3px}
+  #page-outsourcing .outsourcing-kpis .kpi-label{font-size:9px;white-space:nowrap}
+  #page-outsourcing .outsourcing-kpis .kpi-value{font-size:20px}
+  #page-outsourcing .outsourcing-import-card,#page-outsourcing .outsourcing-risk-card,#page-outsourcing .outsourcing-detail-card{margin-top:9px!important}
+  #page-outsourcing .outsourcing-folder-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  #page-outsourcing .outsourcing-folder-toolbar .btn{width:100%;min-height:38px;padding:6px 4px;font-size:12px}
+  #page-outsourcing .outsourcing-folder-toolbar #outsourcingClearBtn{grid-column:1/3}
+  #page-outsourcing .outsourcing-filter-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  #page-outsourcing .outsourcing-filter-toolbar input{width:100%;min-width:0}
+  #page-outsourcing .outsourcing-status-label{width:100%;min-width:0;display:grid;grid-template-columns:auto 1fr}
+  #page-outsourcing .outsourcing-filter-toolbar .btn{width:100%;min-width:0}
+  #page-outsourcing .outsourcing-filter-toolbar #outsourcingClearSearchBtn{grid-column:1/3}
   #page-outsourcing .table-wrap{overflow-x:auto}
-  #page-outsourcing table{min-width:850px}
-  .outsourcing-risk-line{display:grid;grid-template-columns:1fr;gap:4px}
+  #page-outsourcing table{min-width:0!important;width:100%!important;border-collapse:separate!important;border-spacing:0 7px!important}
+  #page-outsourcing thead{display:none!important}
+  #page-outsourcing tbody{display:block;width:100%}
+  #page-outsourcing tbody tr{display:grid!important;width:100%!important;background:#fff;border:1px solid var(--line);border-radius:11px;padding:8px 10px;box-shadow:0 2px 8px rgba(20,35,55,.04);overflow:hidden}
+  #page-outsourcing tbody td{display:grid!important;grid-template-columns:72px minmax(0,1fr);gap:7px;align-items:start;width:auto!important;min-width:0!important;padding:6px 0!important;border:0!important;border-bottom:1px dashed #e8edf3!important;white-space:normal!important;font-size:12px}
+  #page-outsourcing tbody td:last-child{border-bottom:0!important}
+  #page-outsourcing tbody td::before{font-size:10px;color:#64748b;font-weight:800}
+  #page-outsourcing tbody td:nth-child(1)::before{content:'工單號碼'}
+  #page-outsourcing tbody td:nth-child(2)::before{content:'客戶名稱'}
+  #page-outsourcing tbody td:nth-child(3)::before{content:'PDF檔名'}
+  #page-outsourcing tbody td:nth-child(4)::before{content:'來源資料夾'}
+  #page-outsourcing tbody td:nth-child(5)::before{content:'狀態'}
+  #page-outsourcing tbody td:nth-child(6)::before{content:'逾期'}
+  #page-outsourcing tbody td:nth-child(1){font-size:13px}
+  #page-outsourcing .outsourcing-file-short{max-width:none;white-space:normal;overflow:visible;text-overflow:clip;line-height:1.45}
+  #page-outsourcing .outsourcing-order-nos{line-height:1.5}
+  .outsourcing-risk-line{display:grid;grid-template-columns:1fr;gap:3px;padding:7px 0}
 }
 </style>
 
@@ -1978,11 +2010,13 @@ input,select{min-height:38px}
     <div class="page-flow-actions"><button class="btn secondary" type="button" data-flow-nav="purchase">← 採購管理</button></div>
   </div>
 
-  <div class="grid four outsourcing-kpis">
-    <div class="card"><div class="kpi-label">匯入明細筆數</div><div class="kpi-value" id="outsourcingTotal">0</div></div>
-    <div class="card"><div class="kpi-label">未回筆數</div><div class="kpi-value" id="outsourcingPending">0</div></div>
-    <div class="card"><div class="kpi-label">已回筆數</div><div class="kpi-value" id="outsourcingDone">0</div></div>
-    <div class="card"><div class="kpi-label">逾期未回</div><div class="kpi-value" id="outsourcingOverdue">0</div></div>
+  <div class="card outsourcing-kpi-card">
+    <div class="outsourcing-kpis">
+      <div><div class="kpi-label">匯入明細</div><div class="kpi-value" id="outsourcingTotal">0</div></div>
+      <div><div class="kpi-label">未回</div><div class="kpi-value" id="outsourcingPending">0</div></div>
+      <div><div class="kpi-label">已回</div><div class="kpi-value" id="outsourcingDone">0</div></div>
+      <div><div class="kpi-label">逾期未回</div><div class="kpi-value" id="outsourcingOverdue">0</div></div>
+    </div>
   </div>
 
   <div class="card outsourcing-import-card" style="margin-top:14px">
@@ -5429,6 +5463,18 @@ function extractOutsourcingOrderNos(fileName){
   return [...new Set(matches)];
 }
 function outsourcingRowKey(name){return String(name||"").trim().toLowerCase();}
+function outsourcingShortFileName(fileName){
+  const base=String(fileName||"").replace(/\.pdf$/i,"");
+  const m=base.match(/\d{7}/);
+  if(!m) return base;
+  return base.slice(0,m.index).replace(/[-_\s]+$/g,"").trim() || base;
+}
+function outsourcingOrderDisplay(orderNos){
+  const nos=(orderNos||[]).map(String);
+  const lines=[];
+  for(let i=0;i<nos.length;i+=5) lines.push(nos.slice(i,i+5).join("、"));
+  return lines.join("<br>");
+}
 function isOutsourcingRowOverdue(row){
   if(row.status!=="未回") return false;
   const nos=Array.isArray(row.orderNos)?row.orderNos:[];
@@ -5467,7 +5513,7 @@ function renderOutsourcing(){
   document.getElementById("outsourcingRisk").innerHTML=riskRows||`<div class="empty">目前沒有未回委外資料</div>`;
   const qNo=document.getElementById("outsourcingSearchNo")?.value.trim()||"",qCustomer=document.getElementById("outsourcingSearchCustomer")?.value.trim().toLowerCase()||"",sf=document.getElementById("outsourcingStatusFilter")?.value||outsourcingStatusFilter||"未回";
   let rows=outsourcingRows.filter(r=>{if(sf!=="全部"&&r.status!==sf)return false;const nos=(r.orderNos||[]).join(" ");if(qNo&&!nos.includes(qNo))return false;const customers=(r.orderNos||[]).map(no=>orders.find(o=>String(o.no).trim()===String(no).trim())?.customer||"").join(" ").toLowerCase();return !qCustomer||customers.includes(qCustomer);});
-  document.getElementById("outsourcingBody").innerHTML=rows.map(r=>{const customers=[...new Set((r.orderNos||[]).map(no=>orders.find(o=>String(o.no).trim()===String(no).trim())?.customer||"").filter(Boolean))].join("、");const overdueFlag=isOutsourcingRowOverdue(r);return `<tr><td><b>${esc((r.orderNos||[]).join("、")||"未辨識")}</b></td><td>${esc(customers)}</td><td title="${esc(r.fileName)}">${esc(r.fileName)}</td><td>${esc(r.folder||"")}</td><td><select class="outsourcing-status-select" data-outsourcing-id="${esc(r.id)}"><option value="未回" ${r.status==="未回"?"selected":""}>未回</option><option value="已回" ${r.status==="已回"?"selected":""}>已回</option></select></td><td>${overdueFlag?'<span class="badge danger">逾期</span>':'—'}</td></tr>`;}).join("")||`<tr><td colspan="6" class="empty">目前沒有符合條件的委外資料</td></tr>`;
+  document.getElementById("outsourcingBody").innerHTML=rows.map(r=>{const customers=[...new Set((r.orderNos||[]).map(no=>orders.find(o=>String(o.no).trim()===String(no).trim())?.customer||"").filter(Boolean))].join("、");const overdueFlag=isOutsourcingRowOverdue(r);return `<tr><td class="outsourcing-order-nos"><b>${outsourcingOrderDisplay(r.orderNos)||"未辨識"}</b></td><td>${esc(customers)}</td><td title="${esc(r.fileName)}"><span class="outsourcing-file-short">${esc(outsourcingShortFileName(r.fileName))}</span></td><td>${esc(r.folder||"")}</td><td><select class="outsourcing-status-select" data-outsourcing-id="${esc(r.id)}"><option value="未回" ${r.status==="未回"?"selected":""}>未回</option><option value="已回" ${r.status==="已回"?"selected":""}>已回</option></select></td><td>${overdueFlag?'<span class="badge danger">逾期</span>':'—'}</td></tr>`;}).join("")||`<tr><td colspan="6" class="empty">目前沒有符合條件的委外資料</td></tr>`;
   document.getElementById("outsourcingFolderInfo").textContent=`目前資料夾：${outsourcingFolderLabel||"尚未選擇"}｜PDF ${outsourcingRows.length} 份`;
 }
 
@@ -6173,6 +6219,7 @@ document.addEventListener(
   <button type="button" data-mobile-page="schedule"><span class="mi">◫</span><span>排程</span></button>
   <button type="button" data-mobile-page="progress"><span class="mi">◉</span><span>進度</span></button>
   <button type="button" data-mobile-page="purchase"><span class="mi">▣</span><span>採購</span></button>
+  <button type="button" data-mobile-page="outsourcing"><span class="mi">↳</span><span>委外</span></button>
 </nav>
 
 <script>
