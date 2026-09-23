@@ -1466,6 +1466,11 @@ input,select{min-height:38px}
 .purchase-kpis>div{padding:2px 16px;border-right:1px solid #e5eaf0;text-align:center}
 .purchase-kpis>div:first-child{padding-left:4px}.purchase-kpis>div:last-child{border-right:0;padding-right:4px}
 .purchase-kpis .kpi-label{font-size:11px;color:#64748b;font-weight:800}.purchase-kpis .kpi-value{font-size:24px;line-height:1.15;margin-top:2px;font-weight:900}
+.purchase-top-grid{align-items:stretch!important}
+.purchase-top-grid>.card{height:100%;box-sizing:border-box}
+.purchase-import-help{margin-top:8px;display:grid;gap:5px;font-size:12px;line-height:1.55;color:#475569}
+.purchase-import-primary,.purchase-import-fallback{padding:7px 9px;border-radius:8px;background:#f8fafc;border:1px solid var(--line)}
+.purchase-import-primary b,.purchase-import-fallback b{color:#334155}
 .purchase-detail-title-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .purchase-pc-clear-filter{margin-left:auto}
 .outsourcing-kpi-card{padding:10px 14px!important;margin-bottom:0}
@@ -1955,7 +1960,7 @@ input,select{min-height:38px}
   <div class="page-flow-actions"><button class="btn secondary" type="button" data-flow-nav="progress">← 進度</button><button class="btn" type="button" data-flow-nav="outsourcing">下一步：委外 →</button></div>
 </div>
 
-<div class="grid two" style="align-items:start">
+<div class="grid two purchase-top-grid">
 
   <div class="card purchase-kpi-card">
     <div class="section-title">未進貨彙總</div>
@@ -1973,12 +1978,15 @@ input,select{min-height:38px}
       <button class="btn" id="purchaseAutoImportBtn" type="button">選擇採購部進度表</button>
       <input type="file" id="purchaseAutoExcelFile" accept=".xlsx,.xls" hidden>
       <label class="purchase-month-setting">最近 <input id="purchaseRecentMonths" type="number" min="1" max="36" step="1" value="3"> 個月</label>
-      <button class="btn secondary" id="purchaseImportBtn" type="button">匯入已整理 Excel</button>
+      <button class="btn secondary" id="purchaseImportBtn" type="button">選擇 Excel</button>
       <input type="file" id="purchaseExcelFile" accept=".xlsx,.xls,.csv" hidden>
       <button class="btn secondary" id="purchaseClearBtn" type="button">清除匯入資料</button>
     </div>
     <div id="purchaseAutoStatus" class="purchase-auto-status">目前檔案：尚未選擇｜0 筆未進貨詳細資料</div>
-    <div class="footer-note">直接選擇「採購部進度表.xlsx」或其他 Excel 檔，PMC 會讀取所有工作表，自動判斷兩種欄位格式，先判斷進貨日期，再依預計交期篩選未進貨資料。</div>
+    <div class="purchase-import-help">
+      <div class="purchase-import-primary"><b>主要方式：</b>選擇採購部進度表 → PMC 自動分析所有工作表並篩出未進貨資料。</div>
+      <div class="purchase-import-fallback"><b>備援方式：</b>若自動分析異常，可用「選擇 Excel」匯入已整理的「未進貨詳細資料」檔案。</div>
+    </div>
   </div>
 
 </div>
