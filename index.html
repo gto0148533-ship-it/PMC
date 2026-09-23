@@ -1602,6 +1602,7 @@ input,select{min-height:38px}
     <button type="button" class="btn small secondary" data-current-action="schedule">排程</button>
     <button type="button" class="btn small secondary" data-current-action="progress">進度</button>
     <button type="button" class="btn small secondary" data-current-action="purchase">採購</button>
+    <button type="button" class="btn small secondary" data-current-action="outsourcing">委外</button>
   </div>
 </div>
 
@@ -1616,7 +1617,9 @@ input,select{min-height:38px}
   <span class="workflow-arrow">›</span>
   <button type="button" class="workflow-step" data-workflow-page="purchase"><span class="workflow-num">4</span><span><b>採購</b><small>追未進貨／逾期</small></span></button>
   <span class="workflow-arrow">›</span>
-  <button type="button" class="workflow-step" data-workflow-page="gantt"><span class="workflow-num">5</span><span><b>甘特圖</b><small>整體時程檢視</small></span></button>
+  <button type="button" class="workflow-step" data-workflow-page="outsourcing"><span class="workflow-num">5</span><span><b>委外</b><small>追未回／逾期</small></span></button>
+  <span class="workflow-arrow">›</span>
+  <button type="button" class="workflow-step" data-workflow-page="gantt"><span class="workflow-num">6</span><span><b>甘特圖</b><small>整體時程檢視</small></span></button>
 </div>
 
 <div class="content">
@@ -1647,6 +1650,7 @@ input,select{min-height:38px}
       <button class="btn secondary" type="button" data-flow-action="schedule">查看排程</button>
       <button class="btn secondary" type="button" data-flow-action="progress">更新進度</button>
       <button class="btn secondary" type="button" data-flow-action="purchase">追採購</button>
+      <button class="btn secondary" type="button" data-flow-action="outsourcing">追委外</button>
     </div>
   </div>
   <div class="grid kpi-grid" id="boardKpis"></div>
@@ -1933,7 +1937,7 @@ input,select{min-height:38px}
 
 <div class="page-intro">
   <div><b>採購管理</b><span>第 4 步｜先看未進貨與交期風險，再查看零件明細</span></div>
-  <div class="page-flow-actions"><button class="btn secondary" type="button" data-flow-nav="progress">← 進度</button><button class="btn" type="button" data-flow-nav="gantt">下一步：甘特圖 →</button></div>
+  <div class="page-flow-actions"><button class="btn secondary" type="button" data-flow-nav="progress">← 進度</button><button class="btn" type="button" data-flow-nav="outsourcing">下一步：委外 →</button></div>
 </div>
 
 <div class="grid two" style="align-items:start">
@@ -2027,8 +2031,8 @@ input,select{min-height:38px}
 ========================================================= -->
 <section id="page-outsourcing" class="page">
   <div class="page-intro">
-    <div><b>委外製造</b><span>從多個資料夾掃描 PDF 檔名，自動對應工單並追蹤未回件</span></div>
-    <div class="page-flow-actions"><button class="btn secondary" type="button" data-flow-nav="purchase">← 採購管理</button></div>
+    <div><b>委外製造</b><span>從多個資料夾掃描 PDF／TIFF 檔名，自動對應工單並追蹤未回件</span></div>
+    <div class="page-flow-actions"><button class="btn secondary" type="button" data-flow-nav="purchase">← 採購管理</button><button class="btn" type="button" data-flow-nav="gantt">下一步：甘特圖 →</button></div>
   </div>
 
   <div class="card outsourcing-kpi-card">
@@ -2073,7 +2077,7 @@ input,select{min-height:38px}
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>工單號碼</th><th>客戶名稱</th><th>PDF檔名</th><th>來源資料夾</th><th>狀態</th><th>逾期</th></tr></thead>
+        <thead><tr><th>工單號碼</th><th>客戶名稱</th><th>檔名</th><th>來源資料夾</th><th>狀態</th><th>逾期</th></tr></thead>
         <tbody id="outsourcingBody"></tbody>
       </table>
     </div>
@@ -3624,7 +3628,7 @@ function renderOrders(){
 
           <td>
 
-            <div class="order-row-actions"><button class="btn small secondary" type="button" onclick="openOrderWorkflow('schedule','${esc(o.no)}')">排程</button><button class="btn small secondary" type="button" onclick="openOrderWorkflow('progress','${esc(o.no)}')">進度</button><button class="btn small secondary" type="button" onclick="openOrderWorkflow('purchase','${esc(o.no)}')">採購</button>${isAdmin ? `<button class="btn small secondary" type="button" onclick="editOrderByNo('${esc(o.no)}')">編輯</button><button class="btn small danger" type="button" onclick="deleteOrderByNo('${esc(o.no)}')">刪除</button>` : ``}</div>
+            <div class="order-row-actions"><button class="btn small secondary" type="button" onclick="openOrderWorkflow('schedule','${esc(o.no)}')">排程</button><button class="btn small secondary" type="button" onclick="openOrderWorkflow('progress','${esc(o.no)}')">進度</button><button class="btn small secondary" type="button" onclick="openOrderWorkflow('purchase','${esc(o.no)}')">採購</button><button class="btn small secondary" type="button" onclick="openOrderWorkflow('outsourcing','${esc(o.no)}')">委外</button>${isAdmin ? `<button class="btn small secondary" type="button" onclick="editOrderByNo('${esc(o.no)}')">編輯</button><button class="btn small danger" type="button" onclick="deleteOrderByNo('${esc(o.no)}')">刪除</button>` : ``}</div>
 
           </td>
 
@@ -3896,6 +3900,7 @@ function renderSchedule(){
           <td>
             ${badge(state)}
             ${p.key==="purchase"?purchaseSummaryHtml(order.no):""}
+            ${p.key==="outsourcing"?outsourcingSummaryHtml(order.no):""}
           </td>
 
         </tr>
@@ -5529,6 +5534,29 @@ function processOutsourcingFiles(files,type){
   saveOutsourcing();renderOutsourcing();
   alert(`資料夾掃描完成\n新增 ${added} 份 ${label}\n已存在跳過 ${skipped} 份`);
 }
+function outsourcingStatsForOrder(no){
+  const key=String(no||"").trim();
+  const rows=(outsourcingRows||[]).filter(r=>(r.orderNos||[]).some(n=>String(n).trim()===key));
+  return {total:rows.length,pending:rows.filter(r=>r.status!=="已回").length,done:rows.filter(r=>r.status==="已回").length};
+}
+function openOutsourcingDetail(no,status="全部"){
+  const input=document.getElementById("outsourcingSearchNo");
+  const statusSel=document.getElementById("outsourcingStatusFilter");
+  const customer=document.getElementById("outsourcingSearchCustomer");
+  if(input)input.value=String(no||"");
+  if(customer)customer.value="";
+  if(statusSel)statusSel.value=status;
+  outsourcingStatusFilter=status;
+  renderOutsourcing();
+  showPage("outsourcing");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function outsourcingSummaryHtml(no){
+  const st=outsourcingStatsForOrder(no);
+  if(!st.total)return `<div class="purchase-detail">尚無委外明細</div>`;
+  return `<div class="purchase-detail"><button type="button" class="purchase-link-btn" onclick="openOutsourcingDetail('${esc(no)}','全部')">委外 ${st.total} 筆</button></div>`;
+}
+
 function renderOutsourcing(){
   const total=outsourcingRows.length,pending=outsourcingRows.filter(r=>r.status!=="已回"),done=outsourcingRows.filter(r=>r.status==="已回"),overdue=pending.filter(isOutsourcingRowOverdue);
   const byOrder=new Map();
@@ -5543,7 +5571,9 @@ function renderOutsourcing(){
   const qNo=document.getElementById("outsourcingSearchNo")?.value.trim()||"",qCustomer=document.getElementById("outsourcingSearchCustomer")?.value.trim().toLowerCase()||"",sf=document.getElementById("outsourcingStatusFilter")?.value||outsourcingStatusFilter||"未回";
   let rows=outsourcingRows.filter(r=>{if(sf!=="全部"&&r.status!==sf)return false;const nos=(r.orderNos||[]).join(" ");if(qNo&&!nos.includes(qNo))return false;const customers=(r.orderNos||[]).map(no=>orders.find(o=>String(o.no).trim()===String(no).trim())?.customer||"").join(" ").toLowerCase();return !qCustomer||customers.includes(qCustomer);});
   document.getElementById("outsourcingBody").innerHTML=rows.map(r=>{const customers=[...new Set((r.orderNos||[]).map(no=>orders.find(o=>String(o.no).trim()===String(no).trim())?.customer||"").filter(Boolean))].join("、");const overdueFlag=isOutsourcingRowOverdue(r);return `<tr><td class="outsourcing-order-nos"><b>${outsourcingOrderDisplay(r.orderNos)||"未辨識"}</b></td><td>${esc(customers)}</td><td title="${esc(r.fileName)}"><span class="outsourcing-file-short">${esc(outsourcingShortFileName(r.fileName))}</span></td><td>${esc(r.folder||"")}</td><td><select class="outsourcing-status-select" data-outsourcing-id="${esc(r.id)}"><option value="未回" ${r.status==="未回"?"selected":""}>未回</option><option value="已回" ${r.status==="已回"?"selected":""}>已回</option></select></td><td>${overdueFlag?'<span class="badge danger">逾期</span>':'—'}</td></tr>`;}).join("")||`<tr><td colspan="6" class="empty">目前沒有符合條件的委外資料</td></tr>`;
-  document.getElementById("outsourcingFolderInfo").textContent=`目前資料夾：${outsourcingFolderLabel||"尚未選擇"}｜PDF ${outsourcingRows.length} 份`;
+  const selectedPdfCount=(outsourcingSelectedFiles||[]).filter(f=>/\.pdf$/i.test(f.name)).length;
+  const selectedTiffCount=(outsourcingSelectedFiles||[]).filter(f=>/\.(tif|tiff)$/i.test(f.name)).length;
+  document.getElementById("outsourcingFolderInfo").textContent=`目前資料夾：${outsourcingFolderLabel||"尚未選擇"}｜PDF ${selectedPdfCount} 份｜TIFF影像 ${selectedTiffCount} 份`;
 }
 
 /* =========================================================
