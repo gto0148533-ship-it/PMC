@@ -1201,6 +1201,17 @@ input,select{min-height:38px}
   .purchase-detail-actions .btn{min-height:32px}
 }
 
+
+.purchase-month-setting{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--muted);white-space:nowrap}
+.purchase-month-setting input{width:62px;height:34px;border:1px solid var(--line);border-radius:8px;padding:4px 8px;text-align:center}
+.purchase-auto-status{margin-top:8px;padding:8px 10px;border-radius:8px;background:#f8fafc;border:1px solid var(--line);font-size:13px;font-weight:700;color:#334155}
+@media(max-width:760px){
+  #page-purchase .mobile-purchase-import-card .toolbar{align-items:stretch}
+  #page-purchase .mobile-purchase-import-card .btn{flex:1 1 auto}
+  .purchase-month-setting{width:100%;justify-content:flex-start}
+  .purchase-auto-status{line-height:1.6}
+}
+
 </style>
 <style>
 
@@ -1473,6 +1484,10 @@ input,select{min-height:38px}
 .outsourcing-status-select{min-width:76px;padding:6px 8px;border:1px solid #cbd5e1;border-radius:7px;background:#fff}
 .outsourcing-file-short{display:block;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .outsourcing-order-nos{line-height:1.55;word-break:normal}
+.outsourcing-summary-links{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.outsourcing-summary-links .purchase-link-btn{margin:0}
+.outsourcing-summary-sep{color:#94a3b8}
+.outsourcing-summary-links .purchase-detail-muted{color:#64748b;font-weight:700}
 .danger-text{color:var(--danger,#dc2626)}
 @media(max-width:760px){
   #page-purchase .purchase-kpi-card{padding:8px 5px!important}
@@ -1637,7 +1652,7 @@ input,select{min-height:38px}
     </div>
     <div class="board-system-info">
       <div class="label">系統資訊</div>
-      <div class="version">PMC V3.8-20260923</div>
+      <div class="version">PMC V3.9-20260923</div>
     </div>
   </div>
   <div class="workflow-quick card">
@@ -1954,12 +1969,16 @@ input,select{min-height:38px}
 
   <div class="card mobile-purchase-import-card">
     <div class="section-title">匯入 Excel：未進貨詳細資料</div>
-    <div class="toolbar" style="margin-top:4px">
-      <button class="btn" id="purchaseImportBtn" type="button">選擇 Excel</button>
+    <div class="toolbar" style="margin-top:4px;gap:6px;flex-wrap:wrap">
+      <button class="btn" id="purchaseAutoImportBtn" type="button">選擇採購部進度表</button>
+      <input type="file" id="purchaseAutoExcelFile" accept=".xlsx,.xls" hidden>
+      <label class="purchase-month-setting">最近 <input id="purchaseRecentMonths" type="number" min="1" max="36" step="1" value="3"> 個月</label>
+      <button class="btn secondary" id="purchaseImportBtn" type="button">匯入已整理 Excel</button>
       <input type="file" id="purchaseExcelFile" accept=".xlsx,.xls,.csv" hidden>
       <button class="btn secondary" id="purchaseClearBtn" type="button">清除匯入資料</button>
     </div>
-    <div class="footer-note">支援 XLSX／XLS／CSV；系統會自動尋找「未進貨詳細資料」工作表並依欄位名稱辨識資料。</div>
+    <div id="purchaseAutoStatus" class="purchase-auto-status">目前檔案：尚未選擇｜0 筆未進貨詳細資料</div>
+    <div class="footer-note">直接選擇「採購部進度表.xlsx」或其他 Excel 檔，PMC 會讀取所有工作表，自動判斷兩種欄位格式，先判斷進貨日期，再依預計交期篩選未進貨資料。</div>
   </div>
 
 </div>
@@ -4110,12 +4129,87 @@ function renderPurchase(){
   document.getElementById("purchasePagination").innerHTML=`<div>顯示 ${filtered.length?start+1:0}–${Math.min(start+PURCHASE_PAGE_SIZE,filtered.length)} / ${filtered.length} 筆　｜　每頁 50 筆</div><div class="purchase-page-buttons"><button class="btn secondary small" type="button" data-purchase-page="prev" ${purchasePage<=1?"disabled":""}>上一頁</button>${Array.from({length:totalPages},(_,i)=>i+1).slice(Math.max(0,purchasePage-3),Math.min(totalPages,purchasePage+2)).map(n=>`<button class="btn ${n===purchasePage?"":"secondary"} small" type="button" data-purchase-page="${n}">${n}</button>`).join("")}<button class="btn secondary small" type="button" data-purchase-page="next" ${purchasePage>=totalPages?"disabled":""}>下一頁</button></div>`;
 }
 
-function normalizePurchaseHeader(v){return String(v||"").replace(/[\s　_\/\\]/g,"").toLowerCase();}
+function normalizePurchaseHeader(v){return String(v??"").replace(/[\s　_\/\\]/g,"").toLowerCase();}
 function findPurchaseCol(headers,names){for(const n of names){const i=headers.indexOf(normalizePurchaseHeader(n));if(i>=0)return i;}return -1;}
 function parseExcelDate(v){
-  if(v instanceof Date)return fmt(v);
+  if(v instanceof Date && !isNaN(v))return fmt(v);
   if(typeof v==="number" && window.XLSX?.SSF?.parse_date_code){const x=XLSX.SSF.parse_date_code(v);if(x)return `${x.y}-${String(x.m).padStart(2,"0")}-${String(x.d).padStart(2,"0")}`;}
-  const str=String(v||"").trim();if(!str)return "";const m=str.match(/(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/);return m?`${m[1]}-${String(m[2]).padStart(2,"0")}-${String(m[3]).padStart(2,"0")}`:str;
+  const str=String(v??"").trim();if(!str)return "";
+  let m=str.match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})$/);if(m)return `${m[1]}-${String(m[2]).padStart(2,"0")}-${String(m[3]).padStart(2,"0")}`;
+  m=str.match(/^(\d{4})(\d{2})(\d{2})$/);if(m)return `${m[1]}-${m[2]}-${m[3]}`;
+  return "";
+}
+function parsePurchaseDateStrict(v,today){
+  if(v instanceof Date && !isNaN(v)){
+    const d=new Date(v.getFullYear(),v.getMonth(),v.getDate());
+    if(d.getFullYear()<2000||d.getFullYear()>today.getFullYear()+1)return null;
+    return d;
+  }
+  if(typeof v==="number" && window.XLSX?.SSF?.parse_date_code){
+    const x=XLSX.SSF.parse_date_code(v); if(x&&x.y&&x.m&&x.d){
+      const d=new Date(x.y,x.m-1,x.d); if(d.getFullYear()===x.y&&d.getMonth()===x.m-1&&d.getDate()===x.d&&x.y>=2000&&x.y<=today.getFullYear()+1)return d;
+    }
+    return null;
+  }
+  const s=String(v??"").trim(); if(!s)return null;
+  const m=s.match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})$/) || s.match(/^(\d{4})(\d{2})(\d{2})$/);
+  if(!m)return null;
+  const y=Number(m[1]), mo=Number(m[2]), da=Number(m[3]);
+  if(y<2000||y>today.getFullYear()+1||mo<1||mo>12||da<1||da>31)return null;
+  const d=new Date(y,mo-1,da); return d.getFullYear()===y&&d.getMonth()===mo-1&&d.getDate()===da?d:null;
+}
+function getPurchaseSheetFormat(rows){
+  const max=Math.min(rows.length,10);
+  for(let r=0;r<max;r++){
+    const h=normalizePurchaseHeader(rows[r]?.[7]), i=normalizePurchaseHeader(rows[r]?.[8]), j=normalizePurchaseHeader(rows[r]?.[9]);
+    if(h.includes("預計交期") && i.includes("進貨"))return 1;
+    if(i.includes("預計交期") && j.includes("進貨"))return 2;
+  }
+  return 0;
+}
+function purchaseHeaderRow(rows){
+  for(let r=0;r<Math.min(rows.length,10);r++){
+    const a=rows[r]||[]; if(a.length>=2 && String(a[1]??"").trim() && (normalizePurchaseHeader(a[7]).includes("預計交期")||normalizePurchaseHeader(a[8]).includes("預計交期")))return r;
+  }
+  return -1;
+}
+function buildPurchaseRowFromSource(row,formatType,supplierName,today,cutoff){
+  const orderNo=String(row?.[1]??"").trim(); if(!orderNo)return null;
+  const receiveValue=formatType===1?row?.[8]:row?.[9];
+  if(String(receiveValue??"").trim()!=="")return null;
+  const expectedValue=formatType===1?row?.[7]:row?.[8];
+  const d=parsePurchaseDateStrict(expectedValue,today); if(!d||d<cutoff)return null;
+  let drawing="",material="",part="",qty="";
+  if(formatType===1){material=String(row?.[4]??"").trim();part=String(row?.[5]??"").trim();qty=row?.[6]??"";}
+  else{drawing=String(row?.[4]??"").trim();material=String(row?.[5]??"").trim();part=String(row?.[6]??"").trim();qty=row?.[7]??"";}
+  return {supplier:supplierName,no:orderNo,expected:fmt(d),drawing,material,part,qty,status:d<TODAY?"逾期":"待到貨"};
+}
+async function analyzePurchaseSourceFile(file){
+  if(!requireAdmin())return;
+  if(!window.XLSX)throw new Error("XLSX 元件未載入");
+  const months=Math.max(1,Math.min(36,Number(document.getElementById("purchaseRecentMonths")?.value)||3));
+  document.getElementById("purchaseRecentMonths").value=months;
+  const statusEl=document.getElementById("purchaseAutoStatus");
+  statusEl.textContent=`目前檔案：${file.name}｜分析中...`;
+  await new Promise(r=>setTimeout(r,20));
+  const wb=XLSX.read(new Uint8Array(await file.arrayBuffer()),{type:"array",cellDates:true,cellNF:false,cellText:false});
+  const today=new Date(); today.setHours(0,0,0,0); const cutoff=new Date(today); cutoff.setMonth(cutoff.getMonth()-months);
+  const result=[]; let scannedSheets=0, matchedSheets=0, scannedRows=0;
+  for(const sheetName of wb.SheetNames){
+    const ws=wb.Sheets[sheetName];
+    const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:"",raw:true});
+    if(!rows.length)continue;
+    scannedSheets++; const formatType=getPurchaseSheetFormat(rows); if(!formatType)continue; matchedSheets++;
+    for(const row of rows){
+      scannedRows++; const item=buildPurchaseRowFromSource(row,formatType,sheetName,today,cutoff); if(item)result.push(item);
+    }
+    await new Promise(r=>setTimeout(r,0));
+  }
+  purchaseRows=result; purchasePage=1; localStorage.setItem("PMC_V3_PURCHASE_ROWS",JSON.stringify(purchaseRows));
+  const overdue=result.filter(r=>r.status==="逾期").length;
+  statusEl.innerHTML=`目前檔案：<b>${esc(file.name)}</b>｜<b>${result.length}</b> 筆未進貨詳細資料 <span style="font-weight:400;color:var(--muted)">（${scannedSheets} 張工作表／${matchedSheets} 張符合格式／最近 ${months} 個月以上含未來交期）</span>`;
+  renderPurchase(); renderAll();
+  alert(`PMC 分析完成！\n\n檔案：${file.name}\n符合格式工作表：${matchedSheets} 張\n未進貨詳細資料：${result.length} 筆\n其中逾期：${overdue} 筆\n日期範圍：${fmt(cutoff)} ～ 未來交期\n\n已依「先判斷進貨日期，再判斷預計交期」處理。`);
 }
 function importPurchaseExcel(file){
   const reader=new FileReader();reader.onload=function(e){
@@ -4132,6 +4226,7 @@ function importPurchaseExcel(file){
   };
   if(/\.csv$/i.test(file.name))reader.readAsText(file,"utf-8");else reader.readAsArrayBuffer(file);
 }
+
 
 
 /* =========================================================
@@ -5554,7 +5649,11 @@ function openOutsourcingDetail(no,status="全部"){
 function outsourcingSummaryHtml(no){
   const st=outsourcingStatsForOrder(no);
   if(!st.total)return `<div class="purchase-detail">尚無委外明細</div>`;
-  return `<div class="purchase-detail"><button type="button" class="purchase-link-btn" onclick="openOutsourcingDetail('${esc(no)}','全部')">委外 ${st.total} 筆</button></div>`;
+  const totalBtn=`<button type="button" class="purchase-link-btn" onclick="openOutsourcingDetail('${esc(no)}','全部')">委外 ${st.total} 筆</button>`;
+  const pendingBtn=st.pending>0
+    ? `<button type="button" class="purchase-link-btn" onclick="openOutsourcingDetail('${esc(no)}','未回')">未回 ${st.pending} 筆</button>`
+    : `<span class="purchase-detail-muted">未回 0 筆</span>`;
+  return `<div class="purchase-detail outsourcing-summary-links">${totalBtn}<span class="outsourcing-summary-sep">｜</span>${pendingBtn}</div>`;
 }
 
 function renderOutsourcing(){
@@ -6018,7 +6117,9 @@ document.addEventListener(
       renderSettings();
     });
 
-    /* 採購 Excel */
+    /* 採購 Excel：直接分析來源檔 */
+    document.getElementById("purchaseAutoImportBtn").addEventListener("click",function(){if(requireAdmin())document.getElementById("purchaseAutoExcelFile").click();});
+    document.getElementById("purchaseAutoExcelFile").addEventListener("change",function(e){const file=e.target.files[0];if(file&&requireAdmin()){analyzePurchaseSourceFile(file).catch(err=>{console.error(err);const el=document.getElementById("purchaseAutoStatus");if(el)el.textContent=`目前檔案：${file.name}｜分析失敗：${err.message}`;alert("採購部進度表分析失敗："+err.message);});}e.target.value="";});
     document.getElementById("purchaseImportBtn").addEventListener("click",function(){if(requireAdmin())document.getElementById("purchaseExcelFile").click();});
     document.getElementById("purchaseExcelFile").addEventListener("change",function(e){if(e.target.files[0]&&requireAdmin())importPurchaseExcel(e.target.files[0]);e.target.value="";});
     document.getElementById("purchaseClearBtn").addEventListener("click",function(){if(!requireAdmin())return;if(confirm("確定清除已匯入的未進貨資料？")){purchaseRows=[];purchasePage=1;localStorage.removeItem("PMC_V3_PURCHASE_ROWS");renderPurchase();}});
