@@ -1342,7 +1342,7 @@ input,select{min-height:38px}
   #page-settings .statline{align-items:flex-start;gap:8px;flex-wrap:wrap}
 
   /* 底部導覽 */
-  .mobile-bottom-nav{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;z-index:9998;height:64px;padding:5px 6px calc(5px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);border-top:1px solid #dbe3ec;box-shadow:0 -8px 24px rgba(15,23,42,.08);backdrop-filter:blur(10px)}
+  .mobile-bottom-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;z-index:9998;height:64px;padding:5px 6px calc(5px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);border-top:1px solid #dbe3ec;box-shadow:0 -8px 24px rgba(15,23,42,.08);backdrop-filter:blur(10px)}
   .mobile-bottom-nav button{border:0;background:transparent;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#64748b;font-size:10px;font-weight:800;min-width:0}
   .mobile-bottom-nav button .mi{font-size:19px;line-height:1}
   .mobile-bottom-nav button.active{background:#eaf2ff;color:#1d4ed8}
@@ -1450,6 +1450,13 @@ input,select{min-height:38px}
 }
 
 .nav-sub{padding-left:38px!important;font-size:13px!important;opacity:.92}
+.purchase-kpi-card{padding:10px 14px!important}
+.purchase-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
+.purchase-kpis>div{padding:2px 16px;border-right:1px solid #e5eaf0;text-align:center}
+.purchase-kpis>div:first-child{padding-left:4px}.purchase-kpis>div:last-child{border-right:0;padding-right:4px}
+.purchase-kpis .kpi-label{font-size:11px;color:#64748b;font-weight:800}.purchase-kpis .kpi-value{font-size:24px;line-height:1.15;margin-top:2px;font-weight:900}
+.purchase-detail-title-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.purchase-pc-clear-filter{margin-left:auto}
 .outsourcing-kpi-card{padding:10px 14px!important;margin-bottom:0}
 .outsourcing-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
 .outsourcing-kpis>div{padding:2px 16px;border-right:1px solid #e5eaf0;text-align:center}
@@ -1468,6 +1475,14 @@ input,select{min-height:38px}
 .outsourcing-order-nos{line-height:1.55;word-break:normal}
 .danger-text{color:var(--danger,#dc2626)}
 @media(max-width:760px){
+  #page-purchase .purchase-kpi-card{padding:8px 5px!important}
+  #page-purchase .purchase-kpis{grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
+  #page-purchase .purchase-kpis>div{padding:2px 3px}
+  #page-purchase .purchase-kpis .kpi-label{font-size:9px;white-space:nowrap}
+  #page-purchase .purchase-kpis .kpi-value{font-size:20px}
+  #page-purchase .purchase-pc-clear-filter{display:none!important}
+  #page-outsourcing .outsourcing-import-card{display:none!important}
+  #page-board .workflow-quick-actions [data-flow-action="new-order"],#page-board .workflow-quick-actions [data-flow-action="progress"]{display:none!important}
   #page-outsourcing .outsourcing-kpi-card{padding:8px 5px!important}
   #page-outsourcing .outsourcing-kpis{grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
   #page-outsourcing .outsourcing-kpis>div{padding:2px 3px}
@@ -1619,7 +1634,7 @@ input,select{min-height:38px}
     </div>
     <div class="board-system-info">
       <div class="label">系統資訊</div>
-      <div class="version">PMC V7-20260923</div>
+      <div class="version">PMC V3.8-20260923</div>
     </div>
   </div>
   <div class="workflow-quick card">
@@ -1923,9 +1938,14 @@ input,select{min-height:38px}
 
 <div class="grid two" style="align-items:start">
 
-  <div class="card">
+  <div class="card purchase-kpi-card">
     <div class="section-title">未進貨彙總</div>
-    <div id="purchaseSummary"></div>
+    <div class="purchase-kpis" id="purchaseSummary">
+      <div><div class="kpi-label">匯入明細</div><div class="kpi-value" id="purchaseTotal">0</div></div>
+      <div><div class="kpi-label">待進貨</div><div class="kpi-value" id="purchasePending">0</div></div>
+      <div><div class="kpi-label">已到貨</div><div class="kpi-value" id="purchaseDone">0</div></div>
+      <div><div class="kpi-label">逾期到貨</div><div class="kpi-value" id="purchaseOverdue">0</div></div>
+    </div>
   </div>
 
   <div class="card mobile-purchase-import-card">
@@ -1949,8 +1969,9 @@ input,select{min-height:38px}
   class="card"
   style="margin-top:14px">
 
-  <div class="section-title">
-    未進貨明細
+  <div class="section-title purchase-detail-title-row">
+    <span>未進貨明細</span>
+    <button class="btn secondary small purchase-pc-clear-filter" id="purchaseClearFilterBtn" type="button">清除篩選</button>
   </div>
 
   <div class="mobile-purchase-filters" aria-label="手機採購篩選">
@@ -2020,15 +2041,16 @@ input,select{min-height:38px}
   </div>
 
   <div class="card outsourcing-import-card" style="margin-top:14px">
-    <div class="section-title">資料夾 PDF 檔名匯入</div>
+    <div class="section-title">資料夾 PDF／TIFF 檔名匯入</div>
     <div class="toolbar outsourcing-folder-toolbar">
       <button class="btn" id="outsourcingChooseBtn" type="button">📁 選擇資料夾</button>
-      <input type="file" id="outsourcingFolderInput" webkitdirectory directory multiple accept=".pdf,application/pdf" hidden>
-      <button class="btn secondary" id="outsourcingScanBtn" type="button">🔄 掃描資料夾</button>
+      <input type="file" id="outsourcingFolderInput" webkitdirectory directory multiple accept=".pdf,.tif,.tiff,application/pdf,image/tiff" hidden>
+      <button class="btn secondary" id="outsourcingScanPdfBtn" type="button">🔄 掃描 PDF</button>
+      <button class="btn secondary" id="outsourcingScanTiffBtn" type="button">🔄 掃描 TIFF影像</button>
       <button class="btn secondary" id="outsourcingClearBtn" type="button">清除委外資料</button>
     </div>
-    <div class="outsourcing-folder-info" id="outsourcingFolderInfo">目前資料夾：尚未選擇</div>
-    <div class="footer-note">可分別選擇不同資料夾加入同一份委外資料。相同 PDF 檔名已存在時自動跳過；不讀取 PDF 內容，只使用檔名抓取 7 位工單號碼。</div>
+    <div class="outsourcing-folder-info" id="outsourcingFolderInfo">目前資料夾：尚未選擇｜PDF 0 份｜TIFF影像 0 份</div>
+    <div class="footer-note">可分別選擇不同資料夾加入同一份委外資料。PDF 與 TIFF（.tif／.tiff）可擇一掃描；相同檔名已存在時自動跳過，只使用檔名抓取 7 位工單號碼。</div>
   </div>
 
   <div class="card" style="margin-top:14px">
@@ -3097,8 +3119,8 @@ function renderBoard(){
   if(boardPage>totalPages)boardPage=totalPages;
   const start=(boardPage-1)*BOARD_PAGE_SIZE;
   const pageOrders=active.slice(start,start+BOARD_PAGE_SIZE);
-  const parallelCount=key=>orders.filter(o=>o.actual?.design?.end&&!o.actual?.[key]?.end&&overallStatus(o)!=="已完成").length;
-  const kpis=[["工單總數",orders.length,"筆"],["維修",orders.filter(o=>o.status==="維修").length,"筆"],["繪圖",orders.filter(o=>overallStatus(o)==="繪圖").length,"筆"],["加工",parallelCount("weld"),"筆"],["採購",parallelCount("purchase"),"筆"],["委外",parallelCount("outsourcing"),"筆"],["組裝",orders.filter(o=>overallStatus(o)==="組裝").length,"筆"],["測試中",orders.filter(o=>overallStatus(o)==="測試中").length,"筆"],["待結案",orders.filter(o=>overallStatus(o)==="待結案").length,"筆"],["逾期",orders.filter(o=>overallStatus(o)==="逾期").length,"筆"]];
+  const parallelCount=key=>active.filter(o=>o.actual?.design?.end&&!o.actual?.[key]?.end).length;
+  const kpis=[["工單總數",active.length,"筆"],["維修",active.filter(o=>o.status==="維修").length,"筆"],["繪圖",active.filter(o=>overallStatus(o)==="繪圖").length,"筆"],["加工",parallelCount("weld"),"筆"],["採購",parallelCount("purchase"),"筆"],["委外",parallelCount("outsourcing"),"筆"],["組裝",active.filter(o=>overallStatus(o)==="組裝").length,"筆"],["測試中",active.filter(o=>overallStatus(o)==="測試中").length,"筆"],["待結案",active.filter(o=>overallStatus(o)==="待結案").length,"筆"],["逾期",active.filter(o=>overallStatus(o)==="逾期").length,"筆"]];
   document.getElementById("boardKpis").innerHTML=kpis.filter(x=>x[1]>0).map(x=>`<button type="button" class="card kpi board-kpi-clickable" data-board-status="${esc(x[0])}"><div class="label">${x[0]}</div><div class="value">${x[1]}${x[2]}</div></button>`).join("");
   document.getElementById("boardOrders").innerHTML=active.length?pageOrders.map(o=>`<div class="board-order-row"><b><button type="button" class="board-order-no-btn" onclick="openOrderWorkflow('schedule','${esc(o.no)}')">${esc(o.no)}</button></b><span>${esc(o.customer)}</span><span>${esc(o.product)}</span><span>${badge(overallStatus(o))}</span><span>${daysLeft(o.due)<0?"逾期 "+Math.abs(daysLeft(o.due))+" 天":"剩 "+daysLeft(o.due)+" 天"}</span></div>`).join(""):`<div class="empty">目前沒有未完成工單</div>`;
   document.getElementById("boardPagination").innerHTML=active.length?`<span>顯示 ${start+1}–${Math.min(start+BOARD_PAGE_SIZE,active.length)} / ${active.length} 筆</span><div class="board-page-buttons"><button class="btn secondary small" type="button" data-board-page="prev" ${boardPage<=1?"disabled":""}>上一頁</button>${Array.from({length:totalPages},(_,i)=>i+1).map(n=>`<button class="btn ${n===boardPage?"":"secondary"} small" type="button" data-board-page="${n}">${n}</button>`).join("")}<button class="btn secondary small" type="button" data-board-page="next" ${boardPage>=totalPages?"disabled":""}>下一頁</button></div>`:"";
@@ -4055,7 +4077,11 @@ function renderPurchase(){
   const rows=purchaseRows||[],overdue=rows.filter(r=>getPurchaseDisplayStatus(r)==="逾期"),pending=rows.filter(r=>getPurchaseDisplayStatus(r)!=="已到貨"),filtered=getFilteredPurchaseRows();
   const totalPages=Math.max(1,Math.ceil(filtered.length/PURCHASE_PAGE_SIZE));if(purchasePage>totalPages)purchasePage=totalPages;
   const start=(purchasePage-1)*PURCHASE_PAGE_SIZE,pageRows=filtered.slice(start,start+PURCHASE_PAGE_SIZE);
-  document.getElementById("purchaseSummary").innerHTML=`<div class="statline" style="padding:6px 0"><span>匯入明細筆數</span><b>${rows.length}</b></div><div class="statline" style="padding:6px 0"><span>待進貨</span><b>${pending.length}</b></div><div class="statline" style="padding:6px 0"><span>逾期到貨</span><b style="color:var(--danger)">${overdue.length}</b></div>`;
+  const purchaseDone=rows.filter(r=>getPurchaseDisplayStatus(r)==="已到貨");
+  const purchaseTotalEl=document.getElementById("purchaseTotal");if(purchaseTotalEl)purchaseTotalEl.textContent=rows.length;
+  const purchasePendingEl=document.getElementById("purchasePending");if(purchasePendingEl)purchasePendingEl.textContent=pending.length;
+  const purchaseDoneEl=document.getElementById("purchaseDone");if(purchaseDoneEl)purchaseDoneEl.textContent=purchaseDone.length;
+  const purchaseOverdueEl=document.getElementById("purchaseOverdue");if(purchaseOverdueEl)purchaseOverdueEl.textContent=overdue.length;
   const orderNos=new Set(pending.map(r=>String(r.no||"").trim()).filter(Boolean));
   const orderRiskMap=new Map();
   pending.forEach(r=>{
@@ -4531,8 +4557,8 @@ function getBoardStatusOrders(status){
   if(status==="測試中") return orders.filter(o=>overallStatus(o)==="測試中");
   if(status==="待結案") return orders.filter(o=>overallStatus(o)==="待結案");
   if(status==="逾期") return orders.filter(o=>overallStatus(o)==="逾期");
-  if(status==="維修") return orders.filter(o=>o.status==="維修");
-  if(status==="工單總數") return orders.slice();
+  if(status==="維修") return orders.filter(o=>o.status==="維修"&&overallStatus(o)!=="已完成");
+  if(status==="工單總數") return orders.filter(o=>overallStatus(o)!=="已完成");
   return [];
 }
 function openBoardStatusModal(status){
@@ -4550,6 +4576,7 @@ function openBoardStatusModal(status){
       <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('schedule','${esc(o.no)}')">排程</button>
       <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('progress','${esc(o.no)}')">進度</button>
       <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('purchase','${esc(o.no)}')">採購</button>
+      <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('outsourcing','${esc(o.no)}')">委外</button>
     </div>
   </div>`).join(""):`<div class="empty">目前沒有符合的工單</div>`;
   modal.classList.add("open");
@@ -5456,7 +5483,7 @@ function resetDemoData(){
    OUTSOURCING PDF FOLDER IMPORT
 ========================================================= */
 function extractOutsourcingOrderNos(fileName){
-  let name=String(fileName||"").replace(/\.pdf$/i,"");
+  let name=String(fileName||"").replace(/\.(pdf|tif|tiff)$/i,"");
   // 日期 8 碼不是工單號，先移除 YYYYMMDD 日期字串
   name=name.replace(/20\d{6}/g," ");
   const matches=name.match(/\d{7}/g)||[];
@@ -5464,8 +5491,8 @@ function extractOutsourcingOrderNos(fileName){
 }
 function outsourcingRowKey(name){return String(name||"").trim().toLowerCase();}
 function outsourcingShortFileName(fileName){
-  const base=String(fileName||"").replace(/\.pdf$/i,"");
-  const m=base.match(/\d{7}/);
+  const base=String(fileName||"").replace(/\.(pdf|tif|tiff)$/i,"");
+  const m=/(?<!\d)\d{7}(?!\d)/.exec(base);
   if(!m) return base;
   return base.slice(0,m.index).replace(/[-_\s]+$/g,"").trim() || base;
 }
@@ -5481,24 +5508,26 @@ function isOutsourcingRowOverdue(row){
   return nos.some(no=>{const o=orders.find(x=>String(x.no).trim()===String(no).trim());return o?.due && diffDays(TODAY,parseDate(o.due))<0;});
 }
 function saveOutsourcing(){localStorage.setItem("PMC_V7_OUTSOURCING_ROWS",JSON.stringify(outsourcingRows));}
-function processOutsourcingFiles(files){
-  const pdfs=Array.from(files||[]).filter(f=>/\.pdf$/i.test(f.name));
-  if(!pdfs.length){alert("選取的資料夾沒有 PDF 檔案。");return;}
+function processOutsourcingFiles(files,type){
+  const isTiff=type==="tiff";
+  const label=isTiff?"TIFF影像":"PDF";
+  const matched=Array.from(files||[]).filter(f=>isTiff?/\.(tif|tiff)$/i.test(f.name):/\.pdf$/i.test(f.name));
+  if(!matched.length){alert(`選取的資料夾沒有 ${label} 檔案。`);return;}
   let added=0,skipped=0;
   const existing=new Set(outsourcingRows.map(r=>outsourcingRowKey(r.fileName)));
   let folderLabel="";
-  pdfs.forEach(file=>{
+  matched.forEach(file=>{
     const rel=file.webkitRelativePath||file.name;
     const parts=rel.split(/[\\/]/).filter(Boolean);
     if(!folderLabel) folderLabel=parts[0]||"";
     if(existing.has(outsourcingRowKey(file.name))){skipped++;return;}
     const orderNos=extractOutsourcingOrderNos(file.name);
-    outsourcingRows.push({id:"os_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,7),fileName:file.name,folder:parts.length>1?parts.slice(0,-1).join(" / "):folderLabel||"",orderNos,status:"未回",importedAt:fmt(TODAY)});
+    outsourcingRows.push({id:"os_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,7),fileName:file.name,fileType:isTiff?"TIFF":"PDF",folder:parts.length>1?parts.slice(0,-1).join(" / "):folderLabel||"",orderNos,status:"未回",importedAt:fmt(TODAY)});
     existing.add(outsourcingRowKey(file.name));added++;
   });
   outsourcingFolderLabel=folderLabel||outsourcingFolderLabel;
   saveOutsourcing();renderOutsourcing();
-  alert(`資料夾掃描完成\n新增 ${added} 份 PDF\n已存在跳過 ${skipped} 份`);
+  alert(`資料夾掃描完成\n新增 ${added} 份 ${label}\n已存在跳過 ${skipped} 份`);
 }
 function renderOutsourcing(){
   const total=outsourcingRows.length,pending=outsourcingRows.filter(r=>r.status!=="已回"),done=outsourcingRows.filter(r=>r.status==="已回"),overdue=pending.filter(isOutsourcingRowOverdue);
@@ -5554,7 +5583,7 @@ function doLogout(){isAdmin=false;sessionStorage.removeItem("PMC_V3_ADMIN_LOGIN"
 function updatePermissions(){
   const b=document.getElementById("permissionBadge");b.textContent=isAdmin?"權限：管理者":"權限：訪客查詢";b.classList.toggle("admin",isAdmin);
   document.getElementById("loginBtn").textContent=isAdmin?"登出":"登入";
-  ["openOrderBtn","orderAddBtn","purchaseImportBtn","purchaseClearBtn","outsourcingChooseBtn","outsourcingScanBtn","outsourcingClearBtn","resetBtn","exportBtn","saveProcessSettingsBtn"].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display=isAdmin?"inline-block":"none";});
+  ["openOrderBtn","orderAddBtn","purchaseImportBtn","purchaseClearBtn","outsourcingChooseBtn","outsourcingScanPdfBtn","outsourcingScanTiffBtn","outsourcingClearBtn","resetBtn","exportBtn","saveProcessSettingsBtn"].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display=isAdmin?"inline-block":"none";});
   const note=document.getElementById("orderReadonlyNote");if(note)note.textContent=isAdmin?"管理者可新增／編輯／刪除":"訪客模式：僅查詢";
 }
 function requireAdmin(){if(isAdmin)return true;alert("目前為訪客查詢模式，請先登入管理者帳號。");return false;}
@@ -5983,31 +6012,46 @@ document.addEventListener(
       purchasePage=1;
       renderPurchase();
     });
+    const purchaseClearFilter=document.getElementById("purchaseClearFilterBtn");
+    if(purchaseClearFilter)purchaseClearFilter.addEventListener("click",function(){
+      ["purchaseFilterSupplier","purchaseFilterNo","purchaseFilterExpected","purchaseFilterDrawing","purchaseFilterMaterial","purchaseFilterPart","purchaseFilterQty","purchaseFilterStatus"].forEach(function(id){const el=document.getElementById(id);if(el)el.value="";});
+      ["mobilePurchaseFilterSupplier","mobilePurchaseFilterNo","mobilePurchaseFilterPart"].forEach(function(id){const el=document.getElementById(id);if(el)el.value="";});
+      purchasePage=1;
+      renderPurchase();
+    });
     document.addEventListener("click",function(e){const b=e.target.closest("[data-purchase-page]");if(!b)return;const filtered=getFilteredPurchaseRows(),pages=Math.max(1,Math.ceil(filtered.length/PURCHASE_PAGE_SIZE)),action=b.dataset.purchasePage;if(action==="prev")purchasePage=Math.max(1,purchasePage-1);else if(action==="next")purchasePage=Math.min(pages,purchasePage+1);else purchasePage=Math.min(pages,Math.max(1,Number(action)||1));renderPurchase();});
     document.addEventListener("click",function(e){const b=e.target.closest("[data-board-page]");if(!b)return;const active=orders.filter(o=>overallStatus(o)!=="已完成");const pages=Math.max(1,Math.ceil(active.length/BOARD_PAGE_SIZE)),action=b.dataset.boardPage;if(action==="prev")boardPage=Math.max(1,boardPage-1);else if(action==="next")boardPage=Math.min(pages,boardPage+1);else boardPage=Math.min(pages,Math.max(1,Number(action)||1));renderBoard();});
     document.addEventListener("click",function(e){const b=e.target.closest("[data-order-page]");if(!b)return;const list=getFilteredOrders(),pages=Math.max(1,Math.ceil(list.length/ORDER_PAGE_SIZE)),action=b.dataset.orderPage;if(action==="prev")orderPage=Math.max(1,orderPage-1);else if(action==="next")orderPage=Math.min(pages,orderPage+1);else orderPage=Math.min(pages,Math.max(1,Number(action)||1));renderOrders();});
 
-    /* 委外製造：多資料夾 PDF 檔名匯入 */
+    /* 委外製造：多資料夾 PDF／TIFF 檔名匯入 */
     const osChoose=document.getElementById("outsourcingChooseBtn");
     const osInput=document.getElementById("outsourcingFolderInput");
     if(osChoose&&osInput){
       osChoose.addEventListener("click",function(){if(requireAdmin())osInput.click();});
       osInput.addEventListener("change",function(e){
         try{
-          outsourcingSelectedFiles=Array.from(e.target.files||[]).filter(function(f){return /\.pdf$/i.test(f.name);});
+          outsourcingSelectedFiles=Array.from(e.target.files||[]).filter(function(f){return /\.(pdf|tif|tiff)$/i.test(f.name);});
           const first=outsourcingSelectedFiles[0];
           const rel=first?.webkitRelativePath||first?.name||"";
           outsourcingFolderLabel=(rel.split(/[\\/]/).filter(Boolean)[0])||"";
-          document.getElementById("outsourcingFolderInfo").textContent=`目前資料夾：${outsourcingFolderLabel||"已選擇"}｜PDF ${outsourcingSelectedFiles.length} 份（待掃描）`;
+          const pdfCount=outsourcingSelectedFiles.filter(function(f){return /\.pdf$/i.test(f.name);}).length;
+          const tiffCount=outsourcingSelectedFiles.filter(function(f){return /\.(tif|tiff)$/i.test(f.name);}).length;
+          document.getElementById("outsourcingFolderInfo").textContent=`目前資料夾：${outsourcingFolderLabel||"已選擇"}｜PDF ${pdfCount} 份｜TIFF影像 ${tiffCount} 份（待掃描）`;
         }catch(err){console.error(err);alert("跳出資料夾選擇失敗："+err.message);}
         e.target.value="";
       });
     }
-    const osScan=document.getElementById("outsourcingScanBtn");
-    if(osScan)osScan.addEventListener("click",function(){
+    const osScanPdf=document.getElementById("outsourcingScanPdfBtn");
+    if(osScanPdf)osScanPdf.addEventListener("click",function(){
       if(!requireAdmin())return;
       if(!outsourcingSelectedFiles.length){alert("請先選擇資料夾。");return;}
-      try{processOutsourcingFiles(outsourcingSelectedFiles);}catch(err){console.error(err);alert("掃描資料夾失敗："+err.message);}
+      try{processOutsourcingFiles(outsourcingSelectedFiles,"pdf");}catch(err){console.error(err);alert("掃描 PDF 失敗："+err.message);}
+    });
+    const osScanTiff=document.getElementById("outsourcingScanTiffBtn");
+    if(osScanTiff)osScanTiff.addEventListener("click",function(){
+      if(!requireAdmin())return;
+      if(!outsourcingSelectedFiles.length){alert("請先選擇資料夾。");return;}
+      try{processOutsourcingFiles(outsourcingSelectedFiles,"tiff");}catch(err){console.error(err);alert("掃描 TIFF影像失敗："+err.message);}
     });
     const osClear=document.getElementById("outsourcingClearBtn");
     if(osClear)osClear.addEventListener("click",function(){if(!requireAdmin())return;if(confirm("確定清除全部委外製造匯入資料？")){outsourcingRows=[];outsourcingFolderLabel="";saveOutsourcing();renderOutsourcing();}});
@@ -6215,9 +6259,7 @@ document.addEventListener(
 
 <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="手機快速導覽">
   <button type="button" data-mobile-page="board" class="active"><span class="mi">⌂</span><span>看板</span></button>
-  <button type="button" data-mobile-page="orders"><span class="mi">▤</span><span>工單</span></button>
   <button type="button" data-mobile-page="schedule"><span class="mi">◫</span><span>排程</span></button>
-  <button type="button" data-mobile-page="progress"><span class="mi">◉</span><span>進度</span></button>
   <button type="button" data-mobile-page="purchase"><span class="mi">▣</span><span>採購</span></button>
   <button type="button" data-mobile-page="outsourcing"><span class="mi">↳</span><span>委外</span></button>
 </nav>

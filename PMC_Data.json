@@ -1,6 +1,6 @@
 {
   "version": "3.1",
-  "exportedAt": "2026-09-23T01:38:42.559Z",
+  "exportedAt": "2026-09-23T09:30:14.237Z",
   "source": "PMC central JSON",
   "orders": [
     {
@@ -1328,6 +1328,83 @@
           "start": "2026-09-20",
           "end": "2026-09-20",
           "days": 1
+        }
+      }
+    },
+    {
+      "no": "1801004",
+      "customer": "金星建材(維修-裁刀)",
+      "product": "PG412TS",
+      "orderDate": "2026-09-22",
+      "due": "2026-11-23",
+      "priority": "高",
+      "status": "維修",
+      "processMode": "semi",
+      "actualClose": "",
+      "durations": {
+        "design": 1,
+        "weld": 1,
+        "purchase": 1,
+        "outsourcing": 36,
+        "assembly": 1,
+        "electrical": 1,
+        "test": 1,
+        "close": 1
+      },
+      "actual": {
+        "design": {
+          "start": "2026-09-22",
+          "end": "2026-09-23"
+        },
+        "weld": {
+          "start": "2026-09-23",
+          "end": "2026-09-23"
+        },
+        "outsourcing": {
+          "start": "2026-09-23",
+          "end": "2026-09-23"
+        }
+      },
+      "schedule": {
+        "close": {
+          "start": "2026-11-22",
+          "end": "2026-11-22",
+          "days": 1
+        },
+        "test": {
+          "start": "2026-11-19",
+          "end": "2026-11-19",
+          "days": 1
+        },
+        "electrical": {
+          "start": "2026-11-17",
+          "end": "2026-11-17",
+          "days": 1
+        },
+        "assembly": {
+          "start": "2026-11-15",
+          "end": "2026-11-15",
+          "days": 1
+        },
+        "weld": {
+          "start": "2026-11-12",
+          "end": "2026-11-12",
+          "days": 1
+        },
+        "design": {
+          "start": "2026-09-22",
+          "end": "2026-09-22",
+          "days": 1
+        },
+        "purchase": {
+          "start": "2026-11-12",
+          "end": "2026-11-12",
+          "days": 1
+        },
+        "outsourcing": {
+          "start": "2026-09-24",
+          "end": "2026-11-12",
+          "days": 36
         }
       }
     }
