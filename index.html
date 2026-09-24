@@ -1212,6 +1212,7 @@ input,select{min-height:38px}
   .purchase-auto-status{line-height:1.6}
 }
 
+.purchase-top-stack{display:flex;flex-direction:column;gap:14px}.purchase-top-stack>.card{width:100%;box-sizing:border-box}.topbar-system-info{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:12px}.topbar-system-info .label{color:#64748b;font-weight:700}.topbar-system-info b{font-size:14px}.board-maintenance-list{display:flex;flex-direction:column;gap:7px}.board-maintenance-row{display:grid;grid-template-columns:minmax(82px,120px) minmax(0,1fr) auto;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#fff}.outsourcing-row-check{width:17px;height:17px;cursor:pointer}@media(max-width:760px){.topbar-system-info{position:static;transform:none;order:2;margin:0 auto}.topbar .title{max-width:38%}.board-maintenance-row{grid-template-columns:1fr;gap:3px}.purchase-top-stack{gap:10px}}
 </style>
 <style>
 
@@ -1585,6 +1586,8 @@ input,select{min-height:38px}
     PMC 看板模式
   </div>
 
+  <div class="topbar-system-info" aria-label="系統資訊"><span class="label">系統資訊</span><b>PMC V3.11-20260924</b></div>
+
   <div class="top-actions">
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
     <button class="btn secondary" id="openDataFileBtn" type="button" style="display:none">選擇 PMC_Data.json</button>
@@ -1648,11 +1651,7 @@ input,select{min-height:38px}
   <div class="board-hero">
     <div class="board-hero-info">
       <div style="font-size:22px;font-weight:800">PMC 看板模式</div>
-      <div class="sub">查詢首頁｜未登入可查看資料；新增、修改、刪除、匯入與系統設定需管理者登入。</div>
-    </div>
-    <div class="board-system-info">
-      <div class="label">系統資訊</div>
-      <div class="version">PMC V3.9-20260923</div>
+      
     </div>
   </div>
   <div class="workflow-quick card">
@@ -1955,7 +1954,7 @@ input,select{min-height:38px}
   <div class="page-flow-actions"><button class="btn secondary" type="button" data-flow-nav="progress">← 進度</button><button class="btn" type="button" data-flow-nav="outsourcing">下一步：委外 →</button></div>
 </div>
 
-<div class="grid two" style="align-items:start">
+<div class="purchase-top-stack">
 
   <div class="card purchase-kpi-card">
     <div class="section-title">未進貨彙總</div>
@@ -2092,11 +2091,11 @@ input,select{min-height:38px}
           <option value="未回">未回</option><option value="全部">全部</option><option value="已回">已回</option>
         </select>
       </label>
-      <button class="btn secondary" id="outsourcingClearSearchBtn" type="button">清除搜尋</button>
+      <button class="btn secondary" id="outsourcingClearSearchBtn" type="button">清除搜尋</button><button class="btn danger" id="outsourcingDeleteSelectedBtn" type="button">刪除勾選明細</button>
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>工單號碼</th><th>客戶名稱</th><th>檔名</th><th>來源資料夾</th><th>狀態</th><th>逾期</th></tr></thead>
+        <thead><tr><th>工單號碼</th><th>客戶名稱</th><th>檔名</th><th>來源資料夾</th><th>狀態</th><th>逾期</th><th>刪除</th></tr></thead>
         <tbody id="outsourcingBody"></tbody>
       </table>
     </div>
@@ -2555,6 +2554,7 @@ let orders=[];
 let editingNo=null;
 let processEditState=null;
 let scheduleMode=localStorage.getItem("PMC_V3_SCHEDULE_MODE")||"semi";
+let settingsDraftMode=scheduleMode;
 let purchaseRows=JSON.parse(localStorage.getItem("PMC_V3_PURCHASE_ROWS")||"[]");
 let outsourcingRows=JSON.parse(localStorage.getItem("PMC_V7_OUTSOURCING_ROWS")||"[]");
 let outsourcingStatusFilter="未回";
@@ -3148,7 +3148,7 @@ function renderBoard(){
   document.getElementById("boardOrders").innerHTML=active.length?pageOrders.map(o=>`<div class="board-order-row"><b><button type="button" class="board-order-no-btn" onclick="openOrderWorkflow('schedule','${esc(o.no)}')">${esc(o.no)}</button></b><span>${esc(o.customer)}</span><span>${esc(o.product)}</span><span>${badge(overallStatus(o))}</span><span>${daysLeft(o.due)<0?"逾期 "+Math.abs(daysLeft(o.due))+" 天":"剩 "+daysLeft(o.due)+" 天"}</span></div>`).join(""):`<div class="empty">目前沒有未完成工單</div>`;
   document.getElementById("boardPagination").innerHTML=active.length?`<span>顯示 ${start+1}–${Math.min(start+BOARD_PAGE_SIZE,active.length)} / ${active.length} 筆</span><div class="board-page-buttons"><button class="btn secondary small" type="button" data-board-page="prev" ${boardPage<=1?"disabled":""}>上一頁</button>${Array.from({length:totalPages},(_,i)=>i+1).map(n=>`<button class="btn ${n===boardPage?"":"secondary"} small" type="button" data-board-page="${n}">${n}</button>`).join("")}<button class="btn secondary small" type="button" data-board-page="next" ${boardPage>=totalPages?"disabled":""}>下一頁</button></div>`:"";
   const repairs=orders.filter(o=>o.status==="維修");
-  document.getElementById("boardMaintenance").innerHTML=repairs.length?`<div style="font-size:22px;font-weight:800">${repairs.length} 筆維修工單</div><div class="footer-note">${repairs.slice(0,8).map(o=>`${esc(o.no)}｜${esc(o.customer)}`).join("、")}${repairs.length>8?"…":""}</div>`:`<div class="empty">目前沒有維修工單</div>`;
+  document.getElementById("boardMaintenance").innerHTML=repairs.length?`<div style="font-size:22px;font-weight:800;margin-bottom:8px">${repairs.length} 筆維修工單</div><div class="board-maintenance-list">${repairs.map(o=>`<div class="board-maintenance-row"><button type="button" class="board-order-no-btn" onclick="openOrderWorkflow('schedule','${esc(o.no)}')"><b>${esc(o.no)}</b></button><span>${esc(o.customer)}</span><span>${badge(overallStatus(o))}</span></div>`).join("")}</div>`:`<div class="empty">目前沒有維修工單</div>`;
 }
 
 function renderDashboard(){
@@ -4320,8 +4320,8 @@ function importPurchaseExcel(file){
 ========================================================= */
 
 function renderSettings(){
-  document.querySelectorAll('input[name="scheduleMode"]').forEach(r=>r.checked=r.value===scheduleMode);
-  const mode=document.querySelector('input[name="scheduleMode"]:checked')?.value||scheduleMode;
+  document.querySelectorAll('input[name="scheduleMode"]').forEach(r=>r.checked=r.value===settingsDraftMode);
+  const mode=settingsDraftMode||scheduleMode;
   document.getElementById("processSettings").innerHTML=PROCESS.map(function(p){const value=Number(processRules[mode]?.[p.key]||p.days||1);return `<div class="statline" style="gap:10px;align-items:center"><span style="flex:1"><b>${esc(p.name)}</b>｜${esc(p.wc)}<small style="display:block;color:#6b7785">前置：${p.pre.length?p.pre.map(k=>PROCESS.find(x=>x.key===k)?.name||k).join("、"):"無"}</small></span><input data-setting-key="${p.key}" type="number" min="1" step="1" value="${value}" style="width:100px"><span>工作天</span></div>`;}).join("");
 }
 
@@ -5373,8 +5373,12 @@ function saveOrder(){
       order.actual || {};
 
 
-    order.schedule =
-      buildSchedule(order);
+    // 既有工單不因「系統設定」被動更新；半自動需按重新計算，全自動才在修改後立即重排。
+    if(order.processMode === "auto") {
+      order.schedule = buildSchedule(order);
+    } else if(!order.schedule || !Object.keys(order.schedule).length) {
+      order.schedule = buildSchedule(order);
+    }
 
   }
 
@@ -5755,7 +5759,7 @@ function renderOutsourcing(){
   document.getElementById("outsourcingRisk").innerHTML=riskRows||`<div class="empty">目前沒有未回委外資料</div>`;
   const qNo=document.getElementById("outsourcingSearchNo")?.value.trim()||"",qCustomer=document.getElementById("outsourcingSearchCustomer")?.value.trim().toLowerCase()||"",sf=document.getElementById("outsourcingStatusFilter")?.value||outsourcingStatusFilter||"未回";
   let rows=outsourcingRows.filter(r=>{if(sf!=="全部"&&r.status!==sf)return false;const nos=(r.orderNos||[]).join(" ");if(qNo&&!nos.includes(qNo))return false;const customers=(r.orderNos||[]).map(no=>orders.find(o=>String(o.no).trim()===String(no).trim())?.customer||"").join(" ").toLowerCase();return !qCustomer||customers.includes(qCustomer);});
-  document.getElementById("outsourcingBody").innerHTML=rows.map(r=>{const customers=[...new Set((r.orderNos||[]).map(no=>orders.find(o=>String(o.no).trim()===String(no).trim())?.customer||"").filter(Boolean))].join("、");const overdueFlag=isOutsourcingRowOverdue(r);return `<tr><td class="outsourcing-order-nos"><b>${outsourcingOrderDisplay(r.orderNos)||"未辨識"}</b></td><td>${esc(customers)}</td><td title="${esc(r.fileName)}"><span class="outsourcing-file-short">${esc(outsourcingShortFileName(r.fileName))}</span></td><td>${esc(r.folder||"")}</td><td><select class="outsourcing-status-select" data-outsourcing-id="${esc(r.id)}"><option value="未回" ${r.status==="未回"?"selected":""}>未回</option><option value="已回" ${r.status==="已回"?"selected":""}>已回</option></select></td><td>${overdueFlag?'<span class="badge danger">逾期</span>':'—'}</td></tr>`;}).join("")||`<tr><td colspan="6" class="empty">目前沒有符合條件的委外資料</td></tr>`;
+  document.getElementById("outsourcingBody").innerHTML=rows.map(r=>{const customers=[...new Set((r.orderNos||[]).map(no=>orders.find(o=>String(o.no).trim()===String(no).trim())?.customer||"").filter(Boolean))].join("、");const overdueFlag=isOutsourcingRowOverdue(r);return `<tr><td class="outsourcing-order-nos"><b>${outsourcingOrderDisplay(r.orderNos)||"未辨識"}</b></td><td>${esc(customers)}</td><td title="${esc(r.fileName)}"><span class="outsourcing-file-short">${esc(outsourcingShortFileName(r.fileName))}</span></td><td>${esc(r.folder||"")}</td><td><select class="outsourcing-status-select" data-outsourcing-id="${esc(r.id)}"><option value="未回" ${r.status==="未回"?"selected":""}>未回</option><option value="已回" ${r.status==="已回"?"selected":""}>已回</option></select></td><td>${overdueFlag?'<span class="badge danger">逾期</span>':'—'}</td><td><input type="checkbox" class="outsourcing-row-check" data-outsourcing-id="${esc(r.id)}" aria-label="選取刪除"></td></tr>`;}).join("")||`<tr><td colspan="7" class="empty">目前沒有符合條件的委外資料</td></tr>`;
   const selectedPdfCount=(outsourcingSelectedFiles||[]).filter(f=>/\.pdf$/i.test(f.name)).length;
   const selectedTiffCount=(outsourcingSelectedFiles||[]).filter(f=>/\.(tif|tiff)$/i.test(f.name)).length;
   document.getElementById("outsourcingFolderInfo").textContent=`目前資料夾：${outsourcingFolderLabel||"尚未選擇"}｜PDF ${selectedPdfCount} 份｜TIFF影像 ${selectedTiffCount} 份`;
@@ -6193,14 +6197,19 @@ document.addEventListener(
     });
 
     /* 製程設定：半自動／全自動 */
-    document.querySelectorAll('input[name="scheduleMode"]').forEach(function(r){r.addEventListener("change",function(){if(!requireAdmin()){renderSettings();return;}scheduleMode=r.value;localStorage.setItem("PMC_V3_SCHEDULE_MODE",scheduleMode);renderSettings();});});
+    document.querySelectorAll('input[name="scheduleMode"]').forEach(function(r){r.addEventListener("change",function(){if(!requireAdmin()){renderSettings();return;}settingsDraftMode=r.value;renderSettings();});});
     document.getElementById("saveProcessSettingsBtn").addEventListener("click",function(){
-      const mode=document.querySelector('input[name="scheduleMode"]:checked')?.value||"semi";
+      if(!requireAdmin()) return;
+      const mode=settingsDraftMode||scheduleMode||"semi";
       processRules[mode]=processRules[mode]||{};
       document.querySelectorAll("[data-setting-key]").forEach(function(input){processRules[mode][input.dataset.settingKey]=Math.max(1,Number(input.value)||1);});
+      scheduleMode=mode;
+      settingsDraftMode=mode;
       localStorage.setItem("PMC_V3_PROCESS_RULES",JSON.stringify(processRules));
-      alert(`${mode==="auto"?"全自動":"半自動"}製程規則已儲存`);
+      localStorage.setItem("PMC_V3_SCHEDULE_MODE",scheduleMode);
+      alert(`${mode==="auto"?"全自動":"半自動"}製程規則已儲存；既有工單排程不變，新工單將套用此設定。`);
       renderSettings();
+      renderAll();
     });
 
     /* 採購 Excel：直接分析來源檔 */
@@ -6277,6 +6286,18 @@ document.addEventListener(
     ["outsourcingSearchNo","outsourcingSearchCustomer"].forEach(function(id){const el=document.getElementById(id);if(el)el.addEventListener("input",renderOutsourcing);});
     const osClearSearch=document.getElementById("outsourcingClearSearchBtn");
     if(osClearSearch)osClearSearch.addEventListener("click",function(){document.getElementById("outsourcingSearchNo").value="";document.getElementById("outsourcingSearchCustomer").value="";renderOutsourcing();});
+    const osDeleteSelected=document.getElementById("outsourcingDeleteSelectedBtn");
+    if(osDeleteSelected) osDeleteSelected.addEventListener("click",function(){
+      if(!requireAdmin()) return;
+      const ids=[...document.querySelectorAll(".outsourcing-row-check:checked")].map(x=>x.dataset.outsourcingId);
+      if(!ids.length){alert("請先勾選要刪除的委外明細。");return;}
+      if(!confirm(`確定刪除已勾選的 ${ids.length} 筆委外明細？`)) return;
+      const set=new Set(ids);
+      outsourcingRows=outsourcingRows.filter(r=>!set.has(String(r.id)));
+      saveOutsourcing();
+      renderOutsourcing();
+    });
+
     document.addEventListener("change",function(e){
       const sel=e.target.closest(".outsourcing-status-select");if(!sel)return;
       if(!requireAdmin()){renderOutsourcing();return;}
