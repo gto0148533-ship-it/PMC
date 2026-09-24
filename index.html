@@ -6789,6 +6789,8 @@ table tbody tr:hover{background:#f8fafc}
 .pmc-order-detail-row .muted{color:#64748b;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pmc-order-detail-empty{text-align:center;color:#64748b;padding:35px 10px}
 .pmc-order-detail-modal *{touch-action:inherit}
+/* 修正：快速明細內容必須可用滑鼠滾輪／手機觸控獨立捲動 */
+.pmc-order-detail-body{touch-action:pan-y!important;overflow-y:auto!important;overscroll-behavior:contain!important}
 @media(max-width:760px){
   .pmc-order-detail-modal{align-items:flex-end;padding:10px}
   .pmc-order-detail-box{width:100%;max-height:80vh;border-radius:16px}
@@ -6798,13 +6800,14 @@ table tbody tr:hover{background:#f8fafc}
   #page-outsourcing thead th:last-child,#page-outsourcing tbody td:last-child{display:none!important}
   #outsourcingDeleteSelectedBtn{display:none!important}
 }
+.pmc-order-detail-pagination{display:flex;align-items:center;justify-content:center;gap:5px;padding:10px 0 4px;flex-wrap:nowrap;overflow-x:auto;white-space:nowrap}.pmc-order-detail-pagination .btn{flex:0 0 auto}.pmc-order-detail-page-info{font-size:11px;color:#64748b;white-space:nowrap;margin-left:4px}@media(max-width:760px){.pmc-order-detail-pagination{justify-content:flex-start;padding-bottom:6px;-webkit-overflow-scrolling:touch}}
 </style>
 
 <script id="pmc-v313-fixed-js">
-/* V3.14-260925：所有既有功能保留，只覆寫採購／委外的快速查看入口。 */
+/* V3.14-260925：採購／委外快速明細；超過20筆自動分頁。 */
 (function(){
-  const modalId='pmcOrderDetailModal';
-  let previousOverflow='';
+  const modalId='pmcOrderDetailModal', PAGE_SIZE=20;
+  let previousOverflow='', detailPage=1, detailType='', detailNo='', detailStatus='全部', detailRows=[];
   function escText(v){
     if(typeof esc==='function') return esc(v==null?'':String(v));
     return String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -6816,7 +6819,6 @@ table tbody tr:hover{background:#f8fafc}
     document.body.style.overflow=previousOverflow;
   }
   function purchaseRowsFor(no,status){
-    /* purchaseRows 是主程式的 let，不一定掛在 window；直接讀取 lexical scope 才能取得實際匯入資料。 */
     const source=(typeof purchaseRows!=='undefined'&&Array.isArray(purchaseRows))?purchaseRows:((window.purchaseRows&&Array.isArray(window.purchaseRows))?window.purchaseRows:[]);
     const target=String(no==null?'':no).trim();
     let rows=source.filter(r=>String(r.no==null?'':r.no).trim()===target);
@@ -6825,22 +6827,40 @@ table tbody tr:hover{background:#f8fafc}
     return rows;
   }
   function outsourcingRowsFor(no){
-    return (typeof outsourcingRows!=='undefined'?outsourcingRows:[]).filter(r=>Array.isArray(r.orderNos)&&r.orderNos.some(x=>String(x).trim()===no)&&r.status!=='已回');
+    const source=(typeof outsourcingRows!=='undefined'&&Array.isArray(outsourcingRows))?outsourcingRows:[];
+    return source.filter(r=>Array.isArray(r.orderNos)&&r.orderNos.some(x=>String(x).trim()===no)&&r.status!=='已回');
+  }
+  function renderPagination(total){
+    if(total<=PAGE_SIZE)return '';
+    const pages=Math.ceil(total/PAGE_SIZE);
+    if(detailPage>pages)detailPage=pages;
+    let html='<div class="pmc-order-detail-pagination">';
+    html+=`<button type="button" class="btn secondary small" data-detail-page="prev" ${detailPage<=1?'disabled':''}>上一頁</button>`;
+    const begin=Math.max(1,Math.min(detailPage-2,pages-4)), end=Math.min(pages,begin+4);
+    for(let i=begin;i<=end;i++) html+=`<button type="button" class="btn ${i===detailPage?'':'secondary'} small" data-detail-page="${i}">${i}</button>`;
+    html+=`<button type="button" class="btn secondary small" data-detail-page="next" ${detailPage>=pages?'disabled':''}>下一頁</button>`;
+    html+=`<span class="pmc-order-detail-page-info">第 ${detailPage}/${pages} 頁｜共 ${total} 筆</span></div>`;
+    return html;
+  }
+  function renderBody(){
+    const body=document.getElementById('pmcOrderDetailBody'); if(!body)return;
+    const start=(detailPage-1)*PAGE_SIZE, rows=detailRows.slice(start,start+PAGE_SIZE);
+    let html='';
+    if(detailType==='purchase'){
+      html=rows.length?rows.map(r=>`<div class="pmc-order-detail-row"><div class="main">${escText(r.part||r.drawing||'未填零件')}</div><div class="muted">廠商：${escText(r.supplier||'—')}</div><div class="muted">預計交期：${escText(r.expected||'—')}</div><div>${escText(r.qty||'—')}　${typeof badge==='function'?badge(typeof getPurchaseDisplayStatus==='function'?getPurchaseDisplayStatus(r):(r.status||'待到貨')):escText(r.status||'待到貨'))}</div></div>`).join(''):`<div class="pmc-order-detail-empty">此工單目前沒有符合條件的採購明細</div>`;
+    }else{
+      html=rows.length?rows.map(r=>`<div class="pmc-order-detail-row"><div class="main">${escText((typeof outsourcingOrderDisplay==='function'?outsourcingOrderDisplay(r.orderNos):detailNo)||detailNo)}</div><div class="muted">檔案：${escText(typeof outsourcingShortFileName==='function'?outsourcingShortFileName(r.fileName):(r.fileName||'—'))}</div><div class="muted">來源：${escText(r.folder||'—')}</div><div>狀態：${typeof badge==='function'?badge(r.status||'未回'):escText(r.status||'未回')}${typeof isOutsourcingRowOverdue==='function'&&isOutsourcingRowOverdue(r)?' <span class="badge danger">逾期</span>':''}</div></div>`).join(''):`<div class="pmc-order-detail-empty">此工單目前沒有未回委外明細</div>`;
+    }
+    body.innerHTML=html+renderPagination(detailRows.length);
   }
   function open(type,no,status){
     const n=getNo(no); if(!n)return;
-    const m=document.getElementById(modalId),title=document.getElementById('pmcOrderDetailTitle'),body=document.getElementById('pmcOrderDetailBody');
-    if(!m||!title||!body)return;
-    let rows=[];
-    if(type==='purchase'){
-      rows=purchaseRowsFor(n,status||'全部');
-      title.textContent=`${n}｜採購明細${status&&status!=='全部'?`（${status}）`:''}｜${rows.length} 筆`;
-      body.innerHTML=rows.length?rows.map(r=>`<div class="pmc-order-detail-row"><div class="main">${escText(r.part||r.drawing||'未填零件')}</div><div class="muted">廠商：${escText(r.supplier||'—')}</div><div class="muted">預計交期：${escText(r.expected||'—')}</div><div>${escText(r.qty||'—')}　${typeof badge==='function'?badge(typeof getPurchaseDisplayStatus==='function'?getPurchaseDisplayStatus(r):(r.status||'待到貨')):escText(r.status||'待到貨')}</div></div>`).join(''):`<div class="pmc-order-detail-empty">此工單目前沒有符合條件的採購明細</div>`;
-    }else if(type==='outsourcing'){
-      rows=outsourcingRowsFor(n);
-      title.textContent=`${n}｜委外未回明細｜${rows.length} 筆`;
-      body.innerHTML=rows.length?rows.map(r=>`<div class="pmc-order-detail-row"><div class="main">${escText((typeof outsourcingOrderDisplay==='function'?outsourcingOrderDisplay(r.orderNos):n)||n)}</div><div class="muted">檔案：${escText(typeof outsourcingShortFileName==='function'?outsourcingShortFileName(r.fileName):(r.fileName||'—'))}</div><div class="muted">來源：${escText(r.folder||'—')}</div><div>狀態：${typeof badge==='function'?badge(r.status||'未回'):escText(r.status||'未回')}${typeof isOutsourcingRowOverdue==='function'&&isOutsourcingRowOverdue(r)?' <span class="badge danger">逾期</span>':''}</div></div>`).join(''):`<div class="pmc-order-detail-empty">此工單目前沒有未回委外明細</div>`;
-    }else return;
+    const m=document.getElementById(modalId),title=document.getElementById('pmcOrderDetailTitle');
+    if(!m||!title)return;
+    detailType=type;detailNo=n;detailStatus=status||'全部';detailPage=1;
+    detailRows=type==='purchase'?purchaseRowsFor(n,detailStatus):outsourcingRowsFor(n);
+    title.textContent=type==='purchase'?`${n}｜採購明細${detailStatus&&detailStatus!=='全部'?`（${detailStatus}）`:''}｜${detailRows.length} 筆`:`${n}｜委外未回明細｜${detailRows.length} 筆`;
+    renderBody();
     previousOverflow=document.body.style.overflow;
     document.body.style.overflow='hidden';
     m.classList.add('open');m.setAttribute('aria-hidden','false');
@@ -6854,6 +6874,18 @@ table tbody tr:hover{background:#f8fafc}
     if(typeof originalWorkflow==='function')return originalWorkflow.apply(this,arguments);
   };
   document.addEventListener('click',function(e){
+    const pageBtn=e.target.closest('[data-detail-page]');
+    if(pageBtn){
+      e.preventDefault();
+      const pages=Math.max(1,Math.ceil(detailRows.length/PAGE_SIZE));
+      const action=pageBtn.dataset.detailPage;
+      if(action==='prev')detailPage=Math.max(1,detailPage-1);
+      else if(action==='next')detailPage=Math.min(pages,detailPage+1);
+      else detailPage=Math.min(pages,Math.max(1,Number(action)||1));
+      renderBody();
+      const body=document.getElementById('pmcOrderDetailBody');if(body)body.scrollTop=0;
+      return;
+    }
     const b=e.target.closest('[data-outsourcing-order]');
     if(b){e.preventDefault();e.stopPropagation();open('outsourcing',b.dataset.outsourcingOrder,'未回');}
   },true);
