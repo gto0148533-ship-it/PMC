@@ -1586,7 +1586,7 @@ input,select{min-height:38px}
     PMC 看板模式
   </div>
 
-  <div class="topbar-system-info" aria-label="系統資訊"><span class="label">系統資訊</span><b>PMC V3.13-260925</b></div>
+  <div class="topbar-system-info" aria-label="系統資訊"><span class="label">系統資訊</span><b>PMC V3.14-260925</b></div>
 
   <div class="top-actions">
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
@@ -6758,8 +6758,12 @@ table tbody tr:hover{background:#f8fafc}
   </div>
 </div>
 
+
+
+
+
 <style id="pmc-v313-fixed-css">
-/* V3.13-260925：快速明細視窗。背景禁止捲動，視窗內容獨立捲動。 */
+/* V3.14-260925：快速明細視窗。背景禁止捲動，視窗內容獨立捲動。 */
 .pmc-order-detail-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.52);z-index:2147483000;overflow:hidden;overscroll-behavior:none;touch-action:none}
 .pmc-order-detail-modal.open{display:flex}
 .pmc-order-detail-box{width:min(820px,94vw);max-height:82vh;background:#fff;border-radius:15px;box-shadow:0 24px 70px rgba(15,23,42,.28);overflow:hidden;display:flex;flex-direction:column}
@@ -6783,7 +6787,7 @@ table tbody tr:hover{background:#f8fafc}
 </style>
 
 <script id="pmc-v313-fixed-js">
-/* V3.13-260925：所有既有功能保留，只覆寫採購／委外的快速查看入口。 */
+/* V3.14-260925：所有既有功能保留，只覆寫採購／委外的快速查看入口。 */
 (function(){
   const modalId='pmcOrderDetailModal';
   let previousOverflow='';
@@ -6845,6 +6849,5 @@ table tbody tr:hover{background:#f8fafc}
   window.closePmcOrderDetail=close;
 })();
 </script>
-
 </body>
 </html>
