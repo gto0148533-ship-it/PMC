@@ -1586,7 +1586,7 @@ input,select{min-height:38px}
     PMC 看板模式
   </div>
 
-  <div class="topbar-system-info" aria-label="系統資訊"><span class="label">系統資訊</span><b>PMC V3.11-20260924</b></div>
+  <div class="topbar-system-info" aria-label="系統資訊"><span class="label">系統資訊</span><b>PMC V3.12-20260924</b></div>
 
   <div class="top-actions">
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
@@ -6675,6 +6675,76 @@ document.addEventListener(
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
 })();
 </script>
+
+
+<script id="pmc-v312-ux-js">
+/* V3.12 UX：切換功能頁後自動回到該頁頂端；保留使用者在輸入框中的自然操作。 */
+(function(){
+  if(typeof window.showPage!=='function') return;
+  const originalShowPage=window.showPage;
+  window.showPage=function(page){
+    const r=originalShowPage.apply(this,arguments);
+    try{
+      requestAnimationFrame(function(){
+        const content=document.querySelector('.content');
+        if(content) content.scrollIntoView({behavior:'smooth',block:'start'});
+        else window.scrollTo({top:0,behavior:'smooth'});
+      });
+    }catch(e){}
+    return r;
+  };
+})();
+
+/* V3.12 UX：採購匯入狀態依文字自動套用視覺回饋，不改原本匯入流程。 */
+(function(){
+  function refreshImportStatusClass(){
+    const el=document.getElementById('purchaseAutoStatus');
+    if(!el)return;
+    const t=(el.textContent||'').trim();
+    el.classList.remove('is-working','is-done','is-error');
+    if(/分析中|處理中|讀取中|分段進行/.test(t)) el.classList.add('is-working');
+    else if(/完成|已匯入|筆未進貨詳細資料/.test(t) && !/失敗|錯誤/.test(t)) el.classList.add('is-done');
+    if(/失敗|錯誤|無法/.test(t)) el.classList.add('is-error');
+  }
+  function bind(){
+    const el=document.getElementById('purchaseAutoStatus');
+    if(!el)return;
+    refreshImportStatusClass();
+    new MutationObserver(refreshImportStatusClass).observe(el,{childList:true,subtree:true,characterData:true});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
+})();
+</script>
+
+
+<style id="pmc-v312-ux">
+/* =========================================================
+   PMC V3.12 UX 微調
+   僅改善操作回饋、間距、可讀性與導覽手感，不改資料結構。
+========================================================= */
+.btn{cursor:pointer;transition:background .15s ease,transform .08s ease,box-shadow .15s ease}
+.btn:active{transform:translateY(1px)}
+.btn:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid rgba(37,99,235,.22);outline-offset:1px}
+.btn:disabled{cursor:not-allowed;opacity:.55;transform:none}
+.topbar{box-shadow:0 1px 8px rgba(15,23,42,.04)}
+.card{transition:box-shadow .15s ease,border-color .15s ease}
+.table-wrap{scrollbar-width:thin}
+table tbody tr{transition:background .12s ease}
+table tbody tr:hover{background:#f8fafc}
+.purchase-auto-status{border-radius:8px;background:#f8fafc;border:1px solid var(--line);padding:8px 10px;min-height:20px}
+.purchase-auto-status.is-working{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;font-weight:700}
+.purchase-auto-status.is-done{background:#f0fdf4;border-color:#bbf7d0;color:#166534;font-weight:700}
+.purchase-auto-status.is-error{background:#fef2f2;border-color:#fecaca;color:#991b1b;font-weight:700}
+/* 可點擊工單的視覺提示 */
+[data-order-link],.order-link{cursor:pointer}
+[data-order-link]:hover,.order-link:hover{text-decoration:underline;text-underline-offset:2px}
+@media(max-width:760px){
+  .btn{min-height:38px}
+  .toolbar .btn{min-height:40px}
+  .purchase-auto-status{font-size:12px;line-height:1.55}
+  table tbody tr:hover{background:transparent}
+}
+</style>
 
 </body>
 </html>
