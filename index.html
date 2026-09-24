@@ -1269,9 +1269,23 @@ input,select{min-height:38px}
   .board-order-row>span:nth-child(3){grid-column:1/2;font-size:12px;color:var(--muted)}
   .board-order-row>span:nth-child(4){grid-column:2/3;grid-row:1/3;align-self:start;justify-self:end}
   .board-order-row>span:nth-child(5){grid-column:2/3;grid-row:3;justify-self:end;font-size:12px;font-weight:700}
-  .board-pagination,.order-pagination,.purchase-pagination{flex-direction:column;align-items:stretch!important}
-  .board-page-buttons,.order-page-buttons,.purchase-page-buttons{display:grid!important;grid-template-columns:repeat(3,1fr);width:100%}
-  .board-page-buttons .btn,.order-page-buttons .btn,.purchase-page-buttons .btn{width:100%;min-width:0}
+  /* 看板目前工單分頁：手機固定單行，不因放大換行；頁數多時只在分頁區水平滑動 */
+  .board-pagination,.order-pagination,.purchase-pagination{display:flex!important;flex-direction:row!important;align-items:center!important;flex-wrap:nowrap!important;gap:8px!important;min-width:0!important;overflow:hidden!important;white-space:nowrap!important}
+  .board-pagination>span,.order-pagination>span,.purchase-pagination>span{flex:0 0 auto!important;white-space:nowrap!important}
+  .board-page-buttons,.order-page-buttons,.purchase-page-buttons{display:flex!important;flex:0 0 auto!important;flex-wrap:nowrap!important;gap:5px!important;width:max-content!important;max-width:100%!important;overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:none!important}
+  .board-page-buttons::-webkit-scrollbar,.order-page-buttons::-webkit-scrollbar,.purchase-page-buttons::-webkit-scrollbar{display:none!important}
+  .board-page-buttons .btn,.order-page-buttons .btn,.purchase-page-buttons .btn{width:auto!important;min-width:38px!important;flex:0 0 auto!important;white-space:nowrap!important}
+
+  /* 目前工單列：返回／工單號碼／客戶／排程／進度／採購／委外固定同一行 */
+  .pmc-current-order-bar{display:flex!important;flex-direction:row!important;align-items:center!important;flex-wrap:nowrap!important;gap:7px!important;overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:none!important;touch-action:pan-x}
+  .pmc-current-order-bar::-webkit-scrollbar{display:none!important}
+  .pmc-current-order-info{width:auto!important;min-width:0!important;flex:1 1 auto!important;display:flex!important;align-items:center!important;flex-wrap:nowrap!important;gap:5px!important;overflow:hidden!important}
+  .pmc-current-order-info .btn{flex:0 0 auto!important;min-height:32px!important;padding:5px 8px!important}
+  #pmcCurrentOrderNo{flex:0 0 auto!important;font-size:13px!important}
+  #pmcCurrentOrderCustomer{flex:1 1 auto!important;min-width:40px!important;max-width:34vw!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-size:11px!important}
+  #pmcCurrentOrderStatus{display:none!important}
+  .pmc-current-actions{width:auto!important;flex:0 0 auto!important;display:flex!important;flex-wrap:nowrap!important;gap:4px!important}
+  .pmc-current-actions .btn{flex:0 0 auto!important;min-height:32px!important;padding:5px 8px!important;font-size:12px!important}
 
   /* 手機卡片表格共通 */
   #page-orders .table-wrap,#page-schedule .table-wrap,#page-progress .table-wrap,#page-purchase .table-wrap{overflow:visible!important;border:0!important;background:transparent}
@@ -6802,7 +6816,10 @@ table tbody tr:hover{background:#f8fafc}
     document.body.style.overflow=previousOverflow;
   }
   function purchaseRowsFor(no,status){
-    let rows=(window.purchaseRows||[]).filter(r=>String(r.no||'').trim()===no);
+    /* purchaseRows 是主程式的 let，不一定掛在 window；直接讀取 lexical scope 才能取得實際匯入資料。 */
+    const source=(typeof purchaseRows!=='undefined'&&Array.isArray(purchaseRows))?purchaseRows:((window.purchaseRows&&Array.isArray(window.purchaseRows))?window.purchaseRows:[]);
+    const target=String(no==null?'':no).trim();
+    let rows=source.filter(r=>String(r.no==null?'':r.no).trim()===target);
     if(status==='逾期') rows=rows.filter(r=>typeof getPurchaseDisplayStatus==='function'&&getPurchaseDisplayStatus(r)==='逾期');
     else if(status==='待到貨'||status==='待進貨') rows=rows.filter(r=>typeof getPurchaseDisplayStatus==='function'&&getPurchaseDisplayStatus(r)!=='已到貨');
     return rows;
