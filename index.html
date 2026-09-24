@@ -1586,7 +1586,7 @@ input,select{min-height:38px}
     PMC 看板模式
   </div>
 
-  <div class="topbar-system-info" aria-label="系統資訊"><span class="label">系統資訊</span><b>PMC V3.12-20260924</b></div>
+  <div class="topbar-system-info" aria-label="系統資訊"><span class="label">系統資訊</span><b>PMC V3.13-20260924</b></div>
 
   <div class="top-actions">
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
@@ -3137,13 +3137,13 @@ function progressValue(order){
 ========================================================= */
 
 function renderBoard(){
-  const active=orders.filter(o=>overallStatus(o)!=="已完成").sort((a,b)=>daysLeft(a.due)-daysLeft(b.due));
+  const active=orders.filter(o=>overallStatus(o)!=="已完成"&&o.status!=="維修").sort((a,b)=>daysLeft(a.due)-daysLeft(b.due));
   const totalPages=Math.max(1,Math.ceil(active.length/BOARD_PAGE_SIZE));
   if(boardPage>totalPages)boardPage=totalPages;
   const start=(boardPage-1)*BOARD_PAGE_SIZE;
   const pageOrders=active.slice(start,start+BOARD_PAGE_SIZE);
   const parallelCount=key=>active.filter(o=>o.actual?.design?.end&&!o.actual?.[key]?.end).length;
-  const kpis=[["工單總數",active.length,"筆"],["維修",active.filter(o=>o.status==="維修").length,"筆"],["繪圖",active.filter(o=>overallStatus(o)==="繪圖").length,"筆"],["加工",parallelCount("weld"),"筆"],["採購",parallelCount("purchase"),"筆"],["委外",parallelCount("outsourcing"),"筆"],["組裝",active.filter(o=>overallStatus(o)==="組裝").length,"筆"],["測試中",active.filter(o=>overallStatus(o)==="測試中").length,"筆"],["待結案",active.filter(o=>overallStatus(o)==="待結案").length,"筆"],["逾期",active.filter(o=>overallStatus(o)==="逾期").length,"筆"]];
+  const kpis=[["工單總數",active.length,"筆"],["維修",orders.filter(o=>o.status==="維修"&&overallStatus(o)!=="已完成").length,"筆"],["繪圖",active.filter(o=>overallStatus(o)==="繪圖").length,"筆"],["加工",parallelCount("weld"),"筆"],["採購",parallelCount("purchase"),"筆"],["委外",parallelCount("outsourcing"),"筆"],["組裝",active.filter(o=>overallStatus(o)==="組裝").length,"筆"],["測試中",active.filter(o=>overallStatus(o)==="測試中").length,"筆"],["待結案",active.filter(o=>overallStatus(o)==="待結案").length,"筆"],["逾期",active.filter(o=>overallStatus(o)==="逾期").length,"筆"]];
   document.getElementById("boardKpis").innerHTML=kpis.filter(x=>x[1]>0).map(x=>`<button type="button" class="card kpi board-kpi-clickable" data-board-status="${esc(x[0])}"><div class="label">${x[0]}</div><div class="value">${x[1]}${x[2]}</div></button>`).join("");
   document.getElementById("boardOrders").innerHTML=active.length?pageOrders.map(o=>`<div class="board-order-row"><b><button type="button" class="board-order-no-btn" onclick="openOrderWorkflow('schedule','${esc(o.no)}')">${esc(o.no)}</button></b><span>${esc(o.customer)}</span><span>${esc(o.product)}</span><span>${badge(overallStatus(o))}</span><span>${daysLeft(o.due)<0?"逾期 "+Math.abs(daysLeft(o.due))+" 天":"剩 "+daysLeft(o.due)+" 天"}</span></div>`).join(""):`<div class="empty">目前沒有未完成工單</div>`;
   document.getElementById("boardPagination").innerHTML=active.length?`<span>顯示 ${start+1}–${Math.min(start+BOARD_PAGE_SIZE,active.length)} / ${active.length} 筆</span><div class="board-page-buttons"><button class="btn secondary small" type="button" data-board-page="prev" ${boardPage<=1?"disabled":""}>上一頁</button>${Array.from({length:totalPages},(_,i)=>i+1).map(n=>`<button class="btn ${n===boardPage?"":"secondary"} small" type="button" data-board-page="${n}">${n}</button>`).join("")}<button class="btn secondary small" type="button" data-board-page="next" ${boardPage>=totalPages?"disabled":""}>下一頁</button></div>`:"";
@@ -4744,7 +4744,7 @@ function getBoardStatusOrders(status){
   if(status==="待結案") return orders.filter(o=>overallStatus(o)==="待結案");
   if(status==="逾期") return orders.filter(o=>overallStatus(o)==="逾期");
   if(status==="維修") return orders.filter(o=>o.status==="維修"&&overallStatus(o)!=="已完成");
-  if(status==="工單總數") return orders.filter(o=>overallStatus(o)!=="已完成");
+  if(status==="工單總數") return orders.filter(o=>overallStatus(o)!=="已完成"&&o.status!=="維修");
   return [];
 }
 function openBoardStatusModal(status){
@@ -4768,6 +4768,29 @@ function openBoardStatusModal(status){
   modal.classList.add("open");
   modal.setAttribute("aria-hidden","false");
   document.body.style.overflow="hidden";
+}
+function openMobileOrderDetail(type,no){
+  const n=String(no||window.pmcCurrentOrderNo||"").trim();
+  if(!n)return;
+  const modal=document.getElementById("mobileOrderDetailModal");
+  const title=document.getElementById("mobileOrderDetailModalTitle");
+  const body=document.getElementById("mobileOrderDetailModalBody");
+  if(!modal||!title||!body)return;
+  if(type==="purchase"){
+    const rows=(purchaseRows||[]).filter(r=>String(r.no||"").trim()===n);
+    title.textContent=`${n}｜採購明細 ${rows.length} 筆`;
+    body.innerHTML=rows.length?rows.map(r=>`<div class="mobile-order-detail-row"><b>${esc(r.part||r.drawing||"未填零件")}</b><span>廠商：${esc(r.supplier||"—")}</span><span>預計交期：${esc(r.expected||"—")}</span><span>數量：${esc(r.qty||"—")}　${badge(getPurchaseDisplayStatus(r))}</span></div>`).join(""):`<div class="empty">此工單目前沒有採購明細</div>`;
+  }else if(type==="outsourcing"){
+    const rows=(outsourcingRows||[]).filter(r=>(r.orderNos||[]).some(x=>String(x).trim()===n));
+    title.textContent=`${n}｜委外明細 ${rows.length} 筆`;
+    body.innerHTML=rows.length?rows.map(r=>`<div class="mobile-order-detail-row"><b>${esc(outsourcingOrderDisplay(r.orderNos)||n)}</b><span>檔案：${esc(outsourcingShortFileName(r.fileName)||"—")}</span><span>來源：${esc(r.folder||"—")}</span><span>狀態：${badge(r.status||"未回")}${isOutsourcingRowOverdue(r)?` <span class="badge danger">逾期</span>`:""}</span></div>`).join(""):`<div class="empty">此工單目前沒有委外明細</div>`;
+  }else return;
+  modal.classList.add("open");modal.setAttribute("aria-hidden","false");document.body.style.overflow="hidden";
+}
+function closeMobileOrderDetail(){
+  const modal=document.getElementById("mobileOrderDetailModal");
+  if(!modal)return;
+  modal.classList.remove("open");modal.setAttribute("aria-hidden","true");document.body.style.overflow="";
 }
 function closeBoardStatusModal(){
   const modal=document.getElementById("boardStatusModal");
@@ -6246,7 +6269,7 @@ document.addEventListener(
       renderPurchase();
     });
     document.addEventListener("click",function(e){const b=e.target.closest("[data-purchase-page]");if(!b)return;const filtered=getFilteredPurchaseRows(),pages=Math.max(1,Math.ceil(filtered.length/PURCHASE_PAGE_SIZE)),action=b.dataset.purchasePage;if(action==="prev")purchasePage=Math.max(1,purchasePage-1);else if(action==="next")purchasePage=Math.min(pages,purchasePage+1);else purchasePage=Math.min(pages,Math.max(1,Number(action)||1));renderPurchase();});
-    document.addEventListener("click",function(e){const b=e.target.closest("[data-board-page]");if(!b)return;const active=orders.filter(o=>overallStatus(o)!=="已完成");const pages=Math.max(1,Math.ceil(active.length/BOARD_PAGE_SIZE)),action=b.dataset.boardPage;if(action==="prev")boardPage=Math.max(1,boardPage-1);else if(action==="next")boardPage=Math.min(pages,boardPage+1);else boardPage=Math.min(pages,Math.max(1,Number(action)||1));renderBoard();});
+    document.addEventListener("click",function(e){const b=e.target.closest("[data-board-page]");if(!b)return;const active=orders.filter(o=>overallStatus(o)!=="已完成"&&o.status!=="維修");const pages=Math.max(1,Math.ceil(active.length/BOARD_PAGE_SIZE)),action=b.dataset.boardPage;if(action==="prev")boardPage=Math.max(1,boardPage-1);else if(action==="next")boardPage=Math.min(pages,boardPage+1);else boardPage=Math.min(pages,Math.max(1,Number(action)||1));renderBoard();});
     document.addEventListener("click",function(e){const b=e.target.closest("[data-order-page]");if(!b)return;const list=getFilteredOrders(),pages=Math.max(1,Math.ceil(list.length/ORDER_PAGE_SIZE)),action=b.dataset.orderPage;if(action==="prev")orderPage=Math.max(1,orderPage-1);else if(action==="next")orderPage=Math.min(pages,orderPage+1);else orderPage=Math.min(pages,Math.max(1,Number(action)||1));renderOrders();});
 
     /* 委外製造：多資料夾 PDF／TIFF 檔名匯入 */
@@ -6542,6 +6565,16 @@ document.addEventListener(
 
 
 
+<div id="mobileOrderDetailModal" class="mobile-order-detail-modal" aria-hidden="true">
+  <div class="mobile-order-detail-box" role="dialog" aria-modal="true" aria-labelledby="mobileOrderDetailModalTitle">
+    <div class="mobile-order-detail-head">
+      <b id="mobileOrderDetailModalTitle">工單明細</b>
+      <button type="button" class="btn secondary small" onclick="closeMobileOrderDetail()">關閉</button>
+    </div>
+    <div id="mobileOrderDetailModalBody" class="mobile-order-detail-body"></div>
+  </div>
+</div>
+
 <div id="boardStatusModal" class="board-status-modal" aria-hidden="true">
   <div class="board-status-box" role="dialog" aria-modal="true" aria-labelledby="boardStatusModalTitle">
     <div class="board-status-head">
@@ -6562,7 +6595,7 @@ document.addEventListener(
     });
     const modal=document.getElementById('boardStatusModal');
     if(modal)modal.addEventListener('click',function(e){if(e.target===modal)closeBoardStatusModal();});
-    document.addEventListener('keydown',function(e){if(e.key==='Escape')closeBoardStatusModal();});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeBoardStatusModal();closeMobileOrderDetail();}});
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindBoardStatus);else bindBoardStatus();
 })();
@@ -6660,7 +6693,7 @@ document.addEventListener(
       const recent=e.target.closest('[data-recent-order]');
       if(recent){openOrderWorkflow('schedule',recent.dataset.recentOrder);return;}
       const act=e.target.closest('[data-current-action]');
-      if(act&&window.pmcCurrentOrderNo){openOrderWorkflow(act.dataset.currentAction,window.pmcCurrentOrderNo);return;}
+      if(act&&window.pmcCurrentOrderNo){const action=act.dataset.currentAction;if(window.innerWidth<=760&&(action==="purchase"||action==="outsourcing")){openMobileOrderDetail(action,window.pmcCurrentOrderNo);}else{openOrderWorkflow(action,window.pmcCurrentOrderNo);}return;}
       const back=e.target.closest('#pmcCurrentBack');
       if(back){pmcBack();return;}
       if(!e.target.closest('.pmc-global-search-wrap')){document.getElementById('pmcGlobalSearchResults')?.classList.remove('open');}
@@ -6744,6 +6777,34 @@ table tbody tr:hover{background:#f8fafc}
   .purchase-auto-status{font-size:12px;line-height:1.55}
   table tbody tr:hover{background:transparent}
 }
+</style>
+
+<style id="pmc-v313-mobile-ux">
+/* V3.13：手機版單行導覽與採購／委外快速明細 */
+@media(max-width:760px){
+  #boardPagination{display:flex!important;flex-direction:row!important;align-items:center!important;gap:8px;overflow-x:auto;white-space:nowrap;padding:8px 0 2px;-webkit-overflow-scrolling:touch}
+  #boardPagination>span{flex:0 0 auto;white-space:nowrap;font-size:11px}
+  #boardPagination .board-page-buttons{display:flex!important;flex:0 0 auto!important;gap:5px!important;width:auto!important;white-space:nowrap!important}
+  #boardPagination .board-page-buttons .btn{flex:0 0 auto!important;width:auto!important;min-width:38px!important;min-height:36px!important;padding:6px 10px!important}
+  .pmc-current-order-bar{display:none!important;flex-direction:row!important;align-items:center!important;gap:5px!important;padding:6px 8px!important;overflow-x:auto!important;white-space:nowrap!important}
+  .pmc-current-order-bar.open{display:flex!important}
+  .pmc-current-order-info{flex:0 1 auto!important;width:auto!important;min-width:0!important;gap:5px!important;flex-wrap:nowrap!important;white-space:nowrap!important}
+  .pmc-current-order-info .btn{min-height:32px!important;height:32px!important;padding:5px 8px!important}
+  #pmcCurrentOrderNo{font-size:13px!important;flex:0 0 auto!important}
+  #pmcCurrentOrderCustomer{font-size:11px!important;max-width:88px!important;flex:0 1 88px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+  #pmcCurrentOrderStatus{display:none!important}
+  .pmc-current-actions{flex:0 0 auto!important;width:auto!important;display:flex!important;gap:4px!important;white-space:nowrap!important}
+  .pmc-current-actions .btn{min-height:32px!important;height:32px!important;padding:5px 8px!important;font-size:12px!important;flex:0 0 auto!important}
+}
+.mobile-order-detail-modal{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:flex-end;justify-content:center;z-index:2147483500;padding:10px}
+.mobile-order-detail-modal.open{display:flex}
+.mobile-order-detail-box{width:min(620px,100%);max-height:78vh;background:#fff;border-radius:16px;box-shadow:0 20px 55px rgba(15,23,42,.25);overflow:hidden}
+.mobile-order-detail-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid #e5e7eb;background:#fff}
+.mobile-order-detail-body{padding:10px 12px;overflow:auto;max-height:calc(78vh - 58px)}
+.mobile-order-detail-row{display:grid;gap:4px;padding:10px 4px;border-bottom:1px solid #eef2f6;font-size:12px;color:#475569}
+.mobile-order-detail-row:last-child{border-bottom:0}
+.mobile-order-detail-row>b{font-size:13px;color:#0f172a}
+@media(min-width:761px){.mobile-order-detail-modal{display:none!important}}
 </style>
 
 </body>
