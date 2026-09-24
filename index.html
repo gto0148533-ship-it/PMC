@@ -1652,7 +1652,7 @@ input,select{min-height:38px}
     </div>
     <div class="board-system-info">
       <div class="label">系統資訊</div>
-      <div class="version">PMC V3.10-20260924</div>
+      <div class="version">PMC V3.9-20260923</div>
     </div>
   </div>
   <div class="workflow-quick card">
@@ -4080,7 +4080,7 @@ function getFilteredPurchaseRows(){
   const val=id=>(document.getElementById(id)?.value||"").toString().trim().toLowerCase();
   const f={supplier:val("purchaseFilterSupplier"),no:val("purchaseFilterNo"),expected:document.getElementById("purchaseFilterExpected")?.value||"",drawing:val("purchaseFilterDrawing"),material:val("purchaseFilterMaterial"),part:val("purchaseFilterPart"),qty:val("purchaseFilterQty"),status:document.getElementById("purchaseFilterStatus")?.value||""};
   return (purchaseRows||[]).filter(r=>{
-    const st=r._status||getPurchaseDisplayStatus(r);
+    const st=getPurchaseDisplayStatus(r);
     return (!f.supplier||String(r.supplier||"").toLowerCase().includes(f.supplier))&&(!f.no||String(r.no||"").toLowerCase().includes(f.no))&&(!f.expected||String(r.expected||"")===f.expected)&&(!f.drawing||String(r.drawing||r.desc||"").toLowerCase().includes(f.drawing))&&(!f.material||String(r.material||"").toLowerCase().includes(f.material))&&(!f.part||String(r.part||"").toLowerCase().includes(f.part))&&(!f.qty||String(r.qty||"").toLowerCase().includes(f.qty))&&(!f.status||st===f.status);
   });
 }
@@ -4129,35 +4129,189 @@ function renderPurchase(){
   document.getElementById("purchasePagination").innerHTML=`<div>顯示 ${filtered.length?start+1:0}–${Math.min(start+PURCHASE_PAGE_SIZE,filtered.length)} / ${filtered.length} 筆　｜　每頁 50 筆</div><div class="purchase-page-buttons"><button class="btn secondary small" type="button" data-purchase-page="prev" ${purchasePage<=1?"disabled":""}>上一頁</button>${Array.from({length:totalPages},(_,i)=>i+1).slice(Math.max(0,purchasePage-3),Math.min(totalPages,purchasePage+2)).map(n=>`<button class="btn ${n===purchasePage?"":"secondary"} small" type="button" data-purchase-page="${n}">${n}</button>`).join("")}<button class="btn secondary small" type="button" data-purchase-page="next" ${purchasePage>=totalPages?"disabled":""}>下一頁</button></div>`;
 }
 
-function normalizePurchaseHeader(v){return String(v??"").replace(/[\s　_\/\\:：()（）\[\]【】]/g,"").toLowerCase();}
-const PURCHASE_HEADER_ALIASES={
-  supplier:["廠商","供應商","廠商名稱","供應商名稱"],
-  no:["案件編號","案件號碼","工單編號","工單號碼","工單號","工單","工令","訂單編號"],
-  expected:["預計交期","預計到貨","預計交貨","預計到貨日","預計交貨日","廠商交期","廠商交貨日","交期","預交日"],
-  receive:["進貨日期","進貨日","進貨","到貨日期","到貨日","實際進貨日期","實際到貨日期","廠商交貨"],
-  drawing:["圖名","圖號","品名","品項","圖號品名"],material:["材質","材料","材質規格"],part:["零件編號","零件號","料號","料件編號","料品編號","料號規格"],qty:["數量","需求數量","採購數量","訂購數量"]
-};
-function findPurchaseCol(headers,names){const normalized=headers.map(normalizePurchaseHeader);for(const n of names){const i=normalized.indexOf(normalizePurchaseHeader(n));if(i>=0)return i;}return -1;}
-function detectPurchaseColumns(rows){
-  let best=null,bestScore=-1;
-  for(let r=0;r<Math.min(rows.length,20);r++){const headers=(rows[r]||[]).map(normalizePurchaseHeader),ci={};for(const [key,aliases] of Object.entries(PURCHASE_HEADER_ALIASES))ci[key]=findPurchaseCol(headers,aliases);let score=0;if(ci.no>=0)score+=3;if(ci.expected>=0)score+=4;if(ci.receive>=0)score+=4;if(ci.supplier>=0)score++;if(ci.drawing>=0)score++;if(ci.material>=0)score++;if(ci.part>=0)score++;if(ci.qty>=0)score++;if(ci.no>=0&&ci.expected>=0&&ci.receive>=0&&score>bestScore){best={headerRow:r,cols:ci};bestScore=score;}}
-  return best;
+function normalizePurchaseHeader(v){return String(v??"").replace(/[\s　_\/\\]/g,"").toLowerCase();}
+function findPurchaseCol(headers,names){for(const n of names){const i=headers.indexOf(normalizePurchaseHeader(n));if(i>=0)return i;}return -1;}
+function parseExcelDate(v){
+  if(v instanceof Date && !isNaN(v))return fmt(v);
+  if(typeof v==="number" && window.XLSX?.SSF?.parse_date_code){const x=XLSX.SSF.parse_date_code(v);if(x)return `${x.y}-${String(x.m).padStart(2,"0")}-${String(x.d).padStart(2,"0")}`;}
+  const str=String(v??"").trim();if(!str)return "";
+  let m=str.match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})$/);if(m)return `${m[1]}-${String(m[2]).padStart(2,"0")}-${String(m[3]).padStart(2,"0")}`;
+  m=str.match(/^(\d{4})(\d{2})(\d{2})$/);if(m)return `${m[1]}-${m[2]}-${m[3]}`;
+  return "";
 }
-function parseExcelDate(v){if(v instanceof Date&&!isNaN(v))return fmt(v);if(typeof v==="number"&&window.XLSX?.SSF?.parse_date_code){const x=XLSX.SSF.parse_date_code(v);if(x)return `${x.y}-${String(x.m).padStart(2,"0")}-${String(x.d).padStart(2,"0")}`;}const str=String(v??"").trim();if(!str)return "";let m=str.match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})$/);if(m)return `${m[1]}-${String(m[2]).padStart(2,"0")}-${String(m[3]).padStart(2,"0")}`;m=str.match(/^(\d{4})(\d{2})(\d{2})$/);if(m)return `${m[1]}-${m[2]}-${m[3]}`;return "";}
-function parsePurchaseDateStrict(v,today){if(v instanceof Date&&!isNaN(v)){const d=new Date(v.getFullYear(),v.getMonth(),v.getDate());if(d.getFullYear()<2000||d.getFullYear()>today.getFullYear()+1)return null;return d;}if(typeof v==="number"&&window.XLSX?.SSF?.parse_date_code){const x=XLSX.SSF.parse_date_code(v);if(x&&x.y&&x.m&&x.d){const d=new Date(x.y,x.m-1,x.d);if(d.getFullYear()===x.y&&d.getMonth()===x.m-1&&d.getDate()===x.d&&x.y>=2000&&x.y<=today.getFullYear()+1)return d;}return null;}const s=String(v??"").trim();if(!s)return null;const m=s.match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})$/)||s.match(/^(\d{4})(\d{2})(\d{2})$/);if(!m)return null;const y=+m[1],mo=+m[2],da=+m[3];if(y<2000||y>today.getFullYear()+1||mo<1||mo>12||da<1||da>31)return null;const d=new Date(y,mo-1,da);return d.getFullYear()===y&&d.getMonth()===mo-1&&d.getDate()===da?d:null;}
-function purchaseHeaderRow(rows){const d=detectPurchaseColumns(rows);return d?d.headerRow:-1;}
-function buildPurchaseRowFromSource(row,detected,supplierName,today,cutoff){const c=detected.cols,no=String(c.no>=0?row?.[c.no]:"").trim();if(!no)return null;if(String(c.receive>=0?row?.[c.receive]:"").trim()!=="")return null;const d=parsePurchaseDateStrict(c.expected>=0?row?.[c.expected]:"",today);if(!d||d<cutoff)return null;const drawing=String(c.drawing>=0?row?.[c.drawing]:"").trim(),material=String(c.material>=0?row?.[c.material]:"").trim(),part=String(c.part>=0?row?.[c.part]:"").trim(),qty=c.qty>=0?(row?.[c.qty]??""):"",status=d<TODAY?"逾期":"待到貨",item={supplier:supplierName,no,expected:fmt(d),drawing,material,part,qty,status};item._search=[supplierName,no,item.expected,drawing,material,part,qty].join(" ").toLowerCase();item._status=status;return item;}
-function purchaseWorkerSource(){return `
-importScripts("https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js");
-const A=${JSON.stringify(PURCHASE_HEADER_ALIASES)};const norm=v=>String(v??"").replace(/[\\s　_\\/\\\\:：()（）\\[\\]【】]/g,"").toLowerCase();
-function find(h,n){const x=h.map(norm);for(const a of n){const i=x.indexOf(norm(a));if(i>=0)return i;}return -1;}
-function detect(rows){let b=null,s=-1;for(let r=0;r<Math.min(rows.length,20);r++){const h=(rows[r]||[]).map(norm),c={};for(const[k,a]of Object.entries(A))c[k]=find(h,a);let q=(c.no>=0?3:0)+(c.expected>=0?4:0)+(c.receive>=0?4:0)+(c.supplier>=0?1:0)+(c.drawing>=0?1:0)+(c.material>=0?1:0)+(c.part>=0?1:0)+(c.qty>=0?1:0);if(c.no>=0&&c.expected>=0&&c.receive>=0&&q>s){b={headerRow:r,cols:c};s=q;}}return b;}
-function dt(v,t){if(v instanceof Date&&!isNaN(v)){const d=new Date(v.getFullYear(),v.getMonth(),v.getDate());return d.getFullYear()>=2000&&d.getFullYear()<=t.getFullYear()+1?d:null;}if(typeof v==="number"){const x=XLSX.SSF.parse_date_code(v);if(x&&x.y>=2000&&x.y<=t.getFullYear()+1){const d=new Date(x.y,x.m-1,x.d);if(d.getFullYear()===x.y&&d.getMonth()===x.m-1&&d.getDate()===x.d)return d;}return null;}const m=String(v??"").trim().match(/^(\\d{4})[\\/\\-.](\\d{1,2})[\\/\\-.](\\d{1,2})$/)||String(v??"").trim().match(/^(\\d{4})(\\d{2})(\\d{2})$/);if(!m)return null;const y=+m[1],mo=+m[2],d=+m[3];if(y<2000||y>t.getFullYear()+1||mo<1||mo>12||d<1||d>31)return null;const z=new Date(y,mo-1,d);return z.getFullYear()===y&&z.getMonth()===mo-1&&z.getDate()===d?z:null;}
-const pad=n=>String(n).padStart(2,"0"),iso=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
-self.onmessage=async e=>{try{const wb=XLSX.read(new Uint8Array(e.data.buffer),{type:"array",cellDates:true,cellNF:false,cellText:false,dense:true});const t=new Date();t.setHours(0,0,0,0);const cut=new Date(t);cut.setMonth(cut.getMonth()-e.data.months);const out=[];let scanned=0,matched=0,rowsN=0;for(const name of wb.SheetNames){const ws=wb.Sheets[name];if(!ws||!ws["!ref"])continue;scanned++;const probe=XLSX.utils.sheet_to_json(ws,{header:1,defval:"",raw:true,range:0,blankrows:false});const d=detect(probe);if(!d){self.postMessage({type:"progress",scanned,matched,rows:rowsN,name,resultCount:out.length});continue;}matched++;const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:"",raw:true,range:d.headerRow,blankrows:false});for(let i=1;i<rows.length;i++){const r=rows[i],c=d.cols,no=String(c.no>=0?r?.[c.no]:"").trim();if(!no||String(c.receive>=0?r?.[c.receive]:"").trim()!=="")continue;const date=dt(c.expected>=0?r?.[c.expected]:"",t);rowsN++;if(!date||date<cut)continue;const drawing=String(c.drawing>=0?r?.[c.drawing]:"").trim(),material=String(c.material>=0?r?.[c.material]:"").trim(),part=String(c.part>=0?r?.[c.part]:"").trim(),qty=c.qty>=0?(r?.[c.qty]??""):"",status=date<t?"逾期":"待到貨",x={supplier:name,no,expected:iso(date),drawing,material,part,qty,status,_status:status};x._search=[name,no,x.expected,drawing,material,part,qty].join(" ").toLowerCase();out.push(x);}self.postMessage({type:"progress",scanned,matched,rows:rowsN,name,resultCount:out.length});await new Promise(r=>setTimeout(r,0));}self.postMessage({type:"done",result:out,scanned,matched,scannedRows:rowsN});}catch(err){self.postMessage({type:"error",message:String(err?.message||err)})}};`}
-let purchaseImportWorker=null;
-function analyzePurchaseSourceFile(file){if(!requireAdmin())return Promise.resolve();if(!window.XLSX)throw new Error("XLSX 元件未載入");const months=Math.max(1,Math.min(36,Number(document.getElementById("purchaseRecentMonths")?.value)||3));document.getElementById("purchaseRecentMonths").value=months;const el=document.getElementById("purchaseAutoStatus");el.textContent=`目前檔案：${file.name}｜準備分析大型 Excel...`;if(purchaseImportWorker)try{purchaseImportWorker.terminate()}catch(e){}const w=new Worker(URL.createObjectURL(new Blob([purchaseWorkerSource()],{type:"application/javascript"})));purchaseImportWorker=w;return new Promise((resolve,reject)=>{w.onmessage=e=>{const d=e.data||{};if(d.type==="progress")el.innerHTML=`目前檔案：<b>${esc(file.name)}</b>｜分析中：${d.scanned} 張工作表，已辨識 ${d.matched} 張｜目前 ${esc(d.name||"")}｜找到 ${d.resultCount} 筆`;else if(d.type==="error"){w.terminate();purchaseImportWorker=null;reject(new Error(d.message));}else if(d.type==="done"){w.terminate();purchaseImportWorker=null;purchaseRows=d.result||[];purchasePage=1;localStorage.setItem("PMC_V3_PURCHASE_ROWS",JSON.stringify(purchaseRows));el.innerHTML=`目前檔案：<b>${esc(file.name)}</b>｜<b>${purchaseRows.length}</b> 筆未進貨詳細資料 <span style="font-weight:400;color:var(--muted)">（${d.scanned} 張工作表／${d.matched} 張成功辨識／最近 ${months} 個月以上含未來交期）</span>`;renderPurchase();renderAll();alert(`PMC 分析完成！\n\n檔案：${file.name}\n工作表：${d.scanned} 張\n成功辨識：${d.matched} 張\n未進貨詳細資料：${purchaseRows.length} 筆\n\n已啟用欄位同義名稱辨識與背景處理。`);resolve(d);}};w.onerror=e=>{w.terminate();purchaseImportWorker=null;reject(new Error(e.message||"背景匯入失敗"));};file.arrayBuffer().then(b=>w.postMessage({buffer:b,months},[b])).catch(reject);});}
-function importPurchaseExcel(file){const reader=new FileReader();reader.onload=function(e){try{let rows=[];if(/\.csv$/i.test(file.name)){rows=e.target.result.split(/\r?\n/).filter(x=>x.trim()).map(line=>line.split(","));}else{if(!window.XLSX)throw new Error("XLSX 元件未載入");const wb=XLSX.read(new Uint8Array(e.target.result),{type:"array",cellDates:true,dense:true});const sn=wb.SheetNames.find(n=>String(n).replace(/\s/g,"")==="未進貨詳細資料")||wb.SheetNames.find(n=>String(n).includes("未進貨"))||wb.SheetNames[0];rows=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:"",dense:true});}if(rows.length<2)throw new Error("沒有資料");const h=rows[0].map(normalizePurchaseHeader),ci={supplier:findPurchaseCol(h,PURCHASE_HEADER_ALIASES.supplier),no:findPurchaseCol(h,PURCHASE_HEADER_ALIASES.no),expected:findPurchaseCol(h,PURCHASE_HEADER_ALIASES.expected),drawing:findPurchaseCol(h,PURCHASE_HEADER_ALIASES.drawing),material:findPurchaseCol(h,PURCHASE_HEADER_ALIASES.material),part:findPurchaseCol(h,PURCHASE_HEADER_ALIASES.part),qty:findPurchaseCol(h,PURCHASE_HEADER_ALIASES.qty),status:findPurchaseCol(h,["狀態","進貨狀態"])};purchaseRows=rows.slice(1).map(r=>{const x={supplier:ci.supplier>=0?r[ci.supplier]:"",no:ci.no>=0?r[ci.no]:"",expected:ci.expected>=0?parseExcelDate(r[ci.expected]):"",drawing:ci.drawing>=0?r[ci.drawing]:"",material:ci.material>=0?r[ci.material]:"",part:ci.part>=0?r[ci.part]:"",qty:ci.qty>=0?r[ci.qty]:"",status:ci.status>=0?(r[ci.status]||"待到貨"):"待到貨"};x._search=Object.values(x).join(" ").toLowerCase();x._status=getPurchaseDisplayStatus(x);return x;}).filter(r=>Object.values(r).some(v=>String(v).trim()!==""));purchasePage=1;localStorage.setItem("PMC_V3_PURCHASE_ROWS",JSON.stringify(purchaseRows));renderPurchase();renderAll();alert(`已匯入 ${purchaseRows.length} 筆未進貨明細`);}catch(err){console.error(err);alert("Excel 匯入失敗："+err.message);}};if(/\.csv$/i.test(file.name))reader.readAsText(file,"utf-8");else reader.readAsArrayBuffer(file);}
+function parsePurchaseDateStrict(v,today){
+  if(v instanceof Date && !isNaN(v)){
+    const d=new Date(v.getFullYear(),v.getMonth(),v.getDate());
+    if(d.getFullYear()<2000||d.getFullYear()>today.getFullYear()+1)return null;
+    return d;
+  }
+  if(typeof v==="number" && window.XLSX?.SSF?.parse_date_code){
+    const x=XLSX.SSF.parse_date_code(v); if(x&&x.y&&x.m&&x.d){
+      const d=new Date(x.y,x.m-1,x.d); if(d.getFullYear()===x.y&&d.getMonth()===x.m-1&&d.getDate()===x.d&&x.y>=2000&&x.y<=today.getFullYear()+1)return d;
+    }
+    return null;
+  }
+  const s=String(v??"").trim(); if(!s)return null;
+  const m=s.match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})$/) || s.match(/^(\d{4})(\d{2})(\d{2})$/);
+  if(!m)return null;
+  const y=Number(m[1]), mo=Number(m[2]), da=Number(m[3]);
+  if(y<2000||y>today.getFullYear()+1||mo<1||mo>12||da<1||da>31)return null;
+  const d=new Date(y,mo-1,da); return d.getFullYear()===y&&d.getMonth()===mo-1&&d.getDate()===da?d:null;
+}
+function getPurchaseSheetFormat(rows){
+  const max=Math.min(rows.length,10);
+  for(let r=0;r<max;r++){
+    const h=normalizePurchaseHeader(rows[r]?.[7]), i=normalizePurchaseHeader(rows[r]?.[8]), j=normalizePurchaseHeader(rows[r]?.[9]);
+    if(h.includes("預計交期") && i.includes("進貨"))return 1;
+    if(i.includes("預計交期") && j.includes("進貨"))return 2;
+  }
+  return 0;
+}
+function purchaseHeaderRow(rows){
+  for(let r=0;r<Math.min(rows.length,10);r++){
+    const a=rows[r]||[]; if(a.length>=2 && String(a[1]??"").trim() && (normalizePurchaseHeader(a[7]).includes("預計交期")||normalizePurchaseHeader(a[8]).includes("預計交期")))return r;
+  }
+  return -1;
+}
+function buildPurchaseRowFromSource(row,formatType,supplierName,today,cutoff){
+  const orderNo=String(row?.[1]??"").trim(); if(!orderNo)return null;
+  const receiveValue=formatType===1?row?.[8]:row?.[9];
+  if(String(receiveValue??"").trim()!=="")return null;
+  const expectedValue=formatType===1?row?.[7]:row?.[8];
+  const d=parsePurchaseDateStrict(expectedValue,today); if(!d||d<cutoff)return null;
+  let drawing="",material="",part="",qty="";
+  if(formatType===1){material=String(row?.[4]??"").trim();part=String(row?.[5]??"").trim();qty=row?.[6]??"";}
+  else{drawing=String(row?.[4]??"").trim();material=String(row?.[5]??"").trim();part=String(row?.[6]??"").trim();qty=row?.[7]??"";}
+  return {supplier:supplierName,no:orderNo,expected:fmt(d),drawing,material,part,qty,status:d<TODAY?"逾期":"待到貨"};
+}
+async function analyzePurchaseSourceFile(file){
+  if(!requireAdmin())return;
+  if(!window.XLSX)throw new Error("XLSX 元件未載入");
+  const months=Math.max(1,Math.min(36,Number(document.getElementById("purchaseRecentMonths")?.value)||3));
+  document.getElementById("purchaseRecentMonths").value=months;
+  const statusEl=document.getElementById("purchaseAutoStatus");
+  statusEl.textContent=`目前檔案：${file.name}｜分析中，分段處理...`;
+
+  // 大型「採購部進度表」不可直接在主頁面逐張 sheet 建立完整 rows 陣列，
+  // 否則 Chrome 會因大量暫存陣列與 DOM/JS 記憶體同時存在而整個分頁崩潰。
+  // 改用 Web Worker：Excel 解析與篩選移到背景執行緒，且每張工作表分批處理。
+  const workerCode=`
+    importScripts("https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js");
+    function norm(v){return String(v??"").replace(/[\\s　_\\/\\\\]/g,"").toLowerCase();}
+    function parseDate(v,today){
+      if(v instanceof Date && !isNaN(v)){
+        const d=new Date(v.getFullYear(),v.getMonth(),v.getDate());
+        if(d.getFullYear()<2000||d.getFullYear()>today.getFullYear()+1)return null; return d;
+      }
+      if(typeof v==="number" && XLSX.SSF?.parse_date_code){
+        const x=XLSX.SSF.parse_date_code(v);
+        if(x&&x.y&&x.m&&x.d){const d=new Date(x.y,x.m-1,x.d);if(d.getFullYear()===x.y&&d.getMonth()===x.m-1&&d.getDate()===x.d&&x.y>=2000&&x.y<=today.getFullYear()+1)return d;}
+        return null;
+      }
+      const str=String(v??"").trim();
+      let m=str.match(/^(\\d{4})[\\/\\-.](\\d{1,2})[\\/\\-.](\\d{1,2})$/)||str.match(/^(\\d{4})(\\d{2})(\\d{2})$/);
+      if(!m)return null; const y=+m[1],mo=+m[2],da=+m[3];
+      if(y<2000||y>today.getFullYear()+1||mo<1||mo>12||da<1||da>31)return null;
+      const d=new Date(y,mo-1,da);return d.getFullYear()===y&&d.getMonth()===mo-1&&d.getDate()===da?d:null;
+    }
+    function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+    function fmtRow(row,type,sheet,today,cutoff){
+      const no=String(row?.[1]??"").trim();if(!no)return null;
+      const receive=type===1?row?.[8]:row?.[9];if(String(receive??"").trim()!=="")return null;
+      const expected=type===1?row?.[7]:row?.[8];const d=parseDate(expected,today);if(!d||d<cutoff)return null;
+      let drawing="",material="",part="",qty="";
+      if(type===1){material=String(row?.[4]??"").trim();part=String(row?.[5]??"").trim();qty=row?.[6]??"";}
+      else{drawing=String(row?.[4]??"").trim();material=String(row?.[5]??"").trim();part=String(row?.[6]??"").trim();qty=row?.[7]??"";}
+      return {supplier:sheet,no,expected:iso(d),drawing,material,part,qty,status:d<today?"逾期":"待到貨"};
+    }
+    function detect(rows){
+      for(let r=0;r<Math.min(rows.length,10);r++){
+        const a=rows[r]||[]; const h=norm(a[7]),i=norm(a[8]),j=norm(a[9]);
+        if((h.includes("預計交期")||h.includes("廠商交期"))&&i.includes("進貨"))return 1;
+        if((i.includes("預計交期")||i.includes("廠商交期"))&&j.includes("進貨"))return 2;
+      }
+      return 0;
+    }
+    self.onmessage=async function(ev){
+      try{
+        const {buffer,name,months}=ev.data;
+        const wb=XLSX.read(new Uint8Array(buffer),{type:"array",cellDates:true,cellNF:false,cellText:false,dense:true});
+        const today=new Date();today.setHours(0,0,0,0);const cutoff=new Date(today);cutoff.setMonth(cutoff.getMonth()-months);
+        const result=[];let scannedSheets=0,matchedSheets=0,scannedRows=0,totalSheets=wb.SheetNames.length;
+        for(let si=0;si<totalSheets;si++){
+          const sheetName=wb.SheetNames[si],ws=wb.Sheets[sheetName];
+          if(!ws)continue;
+          // 先只讀前 10 列，確認是不是採購格式；避免一次把整張巨型工作表轉成陣列。
+          const head=XLSX.utils.sheet_to_json(ws,{header:1,range:{s:{r:0,c:0},e:{r:9,c:11}},defval:"",raw:true});
+          if(!head.length)continue;
+          scannedSheets++;const type=detect(head);if(!type){
+            self.postMessage({kind:"progress",name,si:si+1,totalSheets,scannedSheets,matchedSheets,scannedRows,found:result.length,sheet:sheetName,phase:"略過非採購格式"});
+            continue;
+          }
+          matchedSheets++;
+          const maxR=ws['!ref']?XLSX.utils.decode_range(ws['!ref']).e.r:head.length-1;
+          const CHUNK=2000;
+          for(let rs=0;rs<=maxR;rs+=CHUNK){
+            const re=Math.min(maxR,rs+CHUNK-1);
+            const rows=XLSX.utils.sheet_to_json(ws,{header:1,range:{s:{r:rs,c:0},e:{r:re,c:11}},defval:"",raw:true});
+            for(const row of rows){scannedRows++;const item=fmtRow(row,type,sheetName,today,cutoff);if(item)result.push(item);}
+            self.postMessage({kind:"progress",name,si:si+1,totalSheets,scannedSheets,matchedSheets,scannedRows,found:result.length,sheet:sheetName,phase:"處理第 "+(Math.floor(rs/CHUNK)+1)+" 段"});
+            // 讓 Worker 有機會回收每批 rows，避免巨型工作表長時間持有大量暫存資料。
+            await new Promise(r=>setTimeout(r,0));
+          }
+        }
+        self.postMessage({kind:"done",name,months,result,scannedSheets,matchedSheets,scannedRows,cutoff:iso(cutoff),today:iso(today)});
+      }catch(err){self.postMessage({kind:"error",message:err?.message||String(err),stack:err?.stack||""});}
+    };
+  `;
+  const blob=new Blob([workerCode],{type:"application/javascript"});
+  let finished=false;
+  const objectUrl=URL.createObjectURL(blob);
+  const realWorker=new Worker(objectUrl);
+  const cleanupReal=()=>{try{realWorker.terminate();}catch(e){};URL.revokeObjectURL(objectUrl);};
+  try{
+    const buffer=await file.arrayBuffer();
+    realWorker.onmessage=function(ev){
+      const m=ev.data||{};
+      if(m.kind==="progress"){
+        statusEl.textContent=`目前檔案：${file.name}｜分析中，分段進行到第 ${m.si}/${m.totalSheets} 張工作表｜${m.found} 筆`;
+      }else if(m.kind==="done"){
+        finished=true;cleanupReal();
+        purchaseRows=m.result||[];purchasePage=1;localStorage.setItem("PMC_V3_PURCHASE_ROWS",JSON.stringify(purchaseRows));
+        const overdue=purchaseRows.filter(r=>r.status==="逾期").length;
+        statusEl.innerHTML=`目前檔案：<b>${esc(file.name)}</b>｜<b>${purchaseRows.length}</b> 筆未進貨詳細資料 <span style="font-weight:400;color:var(--muted)">（${m.scannedSheets} 張工作表／${m.matchedSheets} 張符合格式／最近 ${m.months} 個月以上含未來交期）</span>`;
+        renderPurchase();renderAll();
+        alert(`PMC 分析完成！\\n\\n檔案：${file.name}\\n符合格式工作表：${m.matchedSheets} 張\\n未進貨詳細資料：${purchaseRows.length} 筆\\n其中逾期：${overdue} 筆\\n日期範圍：${m.cutoff} ～ 未來交期\\n\\n已採用「Web Worker + 分段解析」，避免 Chrome 主畫面因大型 Excel 而崩潰。`);
+      }else if(m.kind==="error"){
+        finished=true;cleanupReal();
+        console.error("採購 Excel Worker error",m);
+        statusEl.textContent=`目前檔案：${file.name}｜分析失敗：${m.message}`;
+        alert("採購部進度表分析失敗："+m.message);
+      }
+    };
+    realWorker.onerror=function(e){
+      if(finished)return;finished=true;cleanupReal();console.error(e);statusEl.textContent=`目前檔案：${file.name}｜分析失敗：Worker 無法執行`;
+      alert("採購部進度表分析失敗：瀏覽器背景解析程序無法執行。\\n\\n如果公司電腦封鎖外部 CDN，請改用「選擇 Excel」匯入已整理檔案。 ");
+    };
+    realWorker.postMessage({buffer,name:file.name,months},[buffer]);
+  }catch(err){cleanupReal();throw err;}
+}
+
+function importPurchaseExcel(file){
+  const reader=new FileReader();reader.onload=function(e){
+    try{
+      let rows=[];
+      if(/\.csv$/i.test(file.name)){const text=e.target.result;rows=text.split(/\r?\n/).filter(x=>x.trim()).map(line=>line.split(","));}
+      else{if(!window.XLSX)throw new Error("XLSX 元件未載入");const wb=XLSX.read(new Uint8Array(e.target.result),{type:"array",cellDates:true});const sheetName=wb.SheetNames.find(n=>String(n).replace(/\s/g,"")==="未進貨詳細資料")||wb.SheetNames.find(n=>String(n).includes("未進貨"))||wb.SheetNames[0];rows=XLSX.utils.sheet_to_json(wb.Sheets[sheetName],{header:1,defval:""});}
+      if(rows.length<2)throw new Error("沒有資料");
+      const headers=rows[0].map(normalizePurchaseHeader);
+      const ci={supplier:findPurchaseCol(headers,["廠商","供應商","A廠商"]),no:findPurchaseCol(headers,["工單號碼","工單號","工單","工令","B工單號碼"]),expected:findPurchaseCol(headers,["預計交期","預計到貨","預計交貨","預計到貨日","交期","預交日","C預計交期"]),drawing:findPurchaseCol(headers,["圖名","圖號","品名","品項","圖號/品名","D圖名"]),material:findPurchaseCol(headers,["材質","材料","E材質"]),part:findPurchaseCol(headers,["零件編號","料號","料件編號","料品編號","料號/規格","F零件編號"]),qty:findPurchaseCol(headers,["數量","需求數量","G數量"]),status:findPurchaseCol(headers,["狀態","進貨狀態"])};
+      purchaseRows=rows.slice(1).map(r=>({supplier:ci.supplier>=0?r[ci.supplier]:"",no:ci.no>=0?r[ci.no]:"",expected:ci.expected>=0?parseExcelDate(r[ci.expected]):"",drawing:ci.drawing>=0?r[ci.drawing]:"",material:ci.material>=0?r[ci.material]:"",part:ci.part>=0?r[ci.part]:"",qty:ci.qty>=0?r[ci.qty]:"",status:ci.status>=0?(r[ci.status]||"待到貨"):"待到貨"})).filter(r=>Object.values(r).some(v=>String(v).trim()!==""));
+      purchasePage=1;localStorage.setItem("PMC_V3_PURCHASE_ROWS",JSON.stringify(purchaseRows));renderPurchase();renderAll();alert(`已匯入 ${purchaseRows.length} 筆未進貨明細`);
+    }catch(err){console.error(err);alert("Excel 匯入失敗："+err.message);}
+  };
+  if(/\.csv$/i.test(file.name))reader.readAsText(file,"utf-8");else reader.readAsArrayBuffer(file);
+}
 
 
 
