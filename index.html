@@ -1232,6 +1232,21 @@ input,select{min-height:38px}
 .order-photo-meta{padding:7px;font-size:11px;color:#64748b;display:flex;justify-content:space-between;gap:5px;align-items:center}
 .order-photo-meta button{white-space:nowrap}
 .image-manage-box{max-width:900px;width:calc(100% - 24px)}
+/* V3.15 圖片查看／彈窗層級修正 */
+#imageManageModal{z-index:100000}
+#orderPhotoModal{z-index:100010}
+#imageLightboxModal{z-index:100020;background:rgba(2,6,23,.88)}
+#imageLightboxModal .image-lightbox-box{width:min(1200px,96vw);height:min(92vh,900px);max-height:92vh;background:transparent;box-shadow:none;overflow:hidden;display:flex;align-items:center;justify-content:center}
+#imageLightboxModal .image-lightbox-img{display:block;max-width:94vw;max-height:82vh;width:auto;height:auto;object-fit:contain;border-radius:8px;box-shadow:0 20px 70px rgba(0,0,0,.5);background:#fff}
+#imageLightboxModal .image-lightbox-close{position:absolute;right:16px;top:12px;z-index:2}
+.order-photo-item img{object-fit:contain;background:#e2e8f0}
+.schedule-photo-btn{margin-left:6px;white-space:nowrap}
+@media(max-width:760px){
+  #imageLightboxModal{padding:8px!important}
+  #imageLightboxModal .image-lightbox-box{width:100%;height:92vh;max-height:92vh}
+  #imageLightboxModal .image-lightbox-img{max-width:96vw;max-height:78vh}
+  .schedule-photo-btn{margin:5px 0 0 0;display:inline-block}
+}
 .image-manage-table{width:100%;border-collapse:collapse}
 .image-manage-table th,.image-manage-table td{padding:9px 7px;border-bottom:1px solid var(--line);text-align:left;font-size:12px}
 .image-manage-table th{background:#f8fafc}
@@ -2263,6 +2278,16 @@ input,select{min-height:38px}
     <div class="modalbody">
       <div id="imageManageBody"></div>
     </div>
+  </div>
+</div>
+
+<!-- =========================================================
+     圖片放大 MODAL
+========================================================= -->
+<div id="imageLightboxModal" class="modal hidden" aria-hidden="true">
+  <div class="modalbox image-lightbox-box" role="dialog" aria-modal="true">
+    <button class="btn secondary small image-lightbox-close" id="imageLightboxCloseBtn" type="button">✕ 關閉</button>
+    <img id="imageLightboxImg" class="image-lightbox-img" src="" alt="工單照片放大預覽">
   </div>
 </div>
 
@@ -3936,6 +3961,8 @@ function renderSchedule(){
       <b>
         ${progressValue(order)}%
       </b>
+
+      ${(order.images||[]).length ? `<button class="btn small secondary schedule-photo-btn" type="button" onclick="openOrderPhotoModal('${esc(order.no)}')">照片 ${(order.images||[]).length}</button>` : ""}
 
     </div>
 
@@ -5873,10 +5900,16 @@ function renderImageDataSummary(){
   document.getElementById("imageCountStat")?.addEventListener("click",function(){openImageManageModal();});
 }
 function findOrder(no){return (orders||[]).find(o=>String(o.no)===String(no));}
-function openOrderPhotoModal(no){
+let imageManageReturnAfterPhoto=false;
+function openOrderPhotoModal(no,fromImageManage=false){
   const o=findOrder(no);if(!o)return;
   const modal=document.getElementById("orderPhotoModal"),grid=document.getElementById("orderPhotoGrid"),title=document.getElementById("orderPhotoTitle"),bar=document.getElementById("orderPhotoToolbar");
   if(!modal||!grid)return;
+  if(fromImageManage){
+    imageManageReturnAfterPhoto=true;
+    const parent=document.getElementById("imageManageModal");
+    if(parent){parent.classList.add("hidden");parent.setAttribute("aria-hidden","true");parent.style.display="none";}
+  }
   const imgs=Array.isArray(o.images)?o.images:[];
   title.textContent=`${o.no}｜${o.customer||""}｜照片 ${imgs.length} 張`;
   bar.innerHTML=`<span class="footer-note">已壓縮圖片 ${imgs.length} 張｜${imageBytes(imgs.reduce((a,b)=>a+Number(b.size||0),0))}</span>${isAdmin?`<label class="btn small secondary" style="display:inline-block">＋ 新增照片<input id="orderPhotoInput" type="file" accept="image/*" multiple hidden></label>`:""}`;
@@ -5884,7 +5917,28 @@ function openOrderPhotoModal(no){
   modal.dataset.orderNo=String(no);modal.classList.remove("hidden");modal.setAttribute("aria-hidden","false");modal.style.display="flex";document.body.style.overflow="hidden";
   const input=document.getElementById("orderPhotoInput");if(input)input.addEventListener("change",e=>addOrderImages(no,e.target.files));
 }
-function closeOrderPhotoModal(){const m=document.getElementById("orderPhotoModal");if(m){m.classList.add("hidden");m.setAttribute("aria-hidden","true");m.style.display="none";}document.body.style.overflow="";}
+function closeOrderPhotoModal(){
+  const m=document.getElementById("orderPhotoModal");if(m){m.classList.add("hidden");m.setAttribute("aria-hidden","true");m.style.display="none";}
+  if(imageManageReturnAfterPhoto){
+    imageManageReturnAfterPhoto=false;
+    const parent=document.getElementById("imageManageModal");
+    if(parent){parent.classList.remove("hidden");parent.setAttribute("aria-hidden","false");parent.style.display="flex";document.body.style.overflow="hidden";return;}
+  }
+  document.body.style.overflow="";
+}
+function openImageLightbox(dataUrl,name){
+  if(!dataUrl)return;
+  const m=document.getElementById("imageLightboxModal"),img=document.getElementById("imageLightboxImg");
+  if(!m||!img)return;
+  img.src=dataUrl;img.alt=name||"工單照片放大預覽";
+  m.classList.remove("hidden");m.setAttribute("aria-hidden","false");m.style.display="flex";document.body.style.overflow="hidden";
+}
+function closeImageLightbox(){
+  const m=document.getElementById("imageLightboxModal"),img=document.getElementById("imageLightboxImg");
+  if(m){m.classList.add("hidden");m.setAttribute("aria-hidden","true");m.style.display="none";}
+  if(img)img.src="";
+  document.body.style.overflow="hidden";
+}
 function readImageCompressed(file){
   return new Promise((resolve,reject)=>{
     if(!file||!/^image\//i.test(file.type)){reject(new Error("只支援圖片檔案"));return;}
@@ -5975,11 +6029,18 @@ document.addEventListener(
     document.getElementById("orderPhotoCloseBtn")?.addEventListener("click",closeOrderPhotoModal);
     document.getElementById("imageManageCloseBtn")?.addEventListener("click",closeImageManageModal);
     document.getElementById("saveImageCleanupBtn")?.addEventListener("click",function(){if(requireAdmin())saveImageCleanupDays();});
-    document.getElementById("imageManageBody")?.addEventListener("click",function(e){const v=e.target.closest("[data-manage-photo]");if(v)openOrderPhotoModal(v.dataset.managePhoto);const d=e.target.closest("[data-manage-delete]");if(d&&requireAdmin()){const o=findOrder(d.dataset.manageDelete);if(o&&confirm(`確定刪除工單 ${o.no} 的全部照片？`)){o.images=[];saveData();renderAll();openImageManageModal();}}});
-    document.getElementById("orderPhotoGrid")?.addEventListener("click",function(e){const d=e.target.closest("[data-photo-delete]");if(d){const no=document.getElementById("orderPhotoModal").dataset.orderNo;deleteOrderImage(no,d.dataset.photoDelete);}});
+    document.getElementById("imageManageBody")?.addEventListener("click",function(e){const v=e.target.closest("[data-manage-photo]");if(v)openOrderPhotoModal(v.dataset.managePhoto,true);const d=e.target.closest("[data-manage-delete]");if(d&&requireAdmin()){const o=findOrder(d.dataset.manageDelete);if(o&&confirm(`確定刪除工單 ${o.no} 的全部照片？`)){o.images=[];saveData();renderAll();openImageManageModal();}}});
+    document.getElementById("orderPhotoGrid")?.addEventListener("click",function(e){
+      const pic=e.target.closest("[data-photo-view]");
+      if(pic&&pic.tagName==="IMG"){openImageLightbox(pic.src,pic.alt||"工單照片");return;}
+      const d=e.target.closest("[data-photo-delete]");
+      if(d){const no=document.getElementById("orderPhotoModal").dataset.orderNo;deleteOrderImage(no,d.dataset.photoDelete);}
+    });
+    document.getElementById("imageLightboxCloseBtn")?.addEventListener("click",closeImageLightbox);
+    document.getElementById("imageLightboxModal")?.addEventListener("click",function(e){if(e.target===this)closeImageLightbox();});
     document.getElementById("orderPhotoModal")?.addEventListener("click",function(e){if(e.target===this)closeOrderPhotoModal();});
     document.getElementById("imageManageModal")?.addEventListener("click",function(e){if(e.target===this)closeImageManageModal();});
-    document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeOrderPhotoModal();closeImageManageModal();}});
+    document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeImageLightbox();closeOrderPhotoModal();closeImageManageModal();}});
     cleanupClosedOrderImages();
     document.getElementById("loginCloseBtn").addEventListener("click",closeLoginModal);
     document.getElementById("loginCancelBtn").addEventListener("click",closeLoginModal);
