@@ -1663,7 +1663,7 @@ input,select{min-height:38px}
     PMC 看板模式
   </div>
 
-  <div class="topbar-system-info" aria-label="系統資訊"><span class="label">系統資訊</span><b>PMC V3.21-260925</b></div>
+  <div class="topbar-system-info" aria-label="系統資訊"><span class="label">系統資訊</span><b>PMC V3.22-260925</b></div>
 
   <div class="top-actions">
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
@@ -5023,6 +5023,7 @@ function openBoardStatusModal(status){
   const title=document.getElementById("boardStatusModalTitle");
   const body=document.getElementById("boardStatusModalBody");
   if(!modal||!title||!body)return;
+  const isMobile=window.matchMedia("(max-width: 768px)").matches;
   title.textContent=`${status}｜${list.length} 筆工單`;
   body.innerHTML=list.length?list.map(o=>`<div class="board-status-row">
     <div><button type="button" class="board-order-no-btn" onclick="closeBoardStatusModal();openOrderWorkflow('schedule','${esc(o.no)}')">${esc(o.no)}</button></div>
@@ -5030,9 +5031,9 @@ function openBoardStatusModal(status){
     <div class="status-badge">${badge(overallStatus(o))}</div>
     <div class="board-status-actions">
       <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('schedule','${esc(o.no)}')">排程</button>
-      <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('progress','${esc(o.no)}')">進度</button>
-      <button type="button" class="btn small secondary" onclick="openOrderWorkflow('purchase','${esc(o.no)}')">採購</button>
-      <button type="button" class="btn small secondary" onclick="openOrderWorkflow('outsourcing','${esc(o.no)}')">委外</button>
+      ${isMobile ? "" : `<button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('progress','${esc(o.no)}')">進度</button>`}
+      <button type="button" class="btn small secondary" onclick="openOrderWorkflow('purchase','${esc(o.no)}')">${isMobile ? "採購明細" : "採購"}</button>
+      <button type="button" class="btn small secondary" onclick="openOrderWorkflow('outsourcing','${esc(o.no)}')">${isMobile ? "委外明細" : "委外"}</button>
     </div>
   </div>`).join(""):`<div class="empty">目前沒有符合的工單</div>`;
   modal.classList.add("open");
@@ -7287,7 +7288,7 @@ table tbody tr:hover{background:#f8fafc}
 .pmc-order-detail-pagination button{min-width:34px;flex:0 0 auto}
 </style>
 
-<!-- PMC V3.21-260925：手機目前工單操作列隱藏「進度」，並將採購／委外標示為明細；PC不變。 -->
+<!-- PMC V3.22-260925：手機目前工單操作列隱藏「進度」，並將採購／委外標示為明細；PC不變。 -->
 <script id="pmc-v313-fixed-js">
 /* V3.14-260925 final：採購／委外快速明細。20筆／頁＋獨立捲動。 */
 (function(){
