@@ -1215,7 +1215,7 @@ input,select{min-height:38px}
 .purchase-top-stack{display:flex;flex-direction:column;gap:14px}.purchase-top-stack>.card{width:100%;box-sizing:border-box}.topbar-system-info{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:12px}.topbar-system-info .label{color:#64748b;font-weight:700}.topbar-system-info b{font-size:14px}.board-maintenance-list{display:flex;flex-direction:column;gap:7px}.board-maintenance-row{display:grid;grid-template-columns:minmax(82px,120px) minmax(0,1fr) auto;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#fff}.outsourcing-row-check{width:17px;height:17px;cursor:pointer}@media(max-width:760px){.topbar-system-info{position:static;transform:none;order:2;margin:0 auto}.topbar .title{max-width:38%}.board-maintenance-row{grid-template-columns:1fr;gap:3px}.purchase-top-stack{gap:10px}}
 
 /* =========================================================
-   PMC V3.15 工單圖片
+   PMC V3.16 工單圖片｜延遲載入
 ========================================================= */
 .image-data-panel{margin-top:10px;padding-top:8px;border-top:1px solid var(--line)}
 .image-data-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:8px 0 10px}
@@ -1229,10 +1229,18 @@ input,select{min-height:38px}
 .order-photo-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .order-photo-item{border:1px solid var(--line);border-radius:10px;background:#f8fafc;overflow:hidden}
 .order-photo-item img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#e2e8f0;cursor:pointer}
+.order-photo-item img.image-lazy{
+  min-height:120px;
+  object-fit:contain;
+}
+.order-photo-item img.image-lazy:not([src]){
+  background:linear-gradient(135deg,#eef2f7,#f8fafc);
+  cursor:pointer;
+}
 .order-photo-meta{padding:7px;font-size:11px;color:#64748b;display:flex;justify-content:space-between;gap:5px;align-items:center}
 .order-photo-meta button{white-space:nowrap}
 .image-manage-box{max-width:900px;width:calc(100% - 24px)}
-/* V3.15 圖片查看／彈窗層級修正 */
+/* V3.16 圖片查看／彈窗層級修正（保留 V3.15） */
 #imageManageModal{z-index:100000}
 #orderPhotoModal{z-index:100010}
 #imageLightboxModal{z-index:2147483646!important;background:rgba(2,6,23,.92)!important;position:fixed!important;inset:0!important;pointer-events:auto!important}
@@ -1634,7 +1642,7 @@ input,select{min-height:38px}
     PMC 看板模式
   </div>
 
-  <div class="topbar-system-info" aria-label="系統資訊"><span class="label">系統資訊</span><b>PMC V3.15-260925</b></div>
+  <div class="topbar-system-info" aria-label="系統資訊"><span class="label">系統資訊</span><b>PMC V3.16-260925</b></div>
 
   <div class="top-actions">
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
@@ -5882,7 +5890,7 @@ function renderOutsourcing(){
 }
 
 /* =========================================================
-   PMC V3.15 工單圖片
+   PMC V3.16 工單圖片｜延遲載入
 ========================================================= */
 const IMAGE_CLEANUP_KEY=
 "PMC_V3_IMAGE_CLEANUP_DAYS";
@@ -5913,7 +5921,8 @@ function openOrderPhotoModal(no,fromImageManage=false){
   const imgs=Array.isArray(o.images)?o.images:[];
   title.textContent=`${o.no}｜${o.customer||""}｜照片 ${imgs.length} 張`;
   bar.innerHTML=`<span class="footer-note">已壓縮圖片 ${imgs.length} 張｜${imageBytes(imgs.reduce((a,b)=>a+Number(b.size||0),0))}</span>${isAdmin?`<label class="btn small secondary" style="display:inline-block">＋ 新增照片<input id="orderPhotoInput" type="file" accept="image/*" multiple hidden></label>`:""}`;
-  grid.innerHTML=imgs.length?imgs.map(img=>`<div class="order-photo-item"><img src="${img.dataUrl}" alt="${esc(img.name)}" data-photo-view="${esc(img.id)}"><div class="order-photo-meta"><span title="${esc(img.name)}">${esc(img.name.length>22?img.name.slice(0,20)+"…":img.name)}</span>${isAdmin?`<button class="btn danger small" type="button" data-photo-delete="${esc(img.id)}">刪除</button>`:""}</div></div>`).join(""): `<div class="image-manage-empty" style="grid-column:1/-1">目前尚無工單照片</div>`;
+  grid.innerHTML=imgs.length?imgs.map(img=>`<div class="order-photo-item"><img class="image-lazy" alt="${esc(img.name)}" data-photo-view="${esc(img.id)}" data-order-no="${esc(no)}" data-photo-id="${esc(img.id)}" loading="lazy" decoding="async" aria-label="載入照片：${esc(img.name)}"><div class="order-photo-meta"><span title="${esc(img.name)}">${esc(img.name.length>22?img.name.slice(0,20)+"…":img.name)}</span>${isAdmin?`<button class="btn danger small" type="button" data-photo-delete="${esc(img.id)}">刪除</button>`:""}</div></div>`).join(""): `<div class="image-manage-empty" style="grid-column:1/-1">目前尚無工單照片</div>`;
+  initLazyOrderPhotos(grid);
   modal.dataset.orderNo=String(no);modal.classList.remove("hidden");modal.setAttribute("aria-hidden","false");modal.style.display="flex";document.body.style.overflow="hidden";
   const input=document.getElementById("orderPhotoInput");if(input)input.addEventListener("change",e=>addOrderImages(no,e.target.files));
 }
@@ -5925,6 +5934,43 @@ function closeOrderPhotoModal(){
     if(parent){parent.classList.remove("hidden");parent.setAttribute("aria-hidden","false");parent.style.display="flex";document.body.style.overflow="hidden";return;}
   }
   document.body.style.overflow="";
+}
+function getOrderPhotoById(no,id){
+  const o=findOrder(no);
+  if(!o)return null;
+  return (o.images||[]).find(x=>String(x.id)===String(id))||null;
+}
+function loadOrderPhotoElement(imgEl){
+  if(!imgEl)return null;
+  if(imgEl.getAttribute("src"))return imgEl.getAttribute("src");
+  const photo=getOrderPhotoById(imgEl.dataset.orderNo,imgEl.dataset.photoId||imgEl.dataset.photoView);
+  if(!photo||!photo.dataUrl)return null;
+  imgEl.src=photo.dataUrl;
+  imgEl.removeAttribute("aria-label");
+  return photo.dataUrl;
+}
+function initLazyOrderPhotos(root){
+  const imgs=Array.from((root||document).querySelectorAll("img.image-lazy:not([src])"));
+  if(!imgs.length)return;
+  if("IntersectionObserver" in window){
+    const observer=new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          loadOrderPhotoElement(entry.target);
+          observer.unobserve(entry.target);
+        }
+      });
+    },{root:null,rootMargin:"180px 0px",threshold:0.01});
+    imgs.forEach(img=>observer.observe(img));
+    root._pmcImageObserver=observer;
+  }else{
+    imgs.forEach(loadOrderPhotoElement);
+  }
+}
+function openOrderPhotoLightbox(imgEl){
+  const dataUrl=loadOrderPhotoElement(imgEl);
+  if(!dataUrl)return;
+  openImageLightbox(dataUrl,imgEl.alt||"工單照片");
 }
 function openImageLightbox(dataUrl,name){
   if(!dataUrl)return;
@@ -6040,7 +6086,7 @@ document.addEventListener(
     document.getElementById("imageManageBody")?.addEventListener("click",function(e){const v=e.target.closest("[data-manage-photo]");if(v)openOrderPhotoModal(v.dataset.managePhoto,true);const d=e.target.closest("[data-manage-delete]");if(d&&requireAdmin()){const o=findOrder(d.dataset.manageDelete);if(o&&confirm(`確定刪除工單 ${o.no} 的全部照片？`)){o.images=[];saveData();renderAll();openImageManageModal();}}});
     document.getElementById("orderPhotoGrid")?.addEventListener("click",function(e){
       const pic=e.target.closest("[data-photo-view]");
-      if(pic&&pic.tagName==="IMG"){openImageLightbox(pic.src,pic.alt||"工單照片");return;}
+      if(pic&&pic.tagName==="IMG"){openOrderPhotoLightbox(pic);return;}
       const d=e.target.closest("[data-photo-delete]");
       if(d){const no=document.getElementById("orderPhotoModal").dataset.orderNo;deleteOrderImage(no,d.dataset.photoDelete);}
     });
