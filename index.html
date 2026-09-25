@@ -1663,7 +1663,7 @@ input,select{min-height:38px}
     PMC 看板模式
   </div>
 
-  <div class="topbar-system-info" aria-label="系統資訊"><span class="label">系統資訊</span><b>PMC V3.20-260925</b></div>
+  <div class="topbar-system-info" aria-label="系統資訊"><span class="label">系統資訊</span><b>PMC V3.21-260925</b></div>
 
   <div class="top-actions">
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
@@ -3716,10 +3716,14 @@ function updateOrderFilterUI(){
   if(hint){
     const p=[...orderPriorityFilters].join("、");
     const st=[...orderStatusFilters].join("、");
+    const keyword=(document.getElementById("orderSearch")?.value||"").toString().trim();
     const parts=[];
     if(p)parts.push("優先度："+p);
     if(st)parts.push("狀態："+st);
-    hint.textContent=parts.length?parts.join("　＋　"):"全部工單｜可同時疊加優先度與狀態，工單號碼／客戶／機型可再搜尋";
+    if(keyword)parts.push("搜尋："+keyword);
+    hint.textContent=parts.length
+      ? "目前篩選｜"+parts.join("　＋　")
+      : "全部工單｜可同時疊加優先度與狀態，工單號碼／客戶／機型可再搜尋";
   }
 }
 
@@ -3734,6 +3738,7 @@ function clearOrderFilters(){
 }
 
 function renderOrders(){
+  updateOrderFilterUI();
 
   const list =
     getFilteredOrders();
@@ -7282,7 +7287,7 @@ table tbody tr:hover{background:#f8fafc}
 .pmc-order-detail-pagination button{min-width:34px;flex:0 0 auto}
 </style>
 
-<!-- PMC V3.20-260925：手機目前工單操作列隱藏「進度」，並將採購／委外標示為明細；PC不變。 -->
+<!-- PMC V3.21-260925：手機目前工單操作列隱藏「進度」，並將採購／委外標示為明細；PC不變。 -->
 <script id="pmc-v313-fixed-js">
 /* V3.14-260925 final：採購／委外快速明細。20筆／頁＋獨立捲動。 */
 (function(){
