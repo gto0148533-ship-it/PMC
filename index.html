@@ -1642,7 +1642,7 @@ input,select{min-height:38px}
     PMC 看板模式
   </div>
 
-  <div class="topbar-system-info" aria-label="系統資訊"><span class="label">系統資訊</span><b>PMC V3.17-260925</b></div>
+  <div class="topbar-system-info" aria-label="系統資訊"><span class="label">系統資訊</span><b>PMC V3.18-260925</b></div>
 
   <div class="top-actions">
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
@@ -7067,7 +7067,7 @@ table tbody tr:hover{background:#f8fafc}
 
 /* V3.14-260925 final: 手機目前工單列／看板分頁固定單行 */
 @media(max-width:760px){
-  /* 目前工單：返回｜工單號碼｜客戶｜排程｜進度｜採購｜委外 */
+  /* V3.18：手機目前工單列隱藏「進度」，改以排程查看各工序；採購／委外標示為明細。PC維持原樣。 */
   .pmc-current-order-bar{display:none;flex-direction:row!important;align-items:center!important;gap:6px!important;padding:6px 8px!important;overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important;-webkit-overflow-scrolling:touch;scrollbar-width:none}
   .pmc-current-order-bar::-webkit-scrollbar{display:none}
   .pmc-current-order-bar.open{display:flex}
@@ -7078,6 +7078,11 @@ table tbody tr:hover{background:#f8fafc}
   #pmcCurrentOrderCustomer{flex:1 1 auto!important;min-width:45px!important;max-width:105px!important;font-size:11px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
   .pmc-current-actions{width:auto!important;flex:0 0 auto!important;display:flex!important;align-items:center!important;gap:4px!important;white-space:nowrap!important}
   .pmc-current-actions .btn{min-height:30px!important;height:30px!important;padding:4px 6px!important;font-size:11px!important;white-space:nowrap!important;flex:0 0 auto!important}
+  .pmc-current-actions [data-current-action="progress"]{display:none!important}
+  .pmc-current-actions [data-current-action="purchase"],
+  .pmc-current-actions [data-current-action="outsourcing"]{font-size:0!important}
+  .pmc-current-actions [data-current-action="purchase"]::after{content:'採購明細';font-size:11px}
+  .pmc-current-actions [data-current-action="outsourcing"]::after{content:'委外明細';font-size:11px}
 
   /* 目前工單狀態分頁：永遠單行，可左右滑動 */
   #page-board .board-pagination{flex-direction:row!important;align-items:center!important;justify-content:space-between!important;flex-wrap:nowrap!important;gap:8px!important;overflow:hidden!important;white-space:nowrap!important}
@@ -7098,6 +7103,7 @@ table tbody tr:hover{background:#f8fafc}
 .pmc-order-detail-pagination button{min-width:34px;flex:0 0 auto}
 </style>
 
+<!-- PMC V3.18-260925：手機目前工單操作列隱藏「進度」，並將採購／委外標示為明細；PC不變。 -->
 <script id="pmc-v313-fixed-js">
 /* V3.14-260925 final：採購／委外快速明細。20筆／頁＋獨立捲動。 */
 (function(){
