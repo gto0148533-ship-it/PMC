@@ -1235,10 +1235,10 @@ input,select{min-height:38px}
 /* V3.15 圖片查看／彈窗層級修正 */
 #imageManageModal{z-index:100000}
 #orderPhotoModal{z-index:100010}
-#imageLightboxModal{z-index:100020;background:rgba(2,6,23,.88)}
-#imageLightboxModal .image-lightbox-box{width:min(1200px,96vw);height:min(92vh,900px);max-height:92vh;background:transparent;box-shadow:none;overflow:hidden;display:flex;align-items:center;justify-content:center}
-#imageLightboxModal .image-lightbox-img{display:block;max-width:94vw;max-height:82vh;width:auto;height:auto;object-fit:contain;border-radius:8px;box-shadow:0 20px 70px rgba(0,0,0,.5);background:#fff}
-#imageLightboxModal .image-lightbox-close{position:absolute;right:16px;top:12px;z-index:2}
+#imageLightboxModal{z-index:2147483646!important;background:rgba(2,6,23,.92)!important;position:fixed!important;inset:0!important;pointer-events:auto!important}
+#imageLightboxModal .image-lightbox-box{position:relative;width:min(1400px,96vw)!important;height:min(94vh,900px)!important;max-height:94vh!important;background:transparent!important;box-shadow:none!important;overflow:visible!important;display:flex;align-items:center;justify-content:center;pointer-events:auto!important}
+#imageLightboxModal .image-lightbox-img{display:block!important;max-width:92vw!important;max-height:86vh!important;width:auto!important;height:auto!important;object-fit:contain!important;object-position:center!important;border-radius:8px;box-shadow:0 20px 70px rgba(0,0,0,.5);background:#fff;cursor:zoom-out}
+#imageLightboxModal .image-lightbox-close{position:absolute;right:16px;top:12px;z-index:10!important}
 .order-photo-item img{object-fit:contain;background:#e2e8f0}
 .schedule-photo-btn{margin-left:6px;white-space:nowrap}
 @media(max-width:760px){
@@ -5930,12 +5930,20 @@ function openImageLightbox(dataUrl,name){
   if(!dataUrl)return;
   const m=document.getElementById("imageLightboxModal"),img=document.getElementById("imageLightboxImg");
   if(!m||!img)return;
-  img.src=dataUrl;img.alt=name||"工單照片放大預覽";
-  m.classList.remove("hidden");m.setAttribute("aria-hidden","false");m.style.display="flex";document.body.style.overflow="hidden";
+  img.src="";
+  img.alt=name||"工單照片放大預覽";
+  img.onload=function(){
+    m.classList.remove("hidden");
+    m.setAttribute("aria-hidden","false");
+    m.style.setProperty("display","flex","important");
+    m.style.setProperty("z-index","2147483646","important");
+    document.body.style.overflow="hidden";
+  };
+  img.src=dataUrl;
 }
 function closeImageLightbox(){
   const m=document.getElementById("imageLightboxModal"),img=document.getElementById("imageLightboxImg");
-  if(m){m.classList.add("hidden");m.setAttribute("aria-hidden","true");m.style.display="none";}
+  if(m){m.classList.add("hidden");m.setAttribute("aria-hidden","true");m.style.setProperty("display","none","important");}
   if(img)img.src="";
   document.body.style.overflow="hidden";
 }
