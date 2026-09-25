@@ -1196,6 +1196,12 @@ input,select{min-height:38px}
   .board-status-row .status-badge{grid-column:2/3;grid-row:1/3;align-self:start}
   .board-status-actions{grid-column:1/3;justify-content:stretch}
   .board-status-actions .btn{flex:1;min-width:0;min-height:34px}
+  /* V3.18：手機 PMC 看板狀態明細查閱優先；隱藏進度，保留排程／採購明細／委外明細 */
+  .board-status-actions [data-board-action="progress"]{display:none!important}
+  .board-status-actions [data-board-action="purchase"],
+  .board-status-actions [data-board-action="outsourcing"]{font-size:0!important}
+  .board-status-actions [data-board-action="purchase"]::after{content:"採購明細";font-size:12px}
+  .board-status-actions [data-board-action="outsourcing"]::after{content:"委外明細";font-size:12px}
   #page-purchase .mobile-purchase-import-card{display:none!important}
   .purchase-detail-actions{display:flex;margin:5px 0 0}
   .purchase-detail-actions .btn{min-height:32px}
@@ -4882,10 +4888,10 @@ function openBoardStatusModal(status){
     <div class="status-customer">${esc(o.customer||"")}</div>
     <div class="status-badge">${badge(overallStatus(o))}</div>
     <div class="board-status-actions">
-      <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('schedule','${esc(o.no)}')">排程</button>
-      <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('progress','${esc(o.no)}')">進度</button>
-      <button type="button" class="btn small secondary" onclick="openOrderWorkflow('purchase','${esc(o.no)}')">採購</button>
-      <button type="button" class="btn small secondary" onclick="openOrderWorkflow('outsourcing','${esc(o.no)}')">委外</button>
+      <button type="button" class="btn small secondary" data-board-action="schedule" onclick="closeBoardStatusModal();openOrderWorkflow('schedule','${esc(o.no)}')">排程</button>
+      <button type="button" class="btn small secondary" data-board-action="progress" onclick="closeBoardStatusModal();openOrderWorkflow('progress','${esc(o.no)}')">進度</button>
+      <button type="button" class="btn small secondary" data-board-action="purchase" onclick="openOrderWorkflow('purchase','${esc(o.no)}')">採購</button>
+      <button type="button" class="btn small secondary" data-board-action="outsourcing" onclick="openOrderWorkflow('outsourcing','${esc(o.no)}')">委外</button>
     </div>
   </div>`).join(""):`<div class="empty">目前沒有符合的工單</div>`;
   modal.classList.add("open");
