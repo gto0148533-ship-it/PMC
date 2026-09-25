@@ -1642,7 +1642,7 @@ input,select{min-height:38px}
     PMC 看板模式
   </div>
 
-  <div class="topbar-system-info" aria-label="系統資訊"><span class="label">系統資訊</span><b>PMC V3.16-260925</b></div>
+  <div class="topbar-system-info" aria-label="系統資訊"><span class="label">系統資訊</span><b>PMC V3.17-260925</b></div>
 
   <div class="top-actions">
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
@@ -4849,6 +4849,7 @@ function exportGanttImage(){
 
 /* =========================================================
    v5：跨頁快速操作
+   V3.17：看板狀態明細 → 採購／委外時保留上一層狀態明細
 ========================================================= */
 function getBoardStatusOrders(status){
   const parallel={
@@ -4883,8 +4884,8 @@ function openBoardStatusModal(status){
     <div class="board-status-actions">
       <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('schedule','${esc(o.no)}')">排程</button>
       <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('progress','${esc(o.no)}')">進度</button>
-      <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('purchase','${esc(o.no)}')">採購</button>
-      <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('outsourcing','${esc(o.no)}')">委外</button>
+      <button type="button" class="btn small secondary" onclick="openOrderWorkflow('purchase','${esc(o.no)}')">採購</button>
+      <button type="button" class="btn small secondary" onclick="openOrderWorkflow('outsourcing','${esc(o.no)}')">委外</button>
     </div>
   </div>`).join(""):`<div class="empty">目前沒有符合的工單</div>`;
   modal.classList.add("open");
