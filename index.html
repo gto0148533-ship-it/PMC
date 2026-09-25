@@ -458,9 +458,30 @@ tr:hover td{
 }
 
 #page-progress .table-wrap{
-  overflow-x:auto;
-  overflow-y:visible;
+  overflow:auto;
+  max-height:calc(100vh - 285px);
+  min-height:320px;
+  scrollbar-gutter:stable both-edges;
 }
+.progress-filter-toolbar{display:flex!important;flex-direction:column;align-items:stretch!important;gap:8px!important}
+.progress-filter-row{display:flex;gap:8px;align-items:center}
+.progress-filter-row input{width:min(420px,100%);min-height:40px}
+.progress-filter-buttons{display:flex;flex-wrap:wrap;gap:7px}
+.filter-chip{border:1px solid #cfd8e3;background:#fff;color:#475569;border-radius:999px;padding:8px 14px;min-height:36px;font-weight:800;cursor:pointer;transition:.15s ease}
+.filter-chip:hover{border-color:#94a3b8;background:#f8fafc}
+.filter-chip.active{background:#eaf2ff;border-color:#60a5fa;color:#1d4ed8}
+.filter-chip.clear{background:#f8fafc;color:#475569}
+.progress-filter-hint{font-size:12px;color:#64748b}
+ .order-filter-toolbar{display:flex!important;flex-direction:column;align-items:stretch!important;gap:8px!important}
+.order-filter-row{display:flex;gap:8px;align-items:center}
+.order-filter-row input{width:min(420px,100%);min-height:40px}
+.order-filter-buttons{display:flex;flex-wrap:wrap;gap:7px}
+.order-filter-hint{font-size:12px;color:#64748b}
+.order-toolbar-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:-4px;margin-bottom:12px}
+.progress-process-btn{min-width:86px}
+#page-progress table th,#page-progress table td{min-width:110px}
+#page-progress table th:first-child,#page-progress table td:first-child{min-width:120px}
+#page-progress table th:nth-child(2),#page-progress table td:nth-child(2){min-width:150px}
 
 #page-orders table th:last-child,
 #page-orders table td:last-child{
@@ -1036,16 +1057,13 @@ body{font-size:14px}
 #page-progress .filter-grid input:first-child{
   grid-column:span 2;
 }
-#page-orders .toolbar,
 #page-progress .toolbar{
   display:grid;
   grid-template-columns:1fr auto auto;
   align-items:center;
   gap:8px;
 }
-#page-orders .filter-grid,
 #page-progress .filter-grid{grid-column:1/-1}
-#page-orders .toolbar #orderClearFilterBtn,
 #page-progress .toolbar #progressClearFilterBtn{justify-self:start}
 .readonly-note{
   padding:6px 8px;
@@ -1196,12 +1214,6 @@ input,select{min-height:38px}
   .board-status-row .status-badge{grid-column:2/3;grid-row:1/3;align-self:start}
   .board-status-actions{grid-column:1/3;justify-content:stretch}
   .board-status-actions .btn{flex:1;min-width:0;min-height:34px}
-  /* V3.18：手機 PMC 看板狀態明細查閱優先；隱藏進度，保留排程／採購明細／委外明細 */
-  .board-status-actions [data-board-action="progress"]{display:none!important}
-  .board-status-actions [data-board-action="purchase"],
-  .board-status-actions [data-board-action="outsourcing"]{font-size:0!important}
-  .board-status-actions [data-board-action="purchase"]::after{content:"採購明細";font-size:12px}
-  .board-status-actions [data-board-action="outsourcing"]::after{content:"委外明細";font-size:12px}
   #page-purchase .mobile-purchase-import-card{display:none!important}
   .purchase-detail-actions{display:flex;margin:5px 0 0}
   .purchase-detail-actions .btn{min-height:32px}
@@ -1336,7 +1348,10 @@ input,select{min-height:38px}
   .board-page-buttons .btn,.order-page-buttons .btn,.purchase-page-buttons .btn{width:100%;min-width:0}
 
   /* 手機卡片表格共通 */
-  #page-orders .table-wrap,#page-schedule .table-wrap,#page-progress .table-wrap,#page-purchase .table-wrap{overflow:visible!important;border:0!important;background:transparent}
+  #page-orders .table-wrap,#page-schedule .table-wrap,#page-progress .table-wrap,#page-purchase .table-wrap{overflow:visible!important;border:0!important;background:transparent;max-height:none!important;min-height:0!important}
+  .progress-filter-buttons{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px!important}
+  .filter-chip{width:100%;min-height:42px;padding:7px 8px}
+  .progress-filter-hint{text-align:center}
   #page-orders table,#page-schedule table,#page-progress table,#page-purchase table{min-width:0!important;width:100%!important;border-collapse:separate!important;border-spacing:0 9px!important}
   #page-orders thead,#page-schedule thead,#page-progress thead,#page-purchase thead{display:none!important}
   #page-orders tbody,#page-schedule tbody,#page-progress tbody,#page-purchase tbody{display:block;width:100%}
@@ -1648,7 +1663,7 @@ input,select{min-height:38px}
     PMC 看板模式
   </div>
 
-  <div class="topbar-system-info" aria-label="系統資訊"><span class="label">系統資訊</span><b>PMC V3.18-260925</b></div>
+  <div class="topbar-system-info" aria-label="系統資訊"><span class="label">系統資訊</span><b>PMC V3.20-260925</b></div>
 
   <div class="top-actions">
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
@@ -1759,17 +1774,23 @@ input,select{min-height:38px}
 
 <div class="card">
 
-  <div class="toolbar">
-    <div class="filter-grid" style="width:100%">
+  <div class="toolbar order-filter-toolbar">
+    <div class="order-filter-row">
       <input id="orderSearch" placeholder="工單號碼／客戶／機型">
-      <input id="orderCustomerFilter" placeholder="客戶">
-      <input id="orderDateFrom" type="date" title="訂單日期起">
-      <input id="orderDateTo" type="date" title="訂單日期迄">
-      <select id="orderPriorityFilter"><option value="">全部優先度</option><option value="一般">一般</option><option value="高">高</option><option value="急件">急件</option></select>
-      <select id="orderStatusFilter"><option value="">全部狀態</option><option value="維修">維修</option><option value="繪圖">繪圖</option><option value="生產中">生產中</option><option value="組裝">組裝</option><option value="電控">電控</option><option value="測試中">測試中</option><option value="待結案">待結案</option><option value="已完成">已完成</option><option value="逾期">逾期</option></select>
-      <select id="orderProcessFilter"><option value="">全部製程</option><option value="design">設計繪圖</option><option value="weld">加工焊接</option><option value="purchase">採購</option><option value="outsourcing">委外製造</option><option value="assembly">組裝進度</option><option value="electrical">電控進度</option><option value="test">包裝測試</option><option value="close">結案</option></select>
     </div>
-    <button class="btn secondary small" id="orderClearFilterBtn" type="button">清除篩選</button>
+    <div class="order-filter-buttons" id="orderQuickFilters">
+      <button type="button" class="filter-chip active" data-order-filter="all">全部工單</button>
+      <button type="button" class="filter-chip" data-order-priority="急件">急件</button>
+      <button type="button" class="filter-chip" data-order-priority="維修">維修</button>
+      <button type="button" class="filter-chip" data-order-priority="一般">一般</button>
+      <button type="button" class="filter-chip" data-order-status="未完成">未完成</button>
+      <button type="button" class="filter-chip" data-order-status="待結案">待結案</button>
+      <button type="button" class="filter-chip" data-order-status="已完成">已完成</button>
+      <button type="button" class="filter-chip clear" id="orderClearFilterBtn">清除篩選</button>
+    </div>
+    <div class="order-filter-hint" id="orderFilterHint">全部工單｜可同時疊加優先度與狀態，工單號碼／客戶／機型可再搜尋</div>
+  </div>
+  <div class="order-toolbar-actions">
     <span id="orderReadonlyNote" class="readonly-note"></span>
     <button class="btn" id="orderAddBtn" type="button">＋ 新增工單</button>
   </div>
@@ -1950,23 +1971,27 @@ input,select{min-height:38px}
 <section id="page-progress" class="page">
 
 <div class="page-intro">
-  <div><b>生產進度</b><span>第 3 步｜回報實際完成；管理者可點擊日期進行更新</span></div>
+  <div><b>生產進度</b><span>第 3 步｜回報工序完成；未完成可直接回報今天完成，已完成日期可由管理者修改</span></div>
   <div class="page-flow-actions"><button class="btn secondary" type="button" data-flow-nav="schedule">← 排程</button><button class="btn" type="button" data-flow-nav="purchase">下一步：採購 →</button></div>
 </div>
 
 <div class="card">
 
-  <div class="toolbar">
-    <div class="filter-grid" style="width:100%">
+  <div class="toolbar progress-filter-toolbar">
+    <div class="progress-filter-row">
       <input id="progressSearch" placeholder="工單號碼／客戶／機型">
-      <input id="progressCustomerFilter" placeholder="客戶">
-      <input id="progressDateFrom" type="date" title="訂單日期起">
-      <input id="progressDateTo" type="date" title="訂單日期迄">
-      <select id="progressPriorityFilter"><option value="">全部優先度</option><option value="一般">一般</option><option value="高">高</option><option value="急件">急件</option></select>
-      <select id="progressFilter"><option value="">全部狀態</option><option value="維修">維修</option><option value="繪圖">繪圖</option><option value="生產中">生產中</option><option value="組裝">組裝</option><option value="電控">電控</option><option value="測試中">測試中</option><option value="待結案">待結案</option><option value="已完成">已完成</option><option value="逾期">逾期</option></select>
-      <select id="progressProcessFilter"><option value="">全部製程</option><option value="design">設計繪圖</option><option value="weld">加工焊接</option><option value="purchase">採購</option><option value="outsourcing">委外製造</option><option value="assembly">組裝進度</option><option value="electrical">電控進度</option><option value="test">包裝測試</option><option value="close">結案</option></select>
     </div>
-    <button class="btn secondary small" id="progressClearFilterBtn" type="button">清除篩選</button>
+    <div class="progress-filter-buttons" id="progressQuickFilters">
+      <button type="button" class="filter-chip active" data-progress-filter="all">全部工單</button>
+      <button type="button" class="filter-chip" data-progress-priority="急件">急件</button>
+      <button type="button" class="filter-chip" data-progress-priority="維修">維修</button>
+      <button type="button" class="filter-chip" data-progress-priority="一般">一般</button>
+      <button type="button" class="filter-chip" data-progress-status="未完成">未完成</button>
+      <button type="button" class="filter-chip" data-progress-status="待結案">待結案</button>
+      <button type="button" class="filter-chip" data-progress-status="已完成">已完成</button>
+      <button type="button" class="filter-chip clear" id="progressClearFilterBtn">清除篩選</button>
+    </div>
+    <div class="progress-filter-hint" id="progressFilterHint">全部工單｜可同時疊加優先度與狀態</div>
   </div>
 
 
@@ -2436,8 +2461,8 @@ input,select{min-height:38px}
               一般
             </option>
 
-            <option value="高">
-              高
+            <option value="維修">
+              維修
             </option>
 
             <option value="急件">
@@ -2682,6 +2707,10 @@ let boardPage=1;
 const BOARD_PAGE_SIZE=10;
 let orderPage=1;
 const ORDER_PAGE_SIZE=10;
+let progressPriorityFilters=new Set();
+let progressStatusFilters=new Set();
+let orderPriorityFilters=new Set();
+let orderStatusFilters=new Set();
 let isAdmin=sessionStorage.getItem("PMC_V3_ADMIN_LOGIN")==="1";
 const ADMIN_USER="CTI";
 const ADMIN_PASS="123";
@@ -2737,7 +2766,7 @@ const DEMO_ORDERS = [
     product:"PS800",
     orderDate:"2026-09-05",
     due:"2026-09-25",
-    priority:"高",
+    priority:"維修",
     status:"待生產",
     actualClose:"",
     durations:{
@@ -3097,6 +3126,9 @@ function loadDataFromFile(file){
 
 function normalizeOrder(order){
   order.processMode=order.processMode||"semi";
+  // V3.20：沿用 V3.19 優先度規則；舊資料的「高」優先度統一轉為「維修」。
+  if(order.priority==="高") order.priority="維修";
+  if(!["急件","維修","一般"].includes(order.priority)) order.priority="一般";
   if(!processRules[order.processMode])order.processMode="semi";
   order.durations=order.durations||{};
   PROCESS.forEach(function(p){
@@ -3645,29 +3677,61 @@ function renderStatusChart(){
    ORDER LIST
 ========================================================= */
 
+function orderStatusMatches(order, filter){
+  const status=overallStatus(order);
+  if(filter==="未完成") return status!=="已完成";
+  if(filter==="待結案") return status==="待結案";
+  if(filter==="已完成") return status==="已完成";
+  return true;
+}
+
 function getFilteredOrders(){
-  const val=id=>(document.getElementById(id)?.value||"").toString().trim().toLowerCase();
-  const keyword=val("orderSearch"), customer=val("orderCustomerFilter");
-  const from=document.getElementById("orderDateFrom")?.value||"", to=document.getElementById("orderDateTo")?.value||"";
-  const status=document.getElementById("orderStatusFilter")?.value||"", priority=document.getElementById("orderPriorityFilter")?.value||"", process=document.getElementById("orderProcessFilter")?.value||"";
+  const keyword=(document.getElementById("orderSearch")?.value||"").toString().trim().toLowerCase();
   const filtered=orders.filter(o=>{
     const text=[o.no,o.customer,o.product].join(" ").toLowerCase();
-    return (!keyword||text.includes(keyword)) && (!customer||String(o.customer||"").toLowerCase().includes(customer))
-      && (!from||String(o.orderDate||"")>=from) && (!to||String(o.orderDate||"")<=to)
-      && (!priority||o.priority===priority) && (!status||overallStatus(o)===status) && processFilterMatch(o,process);
+    const priorityOk=!orderPriorityFilters.size||orderPriorityFilters.has(o.priority);
+    const statusOk=!orderStatusFilters.size||Array.from(orderStatusFilters).some(f=>orderStatusMatches(o,f));
+    return (!keyword||text.includes(keyword)) && priorityOk && statusOk;
   });
-  const priorityRank={"急件":0,"一般":2};
+  const statusRank=o=>{const status=overallStatus(o);return status==="已完成"?2:(status==="待結案"?1:0);};
+  const priorityRank={"急件":0,"維修":1,"一般":2};
   return filtered.sort(function(a,b){
-    const aCompleted=overallStatus(a)==="已完成"?1:0;
-    const bCompleted=overallStatus(b)==="已完成"?1:0;
-    if(aCompleted!==bCompleted)return aCompleted-bCompleted;
-    const getPriorityRank=order=>order.status==="維修"?1:(priorityRank[order.priority]??99);
-    const priorityDiff=getPriorityRank(a)-getPriorityRank(b);
-    if(priorityDiff!==0)return priorityDiff;
+    const sd=statusRank(a)-statusRank(b);
+    if(sd!==0)return sd;
+    const pd=(priorityRank[a.priority]??99)-(priorityRank[b.priority]??99);
+    if(pd!==0)return pd;
     return String(a.no||"").localeCompare(String(b.no||""),undefined,{numeric:true});
   });
 }
 
+function updateOrderFilterUI(){
+  const wrap=document.getElementById("orderQuickFilters");
+  if(!wrap)return;
+  wrap.querySelectorAll("[data-order-priority]").forEach(btn=>btn.classList.toggle("active",orderPriorityFilters.has(btn.dataset.orderPriority)));
+  wrap.querySelectorAll("[data-order-status]").forEach(btn=>btn.classList.toggle("active",orderStatusFilters.has(btn.dataset.orderStatus)));
+  const all=orderPriorityFilters.size===0&&orderStatusFilters.size===0;
+  const allBtn=wrap.querySelector('[data-order-filter="all"]');
+  if(allBtn)allBtn.classList.toggle("active",all);
+  const hint=document.getElementById("orderFilterHint");
+  if(hint){
+    const p=[...orderPriorityFilters].join("、");
+    const st=[...orderStatusFilters].join("、");
+    const parts=[];
+    if(p)parts.push("優先度："+p);
+    if(st)parts.push("狀態："+st);
+    hint.textContent=parts.length?parts.join("　＋　"):"全部工單｜可同時疊加優先度與狀態，工單號碼／客戶／機型可再搜尋";
+  }
+}
+
+function clearOrderFilters(){
+  orderPriorityFilters.clear();
+  orderStatusFilters.clear();
+  const search=document.getElementById("orderSearch");
+  if(search)search.value="";
+  orderPage=1;
+  updateOrderFilterUI();
+  renderOrders();
+}
 
 function renderOrders(){
 
@@ -4063,17 +4127,59 @@ function renderSchedule(){
    PROGRESS
 ========================================================= */
 
+function progressStatusMatches(order, filter){
+  const status=overallStatus(order);
+  if(filter==="未完成") return status!=="已完成";
+  if(filter==="待結案") return status==="待結案";
+  if(filter==="已完成") return status==="已完成";
+  return true;
+}
+
 function getFilteredProgressOrders(){
-  const val=id=>(document.getElementById(id)?.value||"").toString().trim().toLowerCase();
-  const keyword=val("progressSearch"), customer=val("progressCustomerFilter");
-  const from=document.getElementById("progressDateFrom")?.value||"", to=document.getElementById("progressDateTo")?.value||"";
-  const priority=document.getElementById("progressPriorityFilter")?.value||"", filter=document.getElementById("progressFilter")?.value||"", process=document.getElementById("progressProcessFilter")?.value||"";
-  return orders.filter(o=>{
+  const keyword=(document.getElementById("progressSearch")?.value||"").toString().trim().toLowerCase();
+  const filtered=orders.filter(o=>{
     const text=[o.no,o.customer,o.product].join(" ").toLowerCase();
-    return (!keyword||text.includes(keyword)) && (!customer||String(o.customer||"").toLowerCase().includes(customer))
-      && (!from||String(o.orderDate||"")>=from) && (!to||String(o.orderDate||"")<=to)
-      && (!priority||o.priority===priority) && (!filter||overallStatus(o)===filter) && processFilterMatch(o,process);
+    const priorityOk=!progressPriorityFilters.size||progressPriorityFilters.has(o.priority);
+    const statusOk=!progressStatusFilters.size||Array.from(progressStatusFilters).some(f=>progressStatusMatches(o,f));
+    return (!keyword||text.includes(keyword)) && priorityOk && statusOk;
   });
+  const statusRank=o=>{const status=overallStatus(o);return status==="已完成"?2:(status==="待結案"?1:0);};
+  const priorityRank={"急件":0,"維修":1,"一般":2};
+  return filtered.sort(function(a,b){
+    const sd=statusRank(a)-statusRank(b);
+    if(sd!==0)return sd;
+    const pd=(priorityRank[a.priority]??99)-(priorityRank[b.priority]??99);
+    if(pd!==0)return pd;
+    return String(a.no||"").localeCompare(String(b.no||""),undefined,{numeric:true});
+  });
+}
+
+function updateProgressFilterUI(){
+  const wrap=document.getElementById("progressQuickFilters");
+  if(!wrap)return;
+  wrap.querySelectorAll("[data-progress-priority]").forEach(btn=>btn.classList.toggle("active",progressPriorityFilters.has(btn.dataset.progressPriority)));
+  wrap.querySelectorAll("[data-progress-status]").forEach(btn=>btn.classList.toggle("active",progressStatusFilters.has(btn.dataset.progressStatus)));
+  const all=progressPriorityFilters.size===0&&progressStatusFilters.size===0;
+  const allBtn=wrap.querySelector('[data-progress-filter="all"]');
+  if(allBtn)allBtn.classList.toggle("active",all);
+  const hint=document.getElementById("progressFilterHint");
+  if(hint){
+    const p=[...progressPriorityFilters].join("、");
+    const st=[...progressStatusFilters].join("、");
+    const parts=[];
+    if(p)parts.push("優先度："+p);
+    if(st)parts.push("狀態："+st);
+    hint.textContent=parts.length?parts.join("　＋　"):"全部工單｜可同時疊加優先度與狀態";
+  }
+}
+
+function clearProgressFilters(){
+  progressPriorityFilters.clear();
+  progressStatusFilters.clear();
+  const search=document.getElementById("progressSearch");
+  if(search)search.value="";
+  updateProgressFilterUI();
+  renderProgress();
 }
 
 function updateProgressFloatingHead(){
@@ -4126,9 +4232,16 @@ function setupProgressFloatingHead(){
 function renderProgress(){
   const list=getFilteredProgressOrders();
   document.getElementById("progressBody").innerHTML=list.length?list.map(o=>{
-    const cells=PROCESS.map(p=>{const a=o.actual?.[p.key];return `<td><button type="button" class="btn small ${a?.end?"success":"secondary"}" ${isAdmin?'data-process-action="open"':''} data-no="${esc(o.no)}" data-key="${p.key}">${a?.end?`✓ 完成 ${esc(a.end)}`:"未完成"}</button></td>`}).join("");
+    const cells=PROCESS.map(p=>{
+      const a=o.actual?.[p.key];
+      if(a?.end){
+        return `<td><button type="button" class="btn small success progress-process-btn" ${isAdmin?'data-process-action="open"':''} data-no="${esc(o.no)}" data-key="${p.key}">✓ ${esc(a.end)}</button></td>`;
+      }
+      return `<td><button type="button" class="btn small secondary progress-process-btn" ${isAdmin?'data-process-action="quick"':''} data-no="${esc(o.no)}" data-key="${p.key}" ${isAdmin?'':'disabled'}>${isAdmin?'✓ 今天完成':'未完成'}</button></td>`;
+    }).join("");
     return `<tr><td><b>${esc(o.no)}</b></td><td>${esc(o.customer)}</td>${cells}<td><b>${progressValue(o)}%</b></td></tr>`;
   }).join(""):`<tr><td colspan="11" class="empty">沒有資料</td></tr>`;
+  updateProgressFilterUI();
   setupProgressFloatingHead();
   updateProgressFloatingHead();
 }
@@ -4142,6 +4255,29 @@ function getDefaultActualStart(order,key){
   }
   const previous={electrical:"assembly",test:"electrical",close:"test"}[key];
   return previous?order.actual?.[previous]?.end||"":"";
+}
+
+function quickCompleteProcess(no,key){
+  if(!requireAdmin())return;
+  const order=orders.find(o=>o.no===no);
+  const p=PROCESS.find(x=>x.key===key);
+  if(!order||!p)return;
+  const today=fmt(TODAY);
+  const start=order.actual?.[key]?.start||getDefaultActualStart(order,key)||today;
+  if(parseDate(today)<parseDate(start)){
+    openProcessDateModal(no,key);
+    alert("此工序的實際開始日期晚於今天，請確認實際日期後再儲存。");
+    return;
+  }
+  if(!confirm(`確認將「${p.name}」標記為今天 ${today} 完成？`))return;
+  order.actual=order.actual||{};
+  order.actual[key]={start,end:today};
+  const allDone=PROCESS.every(x=>order.actual?.[x.key]?.end);
+  const anyDone=PROCESS.some(x=>order.actual?.[x.key]?.end);
+  order.status=allDone?"已完成":(anyDone?"生產中":"待生產");
+  order.actualClose=allDone?order.actual["close"]?.end||today:"";
+  saveData();
+  renderAll();
 }
 
 function openProcessDateModal(no,key){
@@ -4888,10 +5024,10 @@ function openBoardStatusModal(status){
     <div class="status-customer">${esc(o.customer||"")}</div>
     <div class="status-badge">${badge(overallStatus(o))}</div>
     <div class="board-status-actions">
-      <button type="button" class="btn small secondary" data-board-action="schedule" onclick="closeBoardStatusModal();openOrderWorkflow('schedule','${esc(o.no)}')">排程</button>
-      <button type="button" class="btn small secondary" data-board-action="progress" onclick="closeBoardStatusModal();openOrderWorkflow('progress','${esc(o.no)}')">進度</button>
-      <button type="button" class="btn small secondary" data-board-action="purchase" onclick="openOrderWorkflow('purchase','${esc(o.no)}')">採購</button>
-      <button type="button" class="btn small secondary" data-board-action="outsourcing" onclick="openOrderWorkflow('outsourcing','${esc(o.no)}')">委外</button>
+      <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('schedule','${esc(o.no)}')">排程</button>
+      <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('progress','${esc(o.no)}')">進度</button>
+      <button type="button" class="btn small secondary" onclick="openOrderWorkflow('purchase','${esc(o.no)}')">採購</button>
+      <button type="button" class="btn small secondary" onclick="openOrderWorkflow('outsourcing','${esc(o.no)}')">委外</button>
     </div>
   </div>`).join(""):`<div class="empty">目前沒有符合的工單</div>`;
   modal.classList.add("open");
@@ -6288,8 +6424,28 @@ document.addEventListener(
       工單搜尋
     */
 
-    ["orderSearch","orderCustomerFilter","orderDateFrom","orderDateTo","orderPriorityFilter","orderStatusFilter","orderProcessFilter"].forEach(function(id){const el=document.getElementById(id);if(el)el.addEventListener(el.tagName==="SELECT"||el.type==="date"?"change":"input",function(){orderPage=1;renderOrders();});});
-    document.getElementById("orderClearFilterBtn").addEventListener("click",function(){["orderSearch","orderCustomerFilter","orderDateFrom","orderDateTo","orderPriorityFilter","orderStatusFilter","orderProcessFilter"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});orderPage=1;renderOrders();});
+    const orderSearch=document.getElementById("orderSearch");
+    if(orderSearch)orderSearch.addEventListener("input",function(){orderPage=1;renderOrders();});
+    document.querySelectorAll("#orderQuickFilters [data-order-priority]").forEach(function(btn){
+      btn.addEventListener("click",function(){
+        const key=btn.dataset.orderPriority;
+        if(orderPriorityFilters.has(key))orderPriorityFilters.delete(key);else orderPriorityFilters.add(key);
+        orderPage=1;renderOrders();
+      });
+    });
+    document.querySelectorAll("#orderQuickFilters [data-order-status]").forEach(function(btn){
+      btn.addEventListener("click",function(){
+        const key=btn.dataset.orderStatus;
+        if(orderStatusFilters.has(key))orderStatusFilters.delete(key);else orderStatusFilters.add(key);
+        orderPage=1;renderOrders();
+      });
+    });
+    const orderAllBtn=document.querySelector('#orderQuickFilters [data-order-filter="all"]');
+    if(orderAllBtn)orderAllBtn.addEventListener("click",function(){
+      clearOrderFilters();
+    });
+    const orderClearBtn=document.getElementById("orderClearFilterBtn");
+    if(orderClearBtn)orderClearBtn.addEventListener("click",clearOrderFilters);
 
 
     /*
@@ -6319,8 +6475,26 @@ document.addEventListener(
       進度
     */
 
-    ["progressSearch","progressCustomerFilter","progressDateFrom","progressDateTo","progressPriorityFilter","progressFilter","progressProcessFilter"].forEach(function(id){const el=document.getElementById(id);if(el)el.addEventListener(el.tagName==="SELECT"||el.type==="date"?"change":"input",renderProgress);});
-    document.getElementById("progressClearFilterBtn").addEventListener("click",function(){["progressSearch","progressCustomerFilter","progressDateFrom","progressDateTo","progressPriorityFilter","progressFilter","progressProcessFilter"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});renderProgress();});
+    const progressSearch=document.getElementById("progressSearch");
+    if(progressSearch)progressSearch.addEventListener("input",function(){orderPage=1;renderProgress();});
+    document.querySelectorAll("#progressQuickFilters [data-progress-priority]").forEach(function(btn){
+      btn.addEventListener("click",function(){
+        const key=btn.dataset.progressPriority;
+        if(progressPriorityFilters.has(key))progressPriorityFilters.delete(key);else progressPriorityFilters.add(key);
+        orderPage=1;renderProgress();
+      });
+    });
+    document.querySelectorAll("#progressQuickFilters [data-progress-status]").forEach(function(btn){
+      btn.addEventListener("click",function(){
+        const key=btn.dataset.progressStatus;
+        if(progressStatusFilters.has(key))progressStatusFilters.delete(key);else progressStatusFilters.add(key);
+        orderPage=1;renderProgress();
+      });
+    });
+    const progressAllBtn=document.querySelector('#progressQuickFilters [data-progress-filter="all"]');
+    if(progressAllBtn)progressAllBtn.addEventListener("click",clearProgressFilters);
+    const progressClearBtn=document.getElementById("progressClearFilterBtn");
+    if(progressClearBtn)progressClearBtn.addEventListener("click",clearProgressFilters);
 
 
     /*
@@ -6477,7 +6651,9 @@ document.addEventListener(
 
     document.addEventListener("click",function(e){
       const b=e.target.closest("[data-process-action]");
-      if(b && b.dataset.processAction==="open") openProcessDateModal(b.dataset.no,b.dataset.key);
+      if(!b)return;
+      if(b.dataset.processAction==="open") openProcessDateModal(b.dataset.no,b.dataset.key);
+      else if(b.dataset.processAction==="quick") quickCompleteProcess(b.dataset.no,b.dataset.key);
     });
 
     /* 製程設定：半自動／全自動 */
@@ -6611,9 +6787,6 @@ document.addEventListener(
       '#page-orders #orderPriorityFilter',
       '#page-orders #orderStatusFilter',
       '#page-orders #orderProcessFilter',
-      '#page-progress #progressPriorityFilter',
-      '#page-progress #progressFilter',
-      '#page-progress #progressProcessFilter',
       '#page-schedule #scheduleOrder'
     ];
 
@@ -7109,7 +7282,7 @@ table tbody tr:hover{background:#f8fafc}
 .pmc-order-detail-pagination button{min-width:34px;flex:0 0 auto}
 </style>
 
-<!-- PMC V3.18-260925：手機目前工單操作列隱藏「進度」，並將採購／委外標示為明細；PC不變。 -->
+<!-- PMC V3.20-260925：手機目前工單操作列隱藏「進度」，並將採購／委外標示為明細；PC不變。 -->
 <script id="pmc-v313-fixed-js">
 /* V3.14-260925 final：採購／委外快速明細。20筆／頁＋獨立捲動。 */
 (function(){
