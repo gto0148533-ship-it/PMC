@@ -6755,6 +6755,7 @@ table tbody tr:hover{background:#f8fafc}
       <button type="button" class="btn secondary small" id="pmcOrderDetailClose">關閉</button>
     </div>
     <div id="pmcOrderDetailBody" class="pmc-order-detail-body"></div>
+    <div id="pmcOrderDetailPagination" class="pmc-order-detail-pagination" aria-label="快速明細分頁"></div>
   </div>
 </div>
 
@@ -6784,25 +6785,64 @@ table tbody tr:hover{background:#f8fafc}
   #page-outsourcing thead th:last-child,#page-outsourcing tbody td:last-child{display:none!important}
   #outsourcingDeleteSelectedBtn{display:none!important}
 }
+
+/* V3.14-260925 final: 手機目前工單列／看板分頁固定單行 */
+@media(max-width:760px){
+  /* 目前工單：返回｜工單號碼｜客戶｜排程｜進度｜採購｜委外 */
+  .pmc-current-order-bar{display:none;flex-direction:row!important;align-items:center!important;gap:6px!important;padding:6px 8px!important;overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .pmc-current-order-bar::-webkit-scrollbar{display:none}
+  .pmc-current-order-bar.open{display:flex}
+  .pmc-current-order-info{width:auto!important;flex:1 1 auto!important;min-width:0!important;display:flex!important;align-items:center!important;gap:5px!important;flex-wrap:nowrap!important;overflow:hidden!important}
+  .pmc-current-order-info .btn{min-height:30px!important;height:30px!important;padding:4px 7px!important;flex:0 0 auto!important;white-space:nowrap!important}
+  .pmc-current-label,#pmcCurrentOrderStatus{display:none!important}
+  #pmcCurrentOrderNo{flex:0 0 auto!important;max-width:78px!important;font-size:12px!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #pmcCurrentOrderCustomer{flex:1 1 auto!important;min-width:45px!important;max-width:105px!important;font-size:11px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+  .pmc-current-actions{width:auto!important;flex:0 0 auto!important;display:flex!important;align-items:center!important;gap:4px!important;white-space:nowrap!important}
+  .pmc-current-actions .btn{min-height:30px!important;height:30px!important;padding:4px 6px!important;font-size:11px!important;white-space:nowrap!important;flex:0 0 auto!important}
+
+  /* 目前工單狀態分頁：永遠單行，可左右滑動 */
+  #page-board .board-pagination{flex-direction:row!important;align-items:center!important;justify-content:space-between!important;flex-wrap:nowrap!important;gap:8px!important;overflow:hidden!important;white-space:nowrap!important}
+  #page-board .board-pagination>span{flex:0 0 auto!important;white-space:nowrap!important}
+  #page-board .board-page-buttons{display:flex!important;flex:0 0 auto!important;width:auto!important;max-width:72vw!important;overflow-x:auto!important;overflow-y:hidden!important;gap:4px!important;flex-wrap:nowrap!important;white-space:nowrap!important;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  #page-board .board-page-buttons::-webkit-scrollbar{display:none}
+  #page-board .board-page-buttons .btn{width:auto!important;min-width:34px!important;flex:0 0 auto!important;white-space:nowrap!important}
+}
+
+/* V3.14-260925 final: 快速明細內層獨立捲動 */
+.pmc-order-detail-box{min-height:0}
+.pmc-order-detail-body{flex:1 1 auto;min-height:0;max-height:none!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;touch-action:pan-y!important}
+@media(max-width:760px){
+  .pmc-order-detail-box{height:min(80vh,720px);max-height:80vh!important}
+  .pmc-order-detail-body{height:auto;min-height:0;max-height:none!important}
+}
+.pmc-order-detail-pagination{display:flex;align-items:center;justify-content:center;gap:5px;padding:9px 10px;border-top:1px solid #eef2f6;background:#fff;flex:0 0 auto;white-space:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.pmc-order-detail-pagination button{min-width:34px;flex:0 0 auto}
 </style>
 
 <script id="pmc-v313-fixed-js">
-/* V3.14-260925：所有既有功能保留，只覆寫採購／委外的快速查看入口。 */
+/* V3.14-260925 final：採購／委外快速明細。20筆／頁＋獨立捲動。 */
 (function(){
   const modalId='pmcOrderDetailModal';
+  const PAGE_SIZE=20;
   let previousOverflow='';
+  let detailState={type:'',no:'',status:'',rows:[],page:1};
   function escText(v){
     if(typeof esc==='function') return esc(v==null?'':String(v));
     return String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   }
   function getNo(no){return String(no||window.pmcCurrentOrderNo||'').trim()}
+  function getPurchaseRows(){
+    /* purchaseRows 是主程式的全域 lexical binding，不一定掛在 window 上。 */
+    if(typeof purchaseRows!=='undefined' && Array.isArray(purchaseRows)) return purchaseRows;
+    return Array.isArray(window.purchaseRows)?window.purchaseRows:[];
+  }
   function close(){
     const m=document.getElementById(modalId); if(!m)return;
     m.classList.remove('open');m.setAttribute('aria-hidden','true');
     document.body.style.overflow=previousOverflow;
   }
   function purchaseRowsFor(no,status){
-    let rows=(window.purchaseRows||[]).filter(r=>String(r.no||'').trim()===no);
+    let rows=getPurchaseRows().filter(r=>String(r.no||'').trim()===no);
     if(status==='逾期') rows=rows.filter(r=>typeof getPurchaseDisplayStatus==='function'&&getPurchaseDisplayStatus(r)==='逾期');
     else if(status==='待到貨'||status==='待進貨') rows=rows.filter(r=>typeof getPurchaseDisplayStatus==='function'&&getPurchaseDisplayStatus(r)!=='已到貨');
     return rows;
@@ -6810,23 +6850,47 @@ table tbody tr:hover{background:#f8fafc}
   function outsourcingRowsFor(no){
     return (typeof outsourcingRows!=='undefined'?outsourcingRows:[]).filter(r=>Array.isArray(r.orderNos)&&r.orderNos.some(x=>String(x).trim()===no)&&r.status!=='已回');
   }
+  function renderPagination(){
+    const el=document.getElementById('pmcOrderDetailPagination'); if(!el)return;
+    const total=detailState.rows.length;
+    const pages=Math.max(1,Math.ceil(total/PAGE_SIZE));
+    if(detailState.page>pages)detailState.page=pages;
+    if(total<=PAGE_SIZE){el.innerHTML='';el.style.display='none';return;}
+    el.style.display='flex';
+    const nums=[];
+    const first=Math.max(1,detailState.page-2), last=Math.min(pages,detailState.page+2);
+    for(let i=first;i<=last;i++)nums.push(i);
+    el.innerHTML=`<button type="button" class="btn secondary small" data-detail-page="prev" ${detailState.page<=1?'disabled':''}>上一頁</button>${nums.map(n=>`<button type="button" class="btn ${n===detailState.page?'':'secondary'} small" data-detail-page="${n}">${n}</button>`).join('')}<button type="button" class="btn secondary small" data-detail-page="next" ${detailState.page>=pages?'disabled':''}>下一頁</button>`;
+  }
+  function renderBody(){
+    const body=document.getElementById('pmcOrderDetailBody'); if(!body)return;
+    const start=(detailState.page-1)*PAGE_SIZE;
+    const rows=detailState.rows.slice(start,start+PAGE_SIZE);
+    if(detailState.type==='purchase'){
+      body.innerHTML=rows.length?rows.map(r=>`<div class="pmc-order-detail-row"><div class="main">${escText(r.part||r.drawing||'未填零件')}</div><div class="muted">廠商：${escText(r.supplier||'—')}</div><div class="muted">預計交期：${escText(r.expected||'—')}</div><div>${escText(r.qty||'—')}　${typeof badge==='function'?badge(typeof getPurchaseDisplayStatus==='function'?getPurchaseDisplayStatus(r):(r.status||'待到貨')):escText(r.status||'待到貨')}</div></div>`).join(''):`<div class="pmc-order-detail-empty">此工單目前沒有符合條件的採購明細</div>`;
+    }else if(detailState.type==='outsourcing'){
+      body.innerHTML=rows.length?rows.map(r=>`<div class="pmc-order-detail-row"><div class="main">${escText((typeof outsourcingOrderDisplay==='function'?outsourcingOrderDisplay(r.orderNos):detailState.no)||detailState.no)}</div><div class="muted">檔案：${escText(typeof outsourcingShortFileName==='function'?outsourcingShortFileName(r.fileName):(r.fileName||'—'))}</div><div class="muted">來源：${escText(r.folder||'—')}</div><div>狀態：${typeof badge==='function'?badge(r.status||'未回'):escText(r.status||'未回')}${typeof isOutsourcingRowOverdue==='function'&&isOutsourcingRowOverdue(r)?' <span class="badge danger">逾期</span>':''}</div></div>`).join(''):`<div class="pmc-order-detail-empty">此工單目前沒有未回委外明細</div>`;
+    }
+    body.scrollTop=0;
+    renderPagination();
+  }
   function open(type,no,status){
     const n=getNo(no); if(!n)return;
-    const m=document.getElementById(modalId),title=document.getElementById('pmcOrderDetailTitle'),body=document.getElementById('pmcOrderDetailBody');
-    if(!m||!title||!body)return;
+    const m=document.getElementById(modalId),title=document.getElementById('pmcOrderDetailTitle');
+    if(!m||!title)return;
     let rows=[];
     if(type==='purchase'){
       rows=purchaseRowsFor(n,status||'全部');
       title.textContent=`${n}｜採購明細${status&&status!=='全部'?`（${status}）`:''}｜${rows.length} 筆`;
-      body.innerHTML=rows.length?rows.map(r=>`<div class="pmc-order-detail-row"><div class="main">${escText(r.part||r.drawing||'未填零件')}</div><div class="muted">廠商：${escText(r.supplier||'—')}</div><div class="muted">預計交期：${escText(r.expected||'—')}</div><div>${escText(r.qty||'—')}　${typeof badge==='function'?badge(typeof getPurchaseDisplayStatus==='function'?getPurchaseDisplayStatus(r):(r.status||'待到貨')):escText(r.status||'待到貨')}</div></div>`).join(''):`<div class="pmc-order-detail-empty">此工單目前沒有符合條件的採購明細</div>`;
     }else if(type==='outsourcing'){
       rows=outsourcingRowsFor(n);
       title.textContent=`${n}｜委外未回明細｜${rows.length} 筆`;
-      body.innerHTML=rows.length?rows.map(r=>`<div class="pmc-order-detail-row"><div class="main">${escText((typeof outsourcingOrderDisplay==='function'?outsourcingOrderDisplay(r.orderNos):n)||n)}</div><div class="muted">檔案：${escText(typeof outsourcingShortFileName==='function'?outsourcingShortFileName(r.fileName):(r.fileName||'—'))}</div><div class="muted">來源：${escText(r.folder||'—')}</div><div>狀態：${typeof badge==='function'?badge(r.status||'未回'):escText(r.status||'未回')}${typeof isOutsourcingRowOverdue==='function'&&isOutsourcingRowOverdue(r)?' <span class="badge danger">逾期</span>':''}</div></div>`).join(''):`<div class="pmc-order-detail-empty">此工單目前沒有未回委外明細</div>`;
     }else return;
+    detailState={type,no:n,status:status||'全部',rows,page:1};
     previousOverflow=document.body.style.overflow;
     document.body.style.overflow='hidden';
     m.classList.add('open');m.setAttribute('aria-hidden','false');
+    renderBody();
   }
   window.openPurchaseDetail=function(no,status){open('purchase',no,status||'全部')};
   window.openOutsourcingDetail=function(no){open('outsourcing',no,'未回')};
@@ -6837,6 +6901,17 @@ table tbody tr:hover{background:#f8fafc}
     if(typeof originalWorkflow==='function')return originalWorkflow.apply(this,arguments);
   };
   document.addEventListener('click',function(e){
+    const pg=e.target.closest('[data-detail-page]');
+    if(pg){
+      e.preventDefault();
+      const totalPages=Math.max(1,Math.ceil(detailState.rows.length/PAGE_SIZE));
+      const a=pg.dataset.detailPage;
+      if(a==='prev')detailState.page=Math.max(1,detailState.page-1);
+      else if(a==='next')detailState.page=Math.min(totalPages,detailState.page+1);
+      else detailState.page=Math.min(totalPages,Math.max(1,Number(a)||1));
+      renderBody();
+      return;
+    }
     const b=e.target.closest('[data-outsourcing-order]');
     if(b){e.preventDefault();e.stopPropagation();open('outsourcing',b.dataset.outsourcingOrder,'未回');}
   },true);
