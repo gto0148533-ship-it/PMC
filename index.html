@@ -1611,6 +1611,12 @@ input,select{min-height:38px}
 }
 </style>
 
+
+<style>
+/* V3.23 board photo buttons */
+.board-status-badge-wrap{display:inline-flex;align-items:center;gap:6px;}
+.board-inline-photo-btn{padding:4px 8px!important;font-size:12px!important;line-height:1.1!important;}
+</style>
 </head>
 
 <body>
@@ -1663,7 +1669,7 @@ input,select{min-height:38px}
     PMC 看板模式
   </div>
 
-  <div class="topbar-system-info" aria-label="系統資訊"><span class="label">系統資訊</span><b>PMC V3.22-260925</b></div>
+  <div class="topbar-system-info" aria-label="系統資訊"><span class="label">系統資訊</span><b>PMC V3.23-260925</b></div>
 
   <div class="top-actions">
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
@@ -3303,10 +3309,10 @@ function renderBoard(){
   const parallelCount=key=>active.filter(o=>o.actual?.design?.end&&!o.actual?.[key]?.end).length;
   const kpis=[["工單總數",active.length,"筆"],["維修",orders.filter(o=>o.status==="維修"&&overallStatus(o)!=="已完成").length,"筆"],["繪圖",active.filter(o=>overallStatus(o)==="繪圖").length,"筆"],["加工",parallelCount("weld"),"筆"],["採購",parallelCount("purchase"),"筆"],["委外",parallelCount("outsourcing"),"筆"],["組裝",active.filter(o=>overallStatus(o)==="組裝").length,"筆"],["測試中",active.filter(o=>overallStatus(o)==="測試中").length,"筆"],["待結案",active.filter(o=>overallStatus(o)==="待結案").length,"筆"],["逾期",active.filter(o=>overallStatus(o)==="逾期").length,"筆"]];
   document.getElementById("boardKpis").innerHTML=kpis.filter(x=>x[1]>0).map(x=>`<button type="button" class="card kpi board-kpi-clickable" data-board-status="${esc(x[0])}"><div class="label">${x[0]}</div><div class="value">${x[1]}${x[2]}</div></button>`).join("");
-  document.getElementById("boardOrders").innerHTML=active.length?pageOrders.map(o=>`<div class="board-order-row"><b><button type="button" class="board-order-no-btn" onclick="openOrderWorkflow('schedule','${esc(o.no)}')">${esc(o.no)}</button></b><span>${esc(o.customer)}</span><span>${esc(o.product)}</span><span>${badge(overallStatus(o))}</span><span>${daysLeft(o.due)<0?"逾期 "+Math.abs(daysLeft(o.due))+" 天":"剩 "+daysLeft(o.due)+" 天"}</span></div>`).join(""):`<div class="empty">目前沒有未完成工單</div>`;
+  document.getElementById("boardOrders").innerHTML=active.length?pageOrders.map(o=>`<div class="board-order-row"><b><button type="button" class="board-order-no-btn" onclick="openOrderWorkflow('schedule','${esc(o.no)}')">${esc(o.no)}</button></b><span>${esc(o.customer)}</span><span>${esc(o.product)}</span><span class="board-status-badge-wrap">${(o.images||[]).length ? `<button type="button" class="btn small secondary board-inline-photo-btn" onclick="openOrderPhotoModal('${esc(o.no)}')">照片</button>` : ""}${badge(overallStatus(o))}</span><span>${daysLeft(o.due)<0?"逾期 "+Math.abs(daysLeft(o.due))+" 天":"剩 "+daysLeft(o.due)+" 天"}</span></div>`).join(""):`<div class="empty">目前沒有未完成工單</div>`;
   document.getElementById("boardPagination").innerHTML=active.length?`<span>顯示 ${start+1}–${Math.min(start+BOARD_PAGE_SIZE,active.length)} / ${active.length} 筆</span><div class="board-page-buttons"><button class="btn secondary small" type="button" data-board-page="prev" ${boardPage<=1?"disabled":""}>上一頁</button>${Array.from({length:totalPages},(_,i)=>i+1).map(n=>`<button class="btn ${n===boardPage?"":"secondary"} small" type="button" data-board-page="${n}">${n}</button>`).join("")}<button class="btn secondary small" type="button" data-board-page="next" ${boardPage>=totalPages?"disabled":""}>下一頁</button></div>`:"";
   const repairs=orders.filter(o=>o.status==="維修");
-  document.getElementById("boardMaintenance").innerHTML=repairs.length?`<div style="font-size:22px;font-weight:800;margin-bottom:8px">${repairs.length} 筆維修工單</div><div class="board-maintenance-list">${repairs.map(o=>`<div class="board-maintenance-row"><button type="button" class="board-order-no-btn" onclick="openOrderWorkflow('schedule','${esc(o.no)}')"><b>${esc(o.no)}</b></button><span>${esc(o.customer)}</span><span>${badge(overallStatus(o))}</span></div>`).join("")}</div>`:`<div class="empty">目前沒有維修工單</div>`;
+  document.getElementById("boardMaintenance").innerHTML=repairs.length?`<div style="font-size:22px;font-weight:800;margin-bottom:8px">${repairs.length} 筆維修工單</div><div class="board-maintenance-list">${repairs.map(o=>`<div class="board-maintenance-row"><button type="button" class="board-order-no-btn" onclick="openOrderWorkflow('schedule','${esc(o.no)}')"><b>${esc(o.no)}</b></button><span>${esc(o.customer)}</span><span>${badge(overallStatus(o))}${(o.images||[]).length ? ` <button type="button" class="btn small secondary board-inline-photo-btn" onclick="openOrderPhotoModal('${esc(o.no)}')">照片</button>` : ""}</span></div>`).join("")}</div>`:`<div class="empty">目前沒有維修工單</div>`;
 }
 
 function renderDashboard(){
@@ -5034,6 +5040,7 @@ function openBoardStatusModal(status){
       ${isMobile ? "" : `<button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('progress','${esc(o.no)}')">進度</button>`}
       <button type="button" class="btn small secondary" onclick="openOrderWorkflow('purchase','${esc(o.no)}')">${isMobile ? "採購明細" : "採購"}</button>
       <button type="button" class="btn small secondary" onclick="openOrderWorkflow('outsourcing','${esc(o.no)}')">${isMobile ? "委外明細" : "委外"}</button>
+      ${(o.images||[]).length ? `<button type="button" class="btn small secondary" onclick="openOrderPhotoModal('${esc(o.no)}')">照片</button>` : ""}
     </div>
   </div>`).join(""):`<div class="empty">目前沒有符合的工單</div>`;
   modal.classList.add("open");
@@ -7288,7 +7295,7 @@ table tbody tr:hover{background:#f8fafc}
 .pmc-order-detail-pagination button{min-width:34px;flex:0 0 auto}
 </style>
 
-<!-- PMC V3.22-260925：手機目前工單操作列隱藏「進度」，並將採購／委外標示為明細；PC不變。 -->
+<!-- PMC V3.23-260925：手機目前工單操作列隱藏「進度」，並將採購／委外標示為明細；PC不變。 -->
 <script id="pmc-v313-fixed-js">
 /* V3.14-260925 final：採購／委外快速明細。20筆／頁＋獨立捲動。 */
 (function(){
