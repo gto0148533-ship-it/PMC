@@ -1260,7 +1260,7 @@ input,select{min-height:38px}
 .image-manage-box{max-width:900px;width:calc(100% - 24px)}
 /* V3.16 圖片查看／彈窗層級修正（保留 V3.15） */
 #imageManageModal{z-index:100000}
-#orderPhotoModal{z-index:100010}
+#orderPhotoModal{z-index:2147483001!important}
 #imageLightboxModal{z-index:2147483646!important;background:rgba(2,6,23,.92)!important;position:fixed!important;inset:0!important;pointer-events:auto!important}
 #imageLightboxModal .image-lightbox-box{position:relative;width:min(1400px,96vw)!important;height:min(94vh,900px)!important;max-height:94vh!important;background:transparent!important;box-shadow:none!important;overflow:visible!important;display:flex;align-items:center;justify-content:center;pointer-events:auto!important}
 #imageLightboxModal .image-lightbox-img{display:block!important;max-width:92vw!important;max-height:86vh!important;width:auto!important;height:auto!important;object-fit:contain!important;object-position:center!important;border-radius:8px;box-shadow:0 20px 70px rgba(0,0,0,.5);background:#fff;cursor:zoom-out}
@@ -1616,6 +1616,14 @@ input,select{min-height:38px}
 /* V3.23 board photo buttons */
 .board-status-badge-wrap{display:inline-flex;align-items:center;gap:6px;}
 .board-inline-photo-btn{padding:4px 8px!important;font-size:12px!important;line-height:1.1!important;}
+.board-status-badge-wrap,.board-maintenance-status{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:7px!important;min-width:0!important;white-space:nowrap!important;overflow:hidden!important}
+.board-status-badge-wrap .board-inline-photo-btn,.board-maintenance-status .board-inline-photo-btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;min-width:48px!important;height:28px!important;padding:4px 8px!important;white-space:nowrap!important;word-break:keep-all!important}
+.board-status-badge-wrap .badge,.board-maintenance-status .badge{flex:0 0 auto!important;white-space:nowrap!important}
+@media(min-width:721px){
+  #page-board .board-order-row{grid-template-columns:120px minmax(120px,1.1fr) minmax(120px,1fr) minmax(130px,auto) 100px!important;gap:10px!important}
+  #page-board .board-maintenance-row{grid-template-columns:minmax(100px,120px) minmax(140px,1fr) minmax(130px,auto)!important;gap:10px!important}
+}
+
 </style>
 </head>
 
@@ -1669,7 +1677,7 @@ input,select{min-height:38px}
     PMC 看板模式
   </div>
 
-  <div class="topbar-system-info" aria-label="系統資訊"><span class="label">系統資訊</span><b>PMC V3.23-260925</b></div>
+  <div class="topbar-system-info" aria-label="系統資訊"><span class="label">系統資訊</span><b>PMC V3.24-260925</b></div>
 
   <div class="top-actions">
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
@@ -1736,19 +1744,6 @@ input,select{min-height:38px}
     <div class="board-hero-info">
       <div style="font-size:22px;font-weight:800">PMC 看板模式</div>
       
-    </div>
-  </div>
-  <div class="workflow-quick card">
-    <div class="workflow-quick-copy">
-      <b>今天要做什麼？</b>
-      <span>依工作順序直接進入常用功能，不必再回左側選單。</span>
-    </div>
-    <div class="workflow-quick-actions">
-      <button class="btn" type="button" data-flow-action="new-order">＋ 新增工單</button>
-      <button class="btn secondary" type="button" data-flow-action="schedule">查看排程</button>
-      <button class="btn secondary" type="button" data-flow-action="progress">更新進度</button>
-      <button class="btn secondary" type="button" data-flow-action="purchase">追採購</button>
-      <button class="btn secondary" type="button" data-flow-action="outsourcing">追委外</button>
     </div>
   </div>
   <div class="grid kpi-grid" id="boardKpis"></div>
@@ -3312,7 +3307,7 @@ function renderBoard(){
   document.getElementById("boardOrders").innerHTML=active.length?pageOrders.map(o=>`<div class="board-order-row"><b><button type="button" class="board-order-no-btn" onclick="openOrderWorkflow('schedule','${esc(o.no)}')">${esc(o.no)}</button></b><span>${esc(o.customer)}</span><span>${esc(o.product)}</span><span class="board-status-badge-wrap">${(o.images||[]).length ? `<button type="button" class="btn small secondary board-inline-photo-btn" onclick="openOrderPhotoModal('${esc(o.no)}')">照片</button>` : ""}${badge(overallStatus(o))}</span><span>${daysLeft(o.due)<0?"逾期 "+Math.abs(daysLeft(o.due))+" 天":"剩 "+daysLeft(o.due)+" 天"}</span></div>`).join(""):`<div class="empty">目前沒有未完成工單</div>`;
   document.getElementById("boardPagination").innerHTML=active.length?`<span>顯示 ${start+1}–${Math.min(start+BOARD_PAGE_SIZE,active.length)} / ${active.length} 筆</span><div class="board-page-buttons"><button class="btn secondary small" type="button" data-board-page="prev" ${boardPage<=1?"disabled":""}>上一頁</button>${Array.from({length:totalPages},(_,i)=>i+1).map(n=>`<button class="btn ${n===boardPage?"":"secondary"} small" type="button" data-board-page="${n}">${n}</button>`).join("")}<button class="btn secondary small" type="button" data-board-page="next" ${boardPage>=totalPages?"disabled":""}>下一頁</button></div>`:"";
   const repairs=orders.filter(o=>o.status==="維修");
-  document.getElementById("boardMaintenance").innerHTML=repairs.length?`<div style="font-size:22px;font-weight:800;margin-bottom:8px">${repairs.length} 筆維修工單</div><div class="board-maintenance-list">${repairs.map(o=>`<div class="board-maintenance-row"><button type="button" class="board-order-no-btn" onclick="openOrderWorkflow('schedule','${esc(o.no)}')"><b>${esc(o.no)}</b></button><span>${esc(o.customer)}</span><span>${badge(overallStatus(o))}${(o.images||[]).length ? ` <button type="button" class="btn small secondary board-inline-photo-btn" onclick="openOrderPhotoModal('${esc(o.no)}')">照片</button>` : ""}</span></div>`).join("")}</div>`:`<div class="empty">目前沒有維修工單</div>`;
+  document.getElementById("boardMaintenance").innerHTML=repairs.length?`<div style="font-size:22px;font-weight:800;margin-bottom:8px">${repairs.length} 筆維修工單</div><div class="board-maintenance-list">${repairs.map(o=>`<div class="board-maintenance-row"><button type="button" class="board-order-no-btn" onclick="openOrderWorkflow('schedule','${esc(o.no)}')"><b>${esc(o.no)}</b></button><span>${esc(o.customer)}</span><span class="board-maintenance-status">${(o.images||[]).length ? `<button type="button" class="btn small secondary board-inline-photo-btn" onclick="openOrderPhotoModal('${esc(o.no)}')">照片</button>` : ""}${badge(overallStatus(o))}</span></div>`).join("")}</div>`:`<div class="empty">目前沒有維修工單</div>`;
 }
 
 function renderDashboard(){
@@ -7293,9 +7288,17 @@ table tbody tr:hover{background:#f8fafc}
 }
 .pmc-order-detail-pagination{display:flex;align-items:center;justify-content:center;gap:5px;padding:9px 10px;border-top:1px solid #eef2f6;background:#fff;flex:0 0 auto;white-space:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .pmc-order-detail-pagination button{min-width:34px;flex:0 0 auto}
+
+/* V3.24 PC 看板明細：照片視窗層級與操作列版面優化 */
+@media(min-width:761px){
+  .board-status-box{width:min(1120px,96vw);max-height:min(82vh,760px)}
+  .board-status-row{grid-template-columns:minmax(110px,150px) minmax(140px,1fr) minmax(90px,110px) minmax(360px,auto);gap:10px;padding:10px 4px}
+  .board-status-actions{flex-wrap:nowrap;justify-content:flex-end;gap:5px;white-space:nowrap}
+  .board-status-actions .btn{min-width:60px;padding:6px 8px;font-size:12px;line-height:1.15;white-space:nowrap}
+}
 </style>
 
-<!-- PMC V3.23-260925：手機目前工單操作列隱藏「進度」，並將採購／委外標示為明細；PC不變。 -->
+<!-- PMC V3.24-260925：手機目前工單操作列隱藏「進度」，並將採購／委外標示為明細；PC不變。 -->
 <script id="pmc-v313-fixed-js">
 /* V3.14-260925 final：採購／委外快速明細。20筆／頁＋獨立捲動。 */
 (function(){
