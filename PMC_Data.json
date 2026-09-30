@@ -1,6 +1,6 @@
 {
   "version": "3.1",
-  "exportedAt": "2026-09-30T08:58:29.019Z",
+  "exportedAt": "2026-09-30T09:28:59.789Z",
   "source": "PMC central JSON",
   "orders": [
     {
@@ -2075,6 +2075,100 @@
         "outsourcing": {
           "start": "2026-09-22",
           "end": "2026-09-22",
+          "days": 1
+        }
+      }
+    },
+    {
+      "no": "2508003",
+      "customer": "大埤農會(巡視上油)",
+      "product": "PV312T",
+      "orderDate": "2026-09-29",
+      "due": "2026-10-29",
+      "priority": "維修",
+      "status": "維修",
+      "processMode": "auto",
+      "actualClose": "",
+      "durations": {
+        "design": 1,
+        "weld": 1,
+        "purchase": 1,
+        "outsourcing": 1,
+        "assembly": 1,
+        "electrical": 1,
+        "test": 1,
+        "close": 1
+      },
+      "actual": {
+        "design": {
+          "start": "2026-09-29",
+          "end": "2026-09-29"
+        },
+        "weld": {
+          "start": "2026-09-29",
+          "end": "2026-09-29"
+        },
+        "purchase": {
+          "start": "2026-09-29",
+          "end": "2026-09-29"
+        },
+        "outsourcing": {
+          "start": "2026-09-29",
+          "end": "2026-09-29"
+        },
+        "assembly": {
+          "start": "2026-09-29",
+          "end": "2026-09-29"
+        },
+        "electrical": {
+          "start": "2026-09-29",
+          "end": "2026-09-29"
+        },
+        "test": {
+          "start": "2026-09-29",
+          "end": "2026-09-29"
+        }
+      },
+      "images": [],
+      "schedule": {
+        "close": {
+          "start": "2026-10-28",
+          "end": "2026-10-28",
+          "days": 1
+        },
+        "test": {
+          "start": "2026-10-26",
+          "end": "2026-10-26",
+          "days": 1
+        },
+        "electrical": {
+          "start": "2026-10-22",
+          "end": "2026-10-22",
+          "days": 1
+        },
+        "assembly": {
+          "start": "2026-10-20",
+          "end": "2026-10-20",
+          "days": 1
+        },
+        "weld": {
+          "start": "2026-10-18",
+          "end": "2026-10-18",
+          "days": 1
+        },
+        "design": {
+          "start": "2026-10-15",
+          "end": "2026-10-15",
+          "days": 1
+        },
+        "purchase": {
+          "start": "2026-10-18",
+          "end": "2026-10-18",
+          "days": 1
+        },
+        "outsourcing": {
+          "start": "2026-10-18",
+          "end": "2026-10-18",
           "days": 1
         }
       }
