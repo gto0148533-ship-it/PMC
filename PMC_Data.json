@@ -1,6 +1,6 @@
 {
   "version": "3.1",
-  "exportedAt": "2026-09-30T09:28:59.789Z",
+  "exportedAt": "2026-10-01T05:13:14.593Z",
   "source": "PMC central JSON",
   "orders": [
     {
@@ -195,10 +195,6 @@
         "design": {
           "start": "2026-08-04",
           "end": "2026-09-09"
-        },
-        "purchase": {
-          "start": "2026-09-09",
-          "end": "2026-09-21"
         }
       },
       "schedule": {
@@ -1463,43 +1459,43 @@
       },
       "schedule": {
         "close": {
-          "start": "2026-09-29",
-          "end": "2026-09-29",
+          "start": "2026-10-29",
+          "end": "2026-10-29",
           "days": 1
         },
         "test": {
-          "start": "2026-09-27",
-          "end": "2026-09-27",
+          "start": "2026-10-27",
+          "end": "2026-10-27",
           "days": 1
         },
         "electrical": {
-          "start": "2026-09-24",
-          "end": "2026-09-24",
+          "start": "2026-10-25",
+          "end": "2026-10-25",
           "days": 1
         },
         "assembly": {
-          "start": "2026-09-22",
-          "end": "2026-09-22",
+          "start": "2026-10-22",
+          "end": "2026-10-22",
           "days": 1
         },
         "weld": {
-          "start": "2026-09-20",
-          "end": "2026-09-20",
+          "start": "2026-10-20",
+          "end": "2026-10-20",
           "days": 1
         },
         "design": {
-          "start": "2026-09-17",
-          "end": "2026-09-17",
+          "start": "2026-10-18",
+          "end": "2026-10-18",
           "days": 1
         },
         "purchase": {
-          "start": "2026-09-20",
-          "end": "2026-09-20",
+          "start": "2026-10-20",
+          "end": "2026-10-20",
           "days": 1
         },
         "outsourcing": {
-          "start": "2026-09-20",
-          "end": "2026-09-20",
+          "start": "2026-10-20",
+          "end": "2026-10-20",
           "days": 1
         }
       },
@@ -1676,14 +1672,14 @@
           "days": 1
         },
         "design": {
-          "start": "2026-09-14",
-          "end": "2026-09-14",
+          "start": "2026-09-20",
+          "end": "2026-09-20",
           "days": 1
         },
         "purchase": {
-          "start": "2026-09-16",
+          "start": "2026-09-22",
           "end": "2026-09-22",
-          "days": 5
+          "days": 1
         },
         "outsourcing": {
           "start": "2026-09-22",
@@ -6196,7 +6192,7 @@
       "material": "41",
       "part": "2608001-TW024-01",
       "qty": 1,
-      "status": "待到貨"
+      "status": "逾期"
     },
     {
       "supplier": "三綾",
@@ -6206,7 +6202,7 @@
       "material": "41",
       "part": "2608001-TW026-01",
       "qty": 2,
-      "status": "待到貨"
+      "status": "逾期"
     },
     {
       "supplier": "三綾",
@@ -6216,7 +6212,7 @@
       "material": "41",
       "part": "2602001-TW008-01",
       "qty": 1,
-      "status": "待到貨"
+      "status": "逾期"
     },
     {
       "supplier": "三綾",
@@ -6226,7 +6222,7 @@
       "material": "41",
       "part": "2608001-TW028-01",
       "qty": 1,
-      "status": "待到貨"
+      "status": "逾期"
     },
     {
       "supplier": "三綾",
@@ -6236,7 +6232,7 @@
       "material": "41",
       "part": "2608001-TW028-02",
       "qty": 2,
-      "status": "待到貨"
+      "status": "逾期"
     },
     {
       "supplier": "三綾",
@@ -6246,7 +6242,7 @@
       "material": "41",
       "part": "2608001-TW033-01",
       "qty": 1,
-      "status": "待到貨"
+      "status": "逾期"
     },
     {
       "supplier": "三綾",
@@ -6256,7 +6252,7 @@
       "material": "41",
       "part": "2608001-TW033-03",
       "qty": 1,
-      "status": "待到貨"
+      "status": "逾期"
     },
     {
       "supplier": "三綾",
@@ -6266,7 +6262,7 @@
       "material": "41",
       "part": "2608001-TW033-04",
       "qty": 3,
-      "status": "待到貨"
+      "status": "逾期"
     },
     {
       "supplier": "三綾",
@@ -6276,7 +6272,7 @@
       "material": "41",
       "part": "EL-TW013-01",
       "qty": 1,
-      "status": "待到貨"
+      "status": "逾期"
     },
     {
       "supplier": "三綾",
@@ -6286,7 +6282,7 @@
       "material": "41",
       "part": "EL-TW106-01",
       "qty": 1,
-      "status": "待到貨"
+      "status": "逾期"
     },
     {
       "supplier": "三綾",
@@ -6296,7 +6292,7 @@
       "material": "41",
       "part": "2608001-TW034-01",
       "qty": 1,
-      "status": "待到貨"
+      "status": "逾期"
     },
     {
       "supplier": "三綾",
@@ -6306,7 +6302,7 @@
       "material": "41",
       "part": "EL-TW109-02",
       "qty": 1,
-      "status": "待到貨"
+      "status": "逾期"
     },
     {
       "supplier": "三綾",
@@ -6316,7 +6312,7 @@
       "material": "41",
       "part": "EL-TW109-03",
       "qty": 1,
-      "status": "待到貨"
+      "status": "逾期"
     },
     {
       "supplier": "三綾",
@@ -6326,7 +6322,7 @@
       "material": "41",
       "part": "EL-TW109-04",
       "qty": 2,
-      "status": "待到貨"
+      "status": "逾期"
     },
     {
       "supplier": "三綾",
@@ -6336,7 +6332,7 @@
       "material": "41",
       "part": "1100803-HH020",
       "qty": 4,
-      "status": "待到貨"
+      "status": "逾期"
     },
     {
       "supplier": "三綾",
@@ -6346,7 +6342,7 @@
       "material": "304",
       "part": "2603004-HH036",
       "qty": 1,
-      "status": "待到貨"
+      "status": "逾期"
     },
     {
       "supplier": "三綾",
@@ -6356,7 +6352,7 @@
       "material": "304",
       "part": "2607002-TW051-03",
       "qty": 1,
-      "status": "待到貨"
+      "status": "逾期"
     },
     {
       "supplier": "三綾",
@@ -6366,7 +6362,7 @@
       "material": "304",
       "part": "2608001-TW044-08",
       "qty": 1,
-      "status": "待到貨"
+      "status": "逾期"
     },
     {
       "supplier": "承弘-車",
@@ -6386,7 +6382,7 @@
       "material": "黃銅",
       "part": "2607002-WA001",
       "qty": 1,
-      "status": "待到貨"
+      "status": "逾期"
     },
     {
       "supplier": "震特-車銑",
@@ -6396,7 +6392,7 @@
       "material": "黃銅",
       "part": "2607002-WA002",
       "qty": 1,
-      "status": "待到貨"
+      "status": "逾期"
     },
     {
       "supplier": "震特-車銑",
@@ -6406,7 +6402,7 @@
       "material": "304",
       "part": "2603004-WA202",
       "qty": 1,
-      "status": "待到貨"
+      "status": "逾期"
     },
     {
       "supplier": "震特-車銑",
@@ -7099,6 +7095,16 @@
       "status": "待到貨"
     },
     {
+      "supplier": "國盛-鍵槽",
+      "no": "2607002",
+      "expected": "2026-10-06",
+      "drawing": "",
+      "material": "41",
+      "part": "2607002-RL001-02",
+      "qty": 1,
+      "status": "待到貨"
+    },
+    {
       "supplier": "玖鼎-滾圓",
       "no": "2608001",
       "expected": "2026-09-29",
@@ -7125,6 +7131,26 @@
       "drawing": "",
       "material": "304",
       "part": "2608001-TW043-01",
+      "qty": 1,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "宏信-包膠",
+      "no": "2607002",
+      "expected": "2026-10-15",
+      "drawing": "",
+      "material": "6061",
+      "part": "2607002-SH100-00",
+      "qty": 1,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "宏信-包膠",
+      "no": "2607002",
+      "expected": "2026-10-15",
+      "drawing": "",
+      "material": "6061",
+      "part": "2603004-SH222-00",
       "qty": 1,
       "status": "待到貨"
     },
@@ -9113,20 +9139,6 @@
       "importedAt": "2026-09-28"
     },
     {
-      "id": "os_mum398op_2vczl",
-      "fileName": "20260914元力共34個(藍11白20黃3)-2605008+2606002+2605004+2607005(0924藍黃回).pdf",
-      "fileType": "PDF",
-      "folder": "元力-圖面",
-      "orderNos": [
-        "2605008",
-        "2606002",
-        "2605004",
-        "2607005"
-      ],
-      "status": "未回",
-      "importedAt": "2026-09-28"
-    },
-    {
       "id": "os_mum398op_1iz80",
       "fileName": "20260918元力共19個(灰4藍14白1)-2512002+2605008+2605009+2606002+2608001(0924藍白回).pdf",
       "fileType": "PDF",
@@ -9178,6 +9190,42 @@
       ],
       "status": "未回",
       "importedAt": "2026-09-29"
+    },
+    {
+      "id": "os_mup2nnkb_uqnxn",
+      "fileName": "20260914元力共34個(藍11白20黃3)-2605008+2606002+2605004+2607005(0924藍黃回)-單0924.pdf",
+      "fileType": "PDF",
+      "folder": "元力-圖面",
+      "orderNos": [
+        "2605008",
+        "2606002",
+        "2605004",
+        "2607005"
+      ],
+      "status": "未回",
+      "importedAt": "2026-09-30"
+    },
+    {
+      "id": "os_mup2nnkb_rf66z",
+      "fileName": "20260924元力共3個(白1藍2)-庫存+2606002(1001藍回).pdf",
+      "fileType": "PDF",
+      "folder": "元力-圖面",
+      "orderNos": [
+        "2606002"
+      ],
+      "status": "未回",
+      "importedAt": "2026-09-30"
+    },
+    {
+      "id": "os_mup2nnkb_hu4bv",
+      "fileName": "20261001元力共19個(藍16黃3)-2608001.pdf",
+      "fileType": "PDF",
+      "folder": "元力-圖面",
+      "orderNos": [
+        "2608001"
+      ],
+      "status": "未回",
+      "importedAt": "2026-09-30"
     }
   ]
 }
