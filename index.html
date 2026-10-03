@@ -1661,7 +1661,7 @@ input,select{min-height:38px}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>V3.25</span></div>
+    <div>PMC <span>V3.27</span></div>
     <small>生產管理系統</small>
   </div>
 
@@ -1702,7 +1702,7 @@ input,select{min-height:38px}
 
 
   <div class="top-actions">
-    <span class="mobile-version-badge" aria-label="版本">V3.25</span>
+    <span class="mobile-version-badge" aria-label="版本">V3.27</span>
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
     <button class="btn secondary" id="openDataFileBtn" type="button" style="display:none">選擇 PMC_Data.json</button>
     <input type="file" id="dataFileInput" accept=".json,application/json" hidden>
@@ -3019,6 +3019,34 @@ function processStatus(order){
   if(activeProcess)return statusByProcess[activeProcess] || "生產中";
   return statusByProcess[currentProcessKey(order)] || "繪圖";
 }
+function maintenanceProcessStatus(order){
+  const a=order.actual||{};
+  if(a.close?.end || order.status==="已完成") return "已完成";
+  if(a.close?.start) return "待結案";
+
+  const processNames={
+    design:"繪圖",
+    weld:"加工焊接",
+    purchase:"採購",
+    outsourcing:"委外製造",
+    assembly:"組裝",
+    electrical:"電控",
+    test:"測試中"
+  };
+
+  // 維修工單的「維修」只用來做分類；狀態必須與工單管理的目前製程判定一致。
+  const key=currentProcessKey(order);
+  if(key && processNames[key]) return processNames[key];
+
+  // 若同時存在多個已啟動但尚未完成的製程，顯示實際進行中的製程。
+  const active=["test","electrical","assembly","weld","purchase","outsourcing","design"]
+    .filter(k=>a[k]?.start&&!a[k]?.end)
+    .map(k=>processNames[k]);
+  if(active.length) return active.join("、");
+
+  return Object.keys(a).length ? "尚未開始" : "尚未開始";
+}
+
 function currentProcessKey(order){
   const a=order.actual||{};
   for(const key of ["close","test","electrical","assembly","weld","purchase","outsourcing","design"]){
@@ -3346,7 +3374,7 @@ function renderBoard(){
   document.getElementById("boardOrders").innerHTML=active.length?pageOrders.map(o=>`<div class="board-order-row"><b><button type="button" class="board-order-no-btn" onclick="openOrderWorkflow('schedule','${esc(o.no)}')">${esc(o.no)}</button></b><span>${esc(o.customer)}</span><span>${esc(o.product)}</span><span class="board-status-badge-wrap">${(o.images||[]).length ? `<button type="button" class="btn small secondary board-inline-photo-btn" onclick="openOrderPhotoModal('${esc(o.no)}')">照片</button>` : ""}${badge(processStatus(o))}</span><span>${daysLeft(o.due)<0?"逾期 "+Math.abs(daysLeft(o.due))+" 天":"剩 "+daysLeft(o.due)+" 天"}</span></div>`).join(""):`<div class="empty">目前沒有未完成工單</div>`;
   document.getElementById("boardPagination").innerHTML=active.length?`<span>顯示 ${start+1}–${Math.min(start+BOARD_PAGE_SIZE,active.length)} / ${active.length} 筆</span><div class="board-page-buttons"><button class="btn secondary small" type="button" data-board-page="prev" ${boardPage<=1?"disabled":""}>上一頁</button>${Array.from({length:totalPages},(_,i)=>i+1).map(n=>`<button class="btn ${n===boardPage?"":"secondary"} small" type="button" data-board-page="${n}">${n}</button>`).join("")}<button class="btn secondary small" type="button" data-board-page="next" ${boardPage>=totalPages?"disabled":""}>下一頁</button></div>`:"";
   const repairs=orders.filter(o=>o.status==="維修");
-  document.getElementById("boardMaintenance").innerHTML=repairs.length?`<div style="font-size:22px;font-weight:800;margin-bottom:8px">${repairs.length} 筆維修工單</div><div class="board-maintenance-list">${repairs.map(o=>`<div class="board-maintenance-row"><button type="button" class="board-order-no-btn" onclick="openOrderWorkflow('schedule','${esc(o.no)}')"><b>${esc(o.no)}</b></button><span>${esc(o.customer)}</span><span class="board-maintenance-status">${(o.images||[]).length ? `<button type="button" class="btn small secondary board-inline-photo-btn" onclick="openOrderPhotoModal('${esc(o.no)}')">照片</button>` : ""}${badge(overallStatus(o))}</span></div>`).join("")}</div>`:`<div class="empty">目前沒有維修工單</div>`;
+  document.getElementById("boardMaintenance").innerHTML=repairs.length?`<div style="font-size:22px;font-weight:800;margin-bottom:8px">${repairs.length} 筆維修工單</div><div class="board-maintenance-list">${repairs.map(o=>`<div class="board-maintenance-row"><button type="button" class="board-order-no-btn" onclick="openOrderWorkflow('schedule','${esc(o.no)}')"><b>${esc(o.no)}</b></button><span>${esc(o.customer)}</span><span class="board-maintenance-status">${(o.images||[]).length ? `<button type="button" class="btn small secondary board-inline-photo-btn" onclick="openOrderPhotoModal('${esc(o.no)}')">照片</button>` : ""}${badge(maintenanceProcessStatus(o))}</span></div>`).join("")}</div>`:`<div class="empty">目前沒有維修工單</div>`;
 }
 
 function renderDashboard(){
