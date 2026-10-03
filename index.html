@@ -1302,6 +1302,14 @@ input,select{min-height:38px}
   .image-manage-table{min-width:620px}
   .image-manage-body-wrap{overflow-x:auto}
 }
+
+/* V3.25 修正版：全站搜尋零件／圖名明細 */
+.mobile-version-badge{display:none;font-size:11px;font-weight:800;color:#475569;background:#eef2f7;border:1px solid #d9e1ea;border-radius:7px;padding:4px 6px;white-space:nowrap}
+.pmc-search-result{position:relative;display:grid;grid-template-columns:110px minmax(0,1fr) auto auto;gap:8px;align-items:center;width:100%;padding:10px 12px;border:0;border-bottom:1px solid #eef2f6;background:#fff;text-align:left;cursor:pointer}
+.pmc-search-result:hover{background:#f8fafc}
+.pmc-search-result .no{font-weight:800;color:#0f172a}.pmc-search-result .customer{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#334155}.pmc-search-result .search-source{font-size:11px;color:#64748b;white-space:nowrap}.pmc-search-detail-box{width:min(760px,100%)}
+.pmc-search-detail-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-bottom:16px}.pmc-search-detail-summary>div{display:flex;flex-direction:column;gap:4px;padding:10px 11px;background:#f8fafc;border:1px solid #e5eaf0;border-radius:9px}.pmc-search-detail-summary b{font-size:11px;color:#64748b}.pmc-search-detail-summary span{font-size:14px;font-weight:700;color:#172033;word-break:break-word}.pmc-search-detail-section h3{display:flex;align-items:center;gap:7px;margin:0 0 8px;font-size:15px}.pmc-search-detail-section h3 small{font-size:11px;color:#64748b;font-weight:600}.pmc-search-purchase-row{display:grid;grid-template-columns:1.1fr 1.4fr 1fr 1fr .9fr .9fr;gap:7px;align-items:center;padding:9px 10px;border:1px solid #e5eaf0;border-radius:9px;margin-bottom:7px;font-size:12px;color:#475569}.pmc-search-purchase-row>div:first-child{color:#0f172a;font-size:13px}.pmc-search-detail-empty{padding:18px;text-align:center;color:#64748b;background:#f8fafc;border-radius:9px}
+@media(max-width:760px){.mobile-version-badge{display:inline-flex;align-items:center;justify-content:center}.pmc-search-result{grid-template-columns:1fr auto;gap:4px 8px;padding:11px 10px}.pmc-search-result .no{grid-column:1}.pmc-search-result .status{grid-column:2;grid-row:1/3;align-self:start}.pmc-search-result .customer{grid-column:1;white-space:normal;line-height:1.35}.pmc-search-result .search-source{grid-column:1;font-size:10px}.pmc-search-detail-summary{grid-template-columns:1fr 1fr;gap:7px}.pmc-search-purchase-row{grid-template-columns:1fr 1fr;gap:6px 10px}.pmc-search-purchase-row>div:first-child{grid-column:1/-1}.pmc-search-detail-box{width:100%!important}}
 </style>
 <style>
 
@@ -1692,9 +1700,9 @@ input,select{min-height:38px}
     PMC 看板模式
   </div>
 
-  <div class="topbar-system-info" aria-label="系統資訊"><span class="label">系統資訊</span><b>PMC V3.24-260925</b></div>
 
   <div class="top-actions">
+    <span class="mobile-version-badge" aria-label="版本">V3.25</span>
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
     <button class="btn secondary" id="openDataFileBtn" type="button" style="display:none">選擇 PMC_Data.json</button>
     <input type="file" id="dataFileInput" accept=".json,application/json" hidden>
@@ -1707,7 +1715,7 @@ input,select{min-height:38px}
 <div class="pmc-global-tools">
   <div class="pmc-global-search-wrap">
     <span class="pmc-search-icon">⌕</span>
-    <input id="pmcGlobalSearch" type="search" autocomplete="off" placeholder="搜尋工單號碼／客戶／產品…">
+    <input id="pmcGlobalSearch" type="search" autocomplete="off" placeholder="搜尋工單號碼／客戶／產品／零件編號／圖名…">
     <button id="pmcGlobalSearchClear" type="button" aria-label="清除搜尋">×</button>
     <div id="pmcGlobalSearchResults" class="pmc-global-search-results"></div>
   </div>
@@ -2304,6 +2312,22 @@ input,select{min-height:38px}
 
 </div>
 
+
+<!-- =========================================================
+     全站搜尋明細 MODAL
+========================================================= -->
+<div id="pmcSearchDetailModal" class="modal hidden" aria-hidden="true">
+  <div class="modalbox pmc-search-detail-box" role="dialog" aria-modal="true">
+    <div class="modalhead">
+      <h2 id="pmcSearchDetailTitle" style="margin:0">搜尋明細</h2>
+      <button class="btn secondary small" type="button" onclick="closeGlobalSearchDetail()">✕</button>
+    </div>
+    <div class="modalbody" id="pmcSearchDetailBody"></div>
+    <div class="modal-actions">
+      <button class="btn secondary" type="button" onclick="closeGlobalSearchDetail()">關閉</button>
+    </div>
+  </div>
+</div>
 
 <!-- =========================================================
      工單圖片 MODAL
@@ -3698,6 +3722,7 @@ function orderStatusMatches(order, filter){
   if(filter==="未完成") return status!=="已完成";
   if(filter==="待結案") return status==="待結案";
   if(filter==="已完成") return status==="已完成";
+  if(filter==="維修") return order.status==="維修";
   return true;
 }
 
@@ -3835,7 +3860,7 @@ function renderOrders(){
 
           <td>
             ${badge(
-              overallStatus(o)
+              processStatus(o)
             )}
           </td>
 
@@ -4153,6 +4178,7 @@ function progressStatusMatches(order, filter){
   if(filter==="未完成") return status!=="已完成";
   if(filter==="待結案") return status==="待結案";
   if(filter==="已完成") return status==="已完成";
+  if(filter==="維修") return order.status==="維修";
   return true;
 }
 
@@ -7084,7 +7110,7 @@ document.addEventListener(
     document.getElementById('pmcCurrentOrderNo').textContent=o.no||'';
     document.getElementById('pmcCurrentOrderCustomer').textContent=o.customer||'';
     const st=document.getElementById('pmcCurrentOrderStatus');
-    if(st)st.innerHTML=badge(overallStatus(o));
+    if(st)st.innerHTML=badge(processStatus(o));
     bar.classList.add('open');
     if(typeof updateCurrentPhotoButton==="function") updateCurrentPhotoButton();
   }
@@ -7093,15 +7119,58 @@ document.addEventListener(
     window.pmcCurrentOrderNo='';
     const bar=document.getElementById('pmcCurrentOrderBar'); if(bar)bar.classList.remove('open');
   }
+  function getGlobalSearchMatches(q){
+    const needle=(q||'').trim().toLowerCase();
+    const os=(typeof orders!=="undefined"?orders:[]);
+    const prs=(typeof purchaseRows!=="undefined"&&Array.isArray(purchaseRows))?purchaseRows:[];
+    const orderMatches=os.filter(o=>[o.no,o.customer,o.product].some(v=>String(v||'').toLowerCase().includes(needle)));
+    const purchaseMatches=prs.filter(r=>[r.no,r.part,r.drawing,r.desc,r.material,r.supplier].some(v=>String(v||'').toLowerCase().includes(needle)));
+    const map=new Map();
+    orderMatches.forEach(o=>map.set(String(o.no),{order:o,source:'工單'}));
+    purchaseMatches.forEach(r=>{
+      const no=String(r.no||'').trim();
+      if(no && !map.has(no)){
+        const o=os.find(x=>String(x.no)===no);
+        map.set(no,{order:o||{no,customer:'',product:''},source:'採購',purchaseMatch:true});
+      }
+    });
+    return Array.from(map.values()).slice(0,30);
+  }
+  function openGlobalSearchDetail(no,q){
+    const modal=document.getElementById('pmcSearchDetailModal');
+    const title=document.getElementById('pmcSearchDetailTitle');
+    const body=document.getElementById('pmcSearchDetailBody');
+    const o=(typeof orders!=="undefined"?orders:[]).find(x=>String(x.no)===String(no));
+    const prs=(typeof purchaseRows!=="undefined"&&Array.isArray(purchaseRows))?purchaseRows:[];
+    const needle=(q||'').trim().toLowerCase();
+    const rows=prs.filter(r=>String(r.no||'').trim()===String(no).trim() && (!needle || [r.no,r.part,r.drawing,r.desc,r.material,r.supplier].some(v=>String(v||'').toLowerCase().includes(needle))));
+    if(!modal||!title||!body)return;
+    title.textContent=`搜尋明細｜${no}`;
+    body.innerHTML=`<div class="pmc-search-detail-summary">
+      <div><b>工單號碼</b><span>${esc(o?.no||no)}</span></div>
+      <div><b>客戶</b><span>${esc(o?.customer||'—')}</span></div>
+      <div><b>產品／機型</b><span>${esc(o?.product||'—')}</span></div>
+      <div><b>優先級</b><span>${o?badge(o.priority):'—'}</span></div>
+      <div><b>目前製程</b><span>${o?badge(processStatus(o)):'—'}</span></div>
+      <div><b>交期</b><span>${esc(o?.due||'—')}</span></div>
+    </div>
+    <div class="pmc-search-detail-section"><h3>採購／零件明細 ${rows.length?`<small>符合 ${rows.length} 筆</small>`:''}</h3>
+      ${rows.length?rows.slice(0,50).map(r=>`<div class="pmc-search-purchase-row"><div><b>${esc(r.part||r.drawing||'未填零件')}</b></div><div>圖名：${esc(r.drawing||r.desc||'—')}</div><div>材質：${esc(r.material||'—')}</div><div>廠商：${esc(r.supplier||'—')}</div><div>交期：${esc(r.expected||'—')}</div><div>數量：${esc(r.qty??'—')}　${typeof getPurchaseDisplayStatus==='function'?badge(getPurchaseDisplayStatus(r)):badge(r.status||'待到貨')}</div></div>`).join(''):`<div class="pmc-search-detail-empty">沒有符合的零件／圖名採購明細。若要查看完整採購資料，可直接開啟此工單的「採購」。</div>`}
+    </div>`;
+    modal.classList.remove('hidden');modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
+  }
+  function closeGlobalSearchDetail(){const modal=document.getElementById('pmcSearchDetailModal');if(!modal)return;modal.classList.add('hidden');modal.setAttribute('aria-hidden','true');document.body.style.overflow='';}
+  window.openGlobalSearchDetail=openGlobalSearchDetail;
+  window.closeGlobalSearchDetail=closeGlobalSearchDetail;
   function renderSearchResults(q){
     const box=document.getElementById('pmcGlobalSearchResults');
     const clear=document.getElementById('pmcGlobalSearchClear');
     if(!box)return;
-    q=(q||'').trim().toLowerCase();
-    if(clear)clear.style.display=q?'block':'none';
-    if(!q){box.classList.remove('open');box.innerHTML='';return;}
-    const list=(typeof orders!=="undefined"?orders:[]).filter(o=>[o.no,o.customer,o.product].join(' ').toLowerCase().includes(q)).slice(0,30);
-    box.innerHTML=list.length?list.map(o=>`<button type="button" class="pmc-search-result" data-global-order="${esc(o.no)}"><span class="no">${esc(o.no)}</span><span class="customer">${esc(o.customer||'')}｜${esc(o.product||'')}</span><span class="status">${badge(overallStatus(o))}</span></button>`).join(''):'<div class="pmc-search-empty">找不到符合的工單</div>';
+    const raw=(q||'').trim();
+    if(clear)clear.style.display=raw?'block':'none';
+    if(!raw){box.classList.remove('open');box.innerHTML='';return;}
+    const list=getGlobalSearchMatches(raw);
+    box.innerHTML=list.length?list.map(x=>{const o=x.order;return `<button type="button" class="pmc-search-result" data-global-order="${esc(o.no)}" data-global-query="${esc(raw)}"><span class="no">${esc(o.no)}</span><span class="customer">${esc(o.customer||'')}｜${esc(o.product||'')}</span><span class="search-source">${x.source==='採購'?'零件／圖名符合':'工單符合'}</span><span class="status">${badge(processStatus(o))}</span></button>`}).join(''):'<div class="pmc-search-empty">找不到工單號碼／客戶／產品／零件編號／圖名</div>';
     box.classList.add('open');
   }
   function rememberFromPage(page){
@@ -7137,7 +7206,7 @@ document.addEventListener(
     if(clear)clear.addEventListener('click',()=>{search.value='';renderSearchResults('');search.focus();});
     document.addEventListener('click',function(e){
       const result=e.target.closest('[data-global-order]');
-      if(result){const no=result.dataset.globalOrder;document.getElementById('pmcGlobalSearch').value='';renderSearchResults('');openOrderWorkflow('schedule',no);return;}
+      if(result){const no=result.dataset.globalOrder;const q=result.dataset.globalQuery||document.getElementById('pmcGlobalSearch').value||'';document.getElementById('pmcGlobalSearch').value='';renderSearchResults('');openGlobalSearchDetail(no,q);return;}
       const recent=e.target.closest('[data-recent-order]');
       if(recent){openOrderWorkflow('schedule',recent.dataset.recentOrder);return;}
       const act=e.target.closest('[data-current-action]');
@@ -7145,12 +7214,14 @@ document.addEventListener(
       const back=e.target.closest('#pmcCurrentBack');
       if(back){pmcBack();return;}
       if(!e.target.closest('.pmc-global-search-wrap')){document.getElementById('pmcGlobalSearchResults')?.classList.remove('open');}
+      if(e.target.id==='pmcSearchDetailModal')closeGlobalSearchDetail();
     });
     window.__pmcV6HistoryReady=true;
     ['scheduleOrder'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',()=>{if(el.value)setCurrentOrder(el.value,true);});});
     const ps=document.getElementById('progressSearch'); if(ps)ps.addEventListener('change',()=>{const o=getOrder(ps.value.trim());if(o)setCurrentOrder(o.no,true);});
     ['purchaseFilterNo','mobilePurchaseFilterNo'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',()=>{const o=getOrder(el.value.trim());if(o)setCurrentOrder(o.no,true);});});
     renderRecent();
+    document.addEventListener('keydown',e=>{if(e.key==='Escape')closeGlobalSearchDetail();});
     patchNavigation();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
