@@ -5162,7 +5162,7 @@ function openBoardStatusModal(status){
   body.innerHTML=list.length?list.map(o=>`<div class="board-status-row">
     <div><button type="button" class="board-order-no-btn" onclick="closeBoardStatusModal();openOrderWorkflow('schedule','${esc(o.no)}')">${esc(o.no)}</button></div>
     <div class="status-customer">${esc(o.customer||"")}</div>
-    <div class="status-badge">${badge(status === "維修" ? maintenanceProcessStatus(o) : overallStatus(o))}</div>
+    <div class="status-badge">${badge(maintenanceProcessStatus(o))}</div>
     <div class="board-status-actions">
       <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('schedule','${esc(o.no)}')">排程</button>
       ${isMobile ? "" : `<button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('progress','${esc(o.no)}')">進度</button>`}
@@ -7667,7 +7667,7 @@ table tbody tr:hover{background:#f8fafc}
 
 <script id="pmc-v329-ux-js">
 /* =========================================================
-   PMC V3.30 UX：目前工單一路跟隨／資料更新時間／權限導覽
+   PMC V3.31 UX：目前工單一路跟隨／資料更新時間／權限導覽
 ========================================================= */
 (function(){
   function formatUpdatedAt(value){
