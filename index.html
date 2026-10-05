@@ -1515,7 +1515,7 @@ input,select{min-height:38px}
    PMC V6：全站搜尋／目前工單／返回／最近查看
 ========================================================= */
 .pmc-global-tools{position:relative;display:flex;align-items:center;gap:10px;padding:8px 22px;background:#fff;border-bottom:1px solid #e6ebf1;z-index:7000}
-.pmc-global-search-wrap{position:relative;flex:1;max-width:620px}
+.pmc-global-search-wrap{position:relative;flex:1 1 420px;min-width:0;max-width:620px}
 .pmc-global-search-wrap input{width:100%;height:38px;padding:8px 38px 8px 34px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;font-size:14px;outline:none}
 .pmc-global-search-wrap input:focus{border-color:#60a5fa;background:#fff;box-shadow:0 0 0 3px rgba(96,165,250,.12)}
 .pmc-search-icon{position:absolute;left:11px;top:8px;font-size:19px;color:#64748b;z-index:1}
@@ -1540,6 +1540,13 @@ input,select{min-height:38px}
 #pmcCurrentOrderNo{font-size:15px;color:#0f172a;white-space:nowrap}
 #pmcCurrentOrderCustomer{font-size:12px;color:#334155;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #pmcCurrentOrderStatus{white-space:nowrap}
+@media(min-width:761px) and (max-width:1100px){
+  /* 小解析度 PC：搜尋獨佔一整列，避免「最近查看」把輸入框壓窄 */
+  .pmc-global-tools{flex-wrap:wrap;padding:8px 14px}
+  .pmc-global-search-wrap{flex:1 1 100%;max-width:none;min-width:0}
+  .pmc-recent-orders{width:100%;flex:1 1 100%;overflow-x:auto;flex-wrap:nowrap;padding-top:2px}
+  .pmc-global-search-results{right:0;max-width:none}
+}
 @media(max-width:760px){
   .pmc-global-tools{padding:6px 10px;display:block}
   .pmc-global-search-wrap{max-width:none}
@@ -1661,7 +1668,7 @@ input,select{min-height:38px}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>V3.29</span></div>
+    <div>PMC <span>V3.30</span></div>
     <small>生產管理系統</small>
   </div>
 
@@ -1702,7 +1709,7 @@ input,select{min-height:38px}
 
 
   <div class="top-actions">
-    <span class="mobile-version-badge" aria-label="版本">V3.29</span>
+    <span class="mobile-version-badge" aria-label="版本">V3.30</span>
     <span id="dataUpdatedAt" class="data-updated-badge" aria-label="資料更新時間">資料更新：—</span>
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
     <button class="btn secondary" id="openDataFileBtn" type="button" style="display:none">選擇 PMC_Data.json</button>
@@ -1945,6 +1952,13 @@ input,select{min-height:38px}
       id="ganttToday"
       type="button">
       回到今天
+    </button>
+
+    <button
+      class="btn secondary"
+      id="ganttAllOrders"
+      type="button">
+      多工單總覽
     </button>
 
     <button
@@ -4000,7 +4014,7 @@ function renderSelectors(){
 
 
   gantt.innerHTML =
-    `<option value="">全部工單</option>`+
+    `<option value="">請選擇工單</option>`+
     options;
 
 
@@ -4741,10 +4755,21 @@ function renderGantt(){
   const search =
     (document.getElementById("ganttOrderSearch")?.value || "").trim().toLowerCase();
 
+  /* V3.30：甘特圖首次進入不預先繪製全部工單，避免一次建立大量 DOM。
+     使用者選擇單一工單後才繪製；「多工單總覽」按鈕才明確要求全部工單。 */
+  if(!selected && !search && !window.__pmcGanttShowAll){
+    container.innerHTML = `
+      <div class="empty" style="padding:34px 18px;text-align:center">
+        <b style="display:block;font-size:16px;margin-bottom:6px">請先選擇工單</b>
+        <span>選擇工單後才會建立甘特圖；如需查看全部工單，請點「多工單總覽」。</span>
+      </div>`;
+    return;
+  }
+
   const list =
     orders.filter(function(o){
-      const text=[o.no,o.customer].join(" ").toLowerCase();
-      return (!selected || o.no===selected) && (!search || text.includes(search));
+      const text=[o.no,o.customer,o.product].join(" ").toLowerCase();
+      return (window.__pmcGanttShowAll || o.no===selected || (!selected && search && text.includes(search))) && (!search || text.includes(search) || o.no===selected);
     });
 
 
@@ -5137,7 +5162,7 @@ function openBoardStatusModal(status){
   body.innerHTML=list.length?list.map(o=>`<div class="board-status-row">
     <div><button type="button" class="board-order-no-btn" onclick="closeBoardStatusModal();openOrderWorkflow('schedule','${esc(o.no)}')">${esc(o.no)}</button></div>
     <div class="status-customer">${esc(o.customer||"")}</div>
-    <div class="status-badge">${badge(overallStatus(o))}</div>
+    <div class="status-badge">${badge(status === "維修" ? maintenanceProcessStatus(o) : overallStatus(o))}</div>
     <div class="board-status-actions">
       <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('schedule','${esc(o.no)}')">排程</button>
       ${isMobile ? "" : `<button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('progress','${esc(o.no)}')">進度</button>`}
@@ -6624,12 +6649,18 @@ document.addEventListener(
       )
       .addEventListener(
         "change",
-        renderGantt
+        function(){
+          window.__pmcGanttShowAll=false;
+          renderGantt();
+        }
       );
 
     document
       .getElementById("ganttOrderSearch")
-      .addEventListener("input",renderGantt);
+      .addEventListener("input",function(){
+        window.__pmcGanttShowAll=false;
+        renderGantt();
+      });
 
 
     document
@@ -6667,6 +6698,15 @@ document.addEventListener(
           renderGantt();
         }
       );
+
+    document
+      .getElementById("ganttAllOrders")
+      .addEventListener("click",function(){
+        window.__pmcGanttShowAll=true;
+        document.getElementById("ganttOrder").value="";
+        document.getElementById("ganttOrderSearch").value="";
+        renderGantt();
+      });
 
     document
       .getElementById("ganttFullOrder")
@@ -7560,7 +7600,7 @@ table tbody tr:hover{background:#f8fafc}
 </script>
 
 
-<!-- PMC V3.29：管理者「更多」操作視窗 -->
+<!-- PMC V3.30：管理者「更多」操作視窗 -->
 <div id="orderMoreModal" class="modal hidden" aria-hidden="true">
   <div class="modalbox order-more-modal-box" role="dialog" aria-modal="true" aria-labelledby="orderMoreTitle">
     <div class="modalhead">
@@ -7573,7 +7613,7 @@ table tbody tr:hover{background:#f8fafc}
 
 <style id="pmc-v329-ux-css">
 /* =========================================================
-   PMC V3.29：第一次使用者／PC 生管／手機快速查詢
+   PMC V3.30：第一次使用者／PC 生管／手機快速查詢
    僅改善操作路徑與呈現，不改既有資料結構。
 ========================================================= */
 .board-hero-help{margin-top:6px;color:#dbeafe;font-size:13px;line-height:1.7;max-width:880px}
@@ -7627,7 +7667,7 @@ table tbody tr:hover{background:#f8fafc}
 
 <script id="pmc-v329-ux-js">
 /* =========================================================
-   PMC V3.29 UX：目前工單一路跟隨／資料更新時間／權限導覽
+   PMC V3.30 UX：目前工單一路跟隨／資料更新時間／權限導覽
 ========================================================= */
 (function(){
   function formatUpdatedAt(value){
@@ -7736,7 +7776,7 @@ table tbody tr:hover{background:#f8fafc}
 })();
 
 /* =========================================================
-   PMC V3.29：管理者「更多」操作視窗
+   PMC V3.30：管理者「更多」操作視窗
 ========================================================= */
 function openOrderMoreModal(no){
   if(!requireAdmin())return;
