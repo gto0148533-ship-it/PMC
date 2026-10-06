@@ -1400,6 +1400,45 @@ input,select{min-height:38px}
   #page-orders .order-row-actions{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px!important;min-width:0!important;width:100%}
   #page-orders .order-row-actions .btn{width:100%;min-height:36px;padding:6px 5px;font-size:12px}
 
+  /* 手機版生產排程：單工單快速查詢卡，PC 表格維持原樣 */
+  #page-schedule .table-wrap{display:none!important}
+  #page-schedule #scheduleSummary{display:none!important}
+  #page-schedule .schedule-mobile-view{display:block!important}
+  .schedule-mobile-view{display:none}
+  .schedule-mobile-head{background:linear-gradient(135deg,#f8fbff,#fff);border:1px solid #dbe7f5;border-radius:14px;padding:13px;margin-top:2px}
+  .schedule-mobile-head-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .schedule-mobile-no{font-size:19px;font-weight:900;color:#0f172a;line-height:1.25}
+  .schedule-mobile-customer{font-size:12px;color:#475569;margin-top:3px;line-height:1.4}
+  .schedule-mobile-product{font-size:11px;color:#64748b;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .schedule-mobile-due{margin-top:10px;padding-top:9px;border-top:1px solid #e8eef5;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .schedule-mobile-metric{background:#fff;border:1px solid #e7edf4;border-radius:9px;padding:8px 9px}
+  .schedule-mobile-metric small{display:block;color:#64748b;font-size:10px;font-weight:800;margin-bottom:2px}
+  .schedule-mobile-metric b{font-size:13px;color:#1e293b}
+  .schedule-mobile-timeline{margin-top:10px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:7px 11px}
+  .schedule-mobile-title{font-size:13px;font-weight:900;color:#334155;padding:5px 1px 7px}
+  .schedule-mobile-step{position:relative;display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center;padding:9px 1px;border-bottom:1px solid #eef2f6;min-width:0}
+  .schedule-mobile-step:last-child{border-bottom:0}
+  .schedule-mobile-dot{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:900;background:#e2e8f0;color:#64748b}
+  .schedule-mobile-step.done .schedule-mobile-dot{background:#dcfce7;color:#166534}
+  .schedule-mobile-step.active .schedule-mobile-dot{background:#dbeafe;color:#1d4ed8;box-shadow:0 0 0 3px #eff6ff}
+  .schedule-mobile-step.overdue .schedule-mobile-dot{background:#fee2e2;color:#b91c1c}
+  .schedule-mobile-step-main{min-width:0}
+  .schedule-mobile-step-main b{display:block;font-size:13px;color:#334155}
+  .schedule-mobile-step.active .schedule-mobile-step-main b{color:#1d4ed8}
+  .schedule-mobile-step-main small{display:block;margin-top:2px;font-size:10px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .schedule-mobile-step-status{font-size:10px;font-weight:900;white-space:nowrap;color:#64748b}
+  .schedule-mobile-step.active .schedule-mobile-step-status{color:#1d4ed8}
+  .schedule-mobile-step.overdue .schedule-mobile-step-status{color:#b91c1c}
+  .schedule-mobile-alerts{display:grid;gap:8px;margin-top:10px}
+  .schedule-mobile-alert{border:1px solid #fed7aa;background:#fff7ed;border-radius:12px;padding:10px 11px}
+  .schedule-mobile-alert.danger{border-color:#fecaca;background:#fef2f2}
+  .schedule-mobile-alert-head{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:12px;font-weight:900;color:#9a3412}
+  .schedule-mobile-alert.danger .schedule-mobile-alert-head{color:#b91c1c}
+  .schedule-mobile-alert-body{font-size:11px;color:#475569;line-height:1.6;margin-top:3px}
+  .schedule-mobile-alert-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px}
+  .schedule-mobile-alert-actions .btn{min-height:36px!important;font-size:12px!important}
+  .schedule-mobile-photo{margin-top:9px;width:100%;min-height:38px}
+
   /* 排程卡片 */
   #scheduleSummary .alert{line-height:1.7;font-size:12px}
   #page-schedule tbody td:nth-child(1)::before{content:'工序'}
@@ -1668,7 +1707,7 @@ input,select{min-height:38px}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>V3.30</span></div>
+    <div>PMC <span>V3.32</span></div>
     <small>生產管理系統</small>
   </div>
 
@@ -1709,7 +1748,7 @@ input,select{min-height:38px}
 
 
   <div class="top-actions">
-    <span class="mobile-version-badge" aria-label="版本">V3.30</span>
+    <span class="mobile-version-badge" aria-label="版本">V3.32</span>
     <span id="dataUpdatedAt" class="data-updated-badge" aria-label="資料更新時間">資料更新：—</span>
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
     <button class="btn secondary" id="openDataFileBtn" type="button" style="display:none">選擇 PMC_Data.json</button>
@@ -1887,6 +1926,7 @@ input,select{min-height:38px}
 
   <div id="scheduleSummary"></div>
 
+  <div id="scheduleMobileView" class="schedule-mobile-view"></div>
 
   <div
     class="table-wrap"
@@ -4048,6 +4088,69 @@ function renderSelectors(){
    SCHEDULE
 ========================================================= */
 
+function renderMobileSchedule(order){
+  const wrap=document.getElementById("scheduleMobileView");
+  if(!wrap)return;
+  if(!order){wrap.innerHTML="";return;}
+  normalizeOrder(order);
+  const ps=processStatus(order);
+  const left=daysLeft(order.due);
+  const dueText=left<0?`逾期 ${Math.abs(left)} 天`:left===0?"今天到期":`剩 ${left} 天`;
+  const dueClass=left<0?"danger":"";
+  const currentKey=currentProcessKey(order);
+  const a=order.actual||{};
+  const steps=PROCESS.map(function(p){
+    const actual=a[p.key];
+    const done=Boolean(actual?.end);
+    const active=!done && (Boolean(actual?.start)||p.key===currentKey);
+    const plan=order.schedule?.[p.key]||{};
+    const overdue=!done && parseDate(plan.end)<TODAY;
+    let status=done?"已完成":active?"進行中":overdue?"逾期":"待完成";
+    const meta=done?`實際完成 ${esc(actual.end)}`:`計畫 ${esc(plan.start||"—")} ～ ${esc(plan.end||"—")}`;
+    return `<div class="schedule-mobile-step ${done?"done":active?"active":""} ${overdue?"overdue":""}">
+      <span class="schedule-mobile-dot">${done?"✓":active?"●":""}</span>
+      <span class="schedule-mobile-step-main"><b>${esc(p.name)}</b><small>${meta}</small></span>
+      <span class="schedule-mobile-step-status">${status}</span>
+    </div>`;
+  }).join("");
+
+  const pst=purchaseStatsForOrder(order.no);
+  const ost=outsourcingStatsForOrder(order.no);
+  const alerts=[];
+  if(pst.total && pst.pending){
+    alerts.push(`<div class="schedule-mobile-alert ${pst.overdue?"danger":""}">
+      <div class="schedule-mobile-alert-head"><span>⚠ 採購</span><span>待進貨 ${pst.pending} 筆${pst.overdue?`／逾期 ${pst.overdue} 筆`:""}</span></div>
+      <div class="schedule-mobile-alert-body">這張工單還有採購項目未完成。</div>
+      <div class="schedule-mobile-alert-actions"><button type="button" class="btn small secondary" onclick="openPurchaseDetail('${esc(order.no)}','待到貨')">查看待進貨</button><button type="button" class="btn small secondary" onclick="openPurchaseDetail('${esc(order.no)}','逾期')">查看逾期</button></div>
+    </div>`);
+  }
+  if(ost.total && ost.pending){
+    alerts.push(`<div class="schedule-mobile-alert ${ost.overdue?"danger":""}">
+      <div class="schedule-mobile-alert-head"><span>⚠ 委外</span><span>未回 ${ost.pending} 筆${ost.overdue?`／逾期 ${ost.overdue} 筆`:""}</span></div>
+      <div class="schedule-mobile-alert-body">這張工單還有委外資料尚未回覆。</div>
+      <div class="schedule-mobile-alert-actions"><button type="button" class="btn small secondary" onclick="openOutsourcingDetail('${esc(order.no)}','全部')">查看委外明細</button><button type="button" class="btn small secondary" onclick="openOutsourcingDetail('${esc(order.no)}','未回')">查看未回</button></div>
+    </div>`);
+  }
+  wrap.innerHTML=`
+    <div class="schedule-mobile-head">
+      <div class="schedule-mobile-head-top">
+        <div style="min-width:0"><div class="schedule-mobile-no">${esc(order.no)}</div><div class="schedule-mobile-customer">${esc(order.customer||"—")}</div><div class="schedule-mobile-product">${esc(order.product||"—")}</div></div>
+        <div>${badge(ps)}</div>
+      </div>
+      <div class="schedule-mobile-due">
+        <div class="schedule-mobile-metric"><small>預計交期</small><b>${esc(order.due||"—")}</b></div>
+        <div class="schedule-mobile-metric"><small>交期狀態</small><b class="${dueClass?"danger-text":""}">${dueText}</b></div>
+      </div>
+      ${(order.images||[]).length?`<button type="button" class="btn small secondary schedule-mobile-photo" onclick="openOrderPhotoModal('${esc(order.no)}')">照片 ${(order.images||[]).length}</button>`:""}
+    </div>
+    <div class="schedule-mobile-timeline">
+      <div class="schedule-mobile-title">製程排程</div>
+      ${steps}
+    </div>
+    ${alerts.length?`<div class="schedule-mobile-alerts">${alerts.join("")}</div>`:""}
+  `;
+}
+
 function renderSchedule(){
 
   renderSelectors();
@@ -4208,6 +4311,8 @@ function renderSchedule(){
       `;
 
     }).join("");
+
+  renderMobileSchedule(order);
 
 }
 
