@@ -1695,7 +1695,7 @@ input,select{min-height:38px}
 
 </style>
 <style id="pmc-v333-schedule-responsive-fix">
-/* PMC V3.33：生產排程 PC／手機版強制隔離。保留 V3.32 手機排程內容與 PC 原排程功能。 */
+/* PMC V3.34：初始狀態與目前製程狀態分離；保留 V3.33 生產排程 PC／手機版隔離。 */
 #page-schedule .schedule-mobile-view{display:none!important;}
 @media (max-width:760px){
   #page-schedule .schedule-mobile-view{display:block!important;}
@@ -1721,7 +1721,7 @@ input,select{min-height:38px}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>V3.33</span></div>
+    <div>PMC <span>V3.34</span></div>
     <small>生產管理系統</small>
   </div>
 
@@ -1762,7 +1762,7 @@ input,select{min-height:38px}
 
 
   <div class="top-actions">
-    <span class="mobile-version-badge" aria-label="版本">V3.33</span>
+    <span class="mobile-version-badge" aria-label="版本">V3.34</span>
     <span id="dataUpdatedAt" class="data-updated-badge" aria-label="資料更新時間">資料更新：—</span>
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
     <button class="btn secondary" id="openDataFileBtn" type="button" style="display:none">選擇 PMC_Data.json</button>
@@ -3110,8 +3110,7 @@ function currentProcessKey(order){
   return "design";
 }
 function overallStatus(order){
-  // 維修為工單初始／管理狀態，後續更新製程進度時仍保留「維修」標記。
-  if(order.status==="維修") return "維修";
+  // V3.34：目前狀態依實際製程判定；初始狀態另由 order.initialStatus 保存。
   const ps=processStatus(order);
   if(ps==="已完成") return "已完成";
   if(daysLeft(order.due)<0) return "逾期";
@@ -3248,6 +3247,9 @@ function loadDataFromFile(file){
 ========================================================= */
 
 function normalizeOrder(order){
+  // V3.34：初始狀態獨立保存，避免更新生產進度時被目前狀態覆蓋。
+  // 舊資料若尚未有 initialStatus，優先利用原本「維修」標記進行一次性補回。
+  if(!order.initialStatus) order.initialStatus=(order.status==="維修"||order.priority==="維修")?"維修":(order.status||"待生產");
   order.processMode=order.processMode||"semi";
   // V3.20：沿用 V3.19 優先度規則；舊資料的「高」優先度統一轉為「維修」。
   if(order.priority==="高") order.priority="維修";
@@ -3418,17 +3420,17 @@ function progressValue(order){
 ========================================================= */
 
 function renderBoard(){
-  const active=orders.filter(o=>overallStatus(o)!=="已完成"&&o.status!=="維修").sort((a,b)=>daysLeft(a.due)-daysLeft(b.due));
+  const active=orders.filter(o=>overallStatus(o)!=="已完成"&&o.initialStatus!=="維修").sort((a,b)=>daysLeft(a.due)-daysLeft(b.due));
   const totalPages=Math.max(1,Math.ceil(active.length/BOARD_PAGE_SIZE));
   if(boardPage>totalPages)boardPage=totalPages;
   const start=(boardPage-1)*BOARD_PAGE_SIZE;
   const pageOrders=active.slice(start,start+BOARD_PAGE_SIZE);
   const parallelCount=key=>active.filter(o=>o.actual?.design?.end&&!o.actual?.[key]?.end).length;
-  const kpis=[["工單總數",active.length,"筆"],["維修",orders.filter(o=>o.status==="維修"&&overallStatus(o)!=="已完成").length,"筆"],["繪圖",active.filter(o=>overallStatus(o)==="繪圖").length,"筆"],["加工",parallelCount("weld"),"筆"],["採購",parallelCount("purchase"),"筆"],["委外",parallelCount("outsourcing"),"筆"],["組裝",active.filter(o=>overallStatus(o)==="組裝").length,"筆"],["測試中",active.filter(o=>overallStatus(o)==="測試中").length,"筆"],["待結案",active.filter(o=>overallStatus(o)==="待結案").length,"筆"],["逾期",active.filter(o=>overallStatus(o)==="逾期").length,"筆"]];
+  const kpis=[["工單總數",active.length,"筆"],["維修",orders.filter(o=>o.initialStatus==="維修"&&overallStatus(o)!=="已完成").length,"筆"],["繪圖",active.filter(o=>overallStatus(o)==="繪圖").length,"筆"],["加工",parallelCount("weld"),"筆"],["採購",parallelCount("purchase"),"筆"],["委外",parallelCount("outsourcing"),"筆"],["組裝",active.filter(o=>overallStatus(o)==="組裝").length,"筆"],["測試中",active.filter(o=>overallStatus(o)==="測試中").length,"筆"],["待結案",active.filter(o=>overallStatus(o)==="待結案").length,"筆"],["逾期",active.filter(o=>overallStatus(o)==="逾期").length,"筆"]];
   document.getElementById("boardKpis").innerHTML=kpis.filter(x=>x[1]>0).map(x=>`<button type="button" class="card kpi board-kpi-clickable" data-board-status="${esc(x[0])}"><div class="label">${x[0]}</div><div class="value">${x[1]}${x[2]}</div></button>`).join("");
   document.getElementById("boardOrders").innerHTML=active.length?pageOrders.map(o=>`<div class="board-order-row"><b><button type="button" class="board-order-no-btn" onclick="openOrderWorkflow('schedule','${esc(o.no)}')">${esc(o.no)}</button></b><span>${esc(o.customer)}</span><span>${esc(o.product)}</span><span class="board-status-badge-wrap">${(o.images||[]).length ? `<button type="button" class="btn small secondary board-inline-photo-btn" onclick="openOrderPhotoModal('${esc(o.no)}')">照片</button>` : ""}${badge(processStatus(o))}</span><span>${daysLeft(o.due)<0?"逾期 "+Math.abs(daysLeft(o.due))+" 天":"剩 "+daysLeft(o.due)+" 天"}</span></div>`).join(""):`<div class="empty">目前沒有未完成工單</div>`;
   document.getElementById("boardPagination").innerHTML=active.length?`<span>顯示 ${start+1}–${Math.min(start+BOARD_PAGE_SIZE,active.length)} / ${active.length} 筆</span><div class="board-page-buttons"><button class="btn secondary small" type="button" data-board-page="prev" ${boardPage<=1?"disabled":""}>上一頁</button>${Array.from({length:totalPages},(_,i)=>i+1).map(n=>`<button class="btn ${n===boardPage?"":"secondary"} small" type="button" data-board-page="${n}">${n}</button>`).join("")}<button class="btn secondary small" type="button" data-board-page="next" ${boardPage>=totalPages?"disabled":""}>下一頁</button></div>`:"";
-  const repairs=orders.filter(o=>o.status==="維修");
+  const repairs=orders.filter(o=>o.initialStatus==="維修");
   document.getElementById("boardMaintenance").innerHTML=repairs.length?`<div style="font-size:22px;font-weight:800;margin-bottom:8px">${repairs.length} 筆維修工單</div><div class="board-maintenance-list">${repairs.map(o=>`<div class="board-maintenance-row"><button type="button" class="board-order-no-btn" onclick="openOrderWorkflow('schedule','${esc(o.no)}')"><b>${esc(o.no)}</b></button><span>${esc(o.customer)}</span><span class="board-maintenance-status">${(o.images||[]).length ? `<button type="button" class="btn small secondary board-inline-photo-btn" onclick="openOrderPhotoModal('${esc(o.no)}')">照片</button>` : ""}${badge(maintenanceProcessStatus(o))}</span></div>`).join("")}</div>`:`<div class="empty">目前沒有維修工單</div>`;
 }
 
@@ -3805,7 +3807,7 @@ function orderStatusMatches(order, filter){
   if(filter==="未完成") return status!=="已完成";
   if(filter==="待結案") return status==="待結案";
   if(filter==="已完成") return status==="已完成";
-  if(filter==="維修") return order.status==="維修";
+  if(filter==="維修") return order.initialStatus==="維修";
   return true;
 }
 
@@ -4340,7 +4342,7 @@ function progressStatusMatches(order, filter){
   if(filter==="未完成") return status!=="已完成";
   if(filter==="待結案") return status==="待結案";
   if(filter==="已完成") return status==="已完成";
-  if(filter==="維修") return order.status==="維修";
+  if(filter==="維修") return order.initialStatus==="維修";
   return true;
 }
 
@@ -5266,7 +5268,7 @@ function getBoardStatusOrders(status){
   if(status==="測試中") return orders.filter(o=>overallStatus(o)==="測試中");
   if(status==="待結案") return orders.filter(o=>overallStatus(o)==="待結案");
   if(status==="逾期") return orders.filter(o=>overallStatus(o)==="逾期");
-  if(status==="維修") return orders.filter(o=>o.status==="維修"&&overallStatus(o)!=="已完成");
+  if(status==="維修") return orders.filter(o=>o.initialStatus==="維修"&&overallStatus(o)!=="已完成");
   if(status==="工單總數") return orders.filter(o=>overallStatus(o)!=="已完成");
   return [];
 }
@@ -5579,7 +5581,7 @@ function openOrderModal(no){
   document.getElementById(
     "f_status"
   ).value =
-    order?.status ||
+    order?.initialStatus || order?.status ||
     "待生產";
 
 
@@ -5885,6 +5887,7 @@ function saveOrder(){
     order.orderDate=orderDate;
     order.due=due;
     order.priority=priority;
+    order.initialStatus=status;
     order.status=status;
     order.processMode=processMode;
     order.durations=durations;
@@ -5928,6 +5931,7 @@ function saveOrder(){
 
       priority:priority,
 
+      initialStatus:status,
       status:status,
       processMode:processMode,
 
