@@ -1,6 +1,6 @@
 {
   "version": "3.1",
-  "exportedAt": "2026-10-08T02:15:59.725Z",
+  "exportedAt": "2026-10-08T07:21:39.189Z",
   "source": "PMC central JSON",
   "orders": [
     {
@@ -79,7 +79,8 @@
         }
       },
       "processMode": "semi",
-      "images": []
+      "images": [],
+      "initialStatus": "生產中"
     },
     {
       "no": "2608002",
@@ -173,7 +174,8 @@
           "days": 14
         }
       },
-      "images": []
+      "images": [],
+      "initialStatus": "生產中"
     },
     {
       "no": "2608001",
@@ -262,7 +264,8 @@
           "height": 1600,
           "createdAt": "2026-10-05T08:11:23.155Z"
         }
-      ]
+      ],
+      "initialStatus": "生產中"
     },
     {
       "no": "2607005",
@@ -350,14 +353,15 @@
           "height": 1167,
           "createdAt": "2026-09-26T00:46:57.056Z"
         }
-      ]
+      ],
+      "initialStatus": "生產中"
     },
     {
       "no": "2607003",
       "customer": "菲律賓",
       "product": "外抽真空封口機",
       "orderDate": "2026-07-24",
-      "due": "2026-10-02",
+      "due": "2026-10-19",
       "priority": "一般",
       "status": "生產中",
       "processMode": "semi",
@@ -450,7 +454,8 @@
           "height": 1363,
           "createdAt": "2026-09-25T02:25:23.975Z"
         }
-      ]
+      ],
+      "initialStatus": "生產中"
     },
     {
       "no": "2607002",
@@ -530,7 +535,8 @@
           "height": 1136,
           "createdAt": "2026-09-25T02:25:12.262Z"
         }
-      ]
+      ],
+      "initialStatus": "生產中"
     },
     {
       "no": "2606007",
@@ -610,7 +616,8 @@
           "height": 1287,
           "createdAt": "2026-09-25T02:25:00.445Z"
         }
-      ]
+      ],
+      "initialStatus": "生產中"
     },
     {
       "no": "2606005",
@@ -644,6 +651,10 @@
         "weld": {
           "start": "2026-08-19",
           "end": "2026-10-04"
+        },
+        "outsourcing": {
+          "start": "2026-08-19",
+          "end": "2026-10-08"
         }
       },
       "schedule": {
@@ -707,7 +718,8 @@
           "height": 1600,
           "createdAt": "2026-10-02T09:27:50.830Z"
         }
-      ]
+      ],
+      "initialStatus": "生產中"
     },
     {
       "no": "2606002",
@@ -785,7 +797,8 @@
           "days": 23
         }
       },
-      "images": []
+      "images": [],
+      "initialStatus": "生產中"
     },
     {
       "no": "2605009",
@@ -885,7 +898,8 @@
           "height": 1050,
           "createdAt": "2026-09-26T00:46:11.276Z"
         }
-      ]
+      ],
+      "initialStatus": "生產中"
     },
     {
       "no": "2605008",
@@ -915,6 +929,10 @@
         "purchase": {
           "start": "2026-07-24",
           "end": "2026-09-21"
+        },
+        "weld": {
+          "start": "2026-07-24",
+          "end": "2026-09-30"
         }
       },
       "schedule": {
@@ -969,7 +987,8 @@
           "height": 1149,
           "createdAt": "2026-09-26T00:46:20.232Z"
         }
-      ]
+      ],
+      "initialStatus": "生產中"
     },
     {
       "no": "2605006",
@@ -1069,7 +1088,8 @@
           "height": 1343,
           "createdAt": "2026-09-25T02:24:05.397Z"
         }
-      ]
+      ],
+      "initialStatus": "生產中"
     },
     {
       "no": "2605001",
@@ -1169,7 +1189,8 @@
           "height": 1282,
           "createdAt": "2026-09-25T02:23:52.824Z"
         }
-      ]
+      ],
+      "initialStatus": "生產中"
     },
     {
       "no": "2608004",
@@ -1244,7 +1265,8 @@
           "height": 1210,
           "createdAt": "2026-09-25T02:25:42.630Z"
         }
-      ]
+      ],
+      "initialStatus": "待生產"
     },
     {
       "no": "2608005",
@@ -1282,6 +1304,14 @@
         "outsourcing": {
           "start": "2026-09-11",
           "end": "2026-09-14"
+        },
+        "assembly": {
+          "start": "2026-09-01",
+          "end": "2026-09-21"
+        },
+        "electrical": {
+          "start": "2026-09-21",
+          "end": "2026-09-30"
         }
       },
       "schedule": {
@@ -1336,7 +1366,8 @@
           "height": 1192,
           "createdAt": "2026-09-26T00:46:47.330Z"
         }
-      ]
+      ],
+      "initialStatus": "生產中"
     },
     {
       "no": "2305006",
@@ -1434,7 +1465,8 @@
           "days": 10
         }
       },
-      "images": []
+      "images": [],
+      "initialStatus": "維修"
     },
     {
       "no": "2609001",
@@ -1534,7 +1566,8 @@
           "height": 1000,
           "createdAt": "2026-09-25T02:00:28.646Z"
         }
-      ]
+      ],
+      "initialStatus": "生產中"
     },
     {
       "no": "1801004",
@@ -1622,7 +1655,8 @@
           "height": 439,
           "createdAt": "2026-09-29T07:47:19.737Z"
         }
-      ]
+      ],
+      "initialStatus": "維修"
     },
     {
       "no": "2301001",
@@ -1726,7 +1760,8 @@
           "height": 1130,
           "createdAt": "2026-09-30T08:56:25.453Z"
         }
-      ]
+      ],
+      "initialStatus": "維修"
     },
     {
       "no": "2007015",
@@ -1830,7 +1865,8 @@
           "height": 762,
           "createdAt": "2026-09-29T03:03:44.663Z"
         }
-      ]
+      ],
+      "initialStatus": "維修"
     },
     {
       "no": "2601005",
@@ -1938,7 +1974,8 @@
           "height": 1600,
           "createdAt": "2026-09-25T07:21:01.648Z"
         }
-      ]
+      ],
+      "initialStatus": "維修"
     },
     {
       "no": "2308006",
@@ -2018,7 +2055,8 @@
           "end": "2026-09-29",
           "days": 1
         }
-      }
+      },
+      "initialStatus": "維修"
     },
     {
       "no": "2512002",
@@ -2116,7 +2154,8 @@
           "end": "2026-09-22",
           "days": 1
         }
-      }
+      },
+      "initialStatus": "已完成"
     },
     {
       "no": "2508003",
@@ -2125,9 +2164,9 @@
       "orderDate": "2026-09-29",
       "due": "2026-10-29",
       "priority": "維修",
-      "status": "維修",
+      "status": "已完成",
       "processMode": "auto",
-      "actualClose": "",
+      "actualClose": "2026-10-07",
       "durations": {
         "design": 1,
         "weld": 1,
@@ -2166,6 +2205,10 @@
         "test": {
           "start": "2026-09-29",
           "end": "2026-09-29"
+        },
+        "close": {
+          "start": "2026-09-29",
+          "end": "2026-10-07"
         }
       },
       "images": [],
@@ -2210,7 +2253,8 @@
           "end": "2026-10-18",
           "days": 1
         }
-      }
+      },
+      "initialStatus": "維修"
     },
     {
       "no": "2307002",
@@ -2219,7 +2263,7 @@
       "orderDate": "2026-09-23",
       "due": "2026-11-06",
       "priority": "維修",
-      "status": "維修",
+      "status": "生產中",
       "processMode": "auto",
       "actualClose": "",
       "durations": {
@@ -2232,7 +2276,12 @@
         "test": 1,
         "close": 1
       },
-      "actual": {},
+      "actual": {
+        "design": {
+          "start": "2026-09-23",
+          "end": "2026-10-06"
+        }
+      },
       "images": [
         {
           "id": "img_1791336414304_0m5p9xh",
@@ -2285,7 +2334,8 @@
           "end": "2026-10-27",
           "days": 14
         }
-      }
+      },
+      "initialStatus": "維修"
     },
     {
       "no": "2504007",
@@ -2385,7 +2435,8 @@
           "end": "2026-10-25",
           "days": 1
         }
-      }
+      },
+      "initialStatus": "維修"
     }
   ],
   "processRules": {
@@ -2412,1336 +2463,6 @@
   },
   "scheduleMode": "auto",
   "purchaseRows": [
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2110006-HH013",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-HH018",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-HH008-04",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-HH008-02",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-HH013",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-HH008-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-HH001",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-BB009-02",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-BB009-03",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-BB009-04",
-      "qty": 3,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-TW008-01",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-TW014-01",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-TW015",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-TW031",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-TW047",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-TW033",
-      "qty": 4,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2412004-HH137-03",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2412004-2301004-SH002",
-      "qty": 4,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2412004-2205001-XX010",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "sensor護蓋",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2507010-TW026",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-HH041",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-HH042",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-HH043",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-HH047",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-TW054-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-TW054-04",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-TW061",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-TW062",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-HH033-01",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-HH033-02",
-      "qty": 4,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-HH033-04",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-HH033-06",
-      "qty": 4,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-HH033-07",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-HH033-08",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-HH033-09",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-HH035-01",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-HH036-02",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-HH036-03",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-HH037-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-HH037-04",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-HH039-02",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-HH040",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-TW053",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-SH030",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-SH031-02",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-SH032",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2607002-TW007-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2607002-TW048-02",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2607002-TW048-03",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2607002-TW049",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2507007-TW013-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2507007-TW013-02",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2607002-TW050-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2607002-TW050-02",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2607002-TW050-05",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2607002-TW050-06",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "P401E-TW012",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-TW070",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-BB010-04",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-BB010-06",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-BB010-07",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-BB010-08",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-TW104-01",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-TW105-01",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2603004-TW100-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2603004-TW100-09",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2603004-TW101-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2603004-TW101-02",
-      "qty": "左1右1",
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2603004-TW101-03",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-HH002-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-HH004",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-HH008-05",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-HH009-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-HH009-02",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-HH009-03",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-HH009-04",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-HH009-05",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-HH009-06",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2601004-TW107-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2601004-TW107-02",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2601004-TW107-03",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-TW006",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-TW013",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2603004-TW045-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2305006-HH018-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2305006-HH018-02",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2112001-TW223",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-TW064-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-TW064-02",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-TW064-04",
-      "qty": 6,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-TW064-05",
-      "qty": 8,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-TW064-07",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-TW064-08",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-TW065-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-TW065-02",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-TW066",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-TW067",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2607002-TW068",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2607002-TW071-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2607002-TW071-02",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2603004-TW003",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2603004-TW004",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-TW007",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2412004-SH022-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2412004-SH022-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2412004-SH023-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2412004-SH024-02",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2303006-HH011",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-HH039-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-HH039-02",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-HH040-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-HH040-02",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "1905006-TW021",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2412004-TW100",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2603004-HH037",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-BB002-08",
-      "qty": 8,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2607002-TW001-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "304",
-      "part": "2607002-TW009",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-TW016-01",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-TW016-02",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-TW016-03",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-TW017",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-TW018",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "PV312T-HH086",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2412004-HH137-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2412004-HH137-02",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-BB008-05",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-BB008-03",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-BB008-05",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-BB008-03",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2607002-HH018",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-10-02",
-      "drawing": "",
-      "material": "41",
-      "part": "2205002-BB048",
-      "qty": 2,
-      "status": "逾期"
-    },
     {
       "supplier": "佳欣",
       "no": "2606007",
@@ -4614,46 +3335,6 @@
     },
     {
       "supplier": "佳欣",
-      "no": "2308006",
-      "expected": "2026-10-07",
-      "drawing": "",
-      "material": "41",
-      "part": "2301001-TW097-01",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2308006",
-      "expected": "2026-10-07",
-      "drawing": "",
-      "material": "304雙面亮",
-      "part": "2301001-TW096-01",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2308006",
-      "expected": "2026-10-07",
-      "drawing": "",
-      "material": "304雙面亮",
-      "part": "2308006-TW005",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2308006",
-      "expected": "2026-10-07",
-      "drawing": "",
-      "material": "304雙面亮",
-      "part": "2308006-TW006",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
       "no": "備庫存",
       "expected": "2026-10-12",
       "drawing": "",
@@ -4664,146 +3345,6 @@
     },
     {
       "supplier": "佳欣",
-      "no": "電控用",
-      "expected": "2026-10-05",
-      "drawing": "",
-      "material": "304",
-      "part": "E2.15.20-自製固定座A",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "電控用",
-      "expected": "2026-10-05",
-      "drawing": "",
-      "material": "304",
-      "part": "E2.15.20-自製固定座B-01",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "電控用",
-      "expected": "2026-10-05",
-      "drawing": "",
-      "material": "304",
-      "part": "E2.15.20-自製固定座B-02",
-      "qty": 4,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "電控用",
-      "expected": "2026-10-05",
-      "drawing": "",
-      "material": "304",
-      "part": "E2.25L.02-自製接頭A",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "電控用",
-      "expected": "2026-10-05",
-      "drawing": "",
-      "material": "304",
-      "part": "E2.25L.02-自製接頭B-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "電控用",
-      "expected": "2026-10-05",
-      "drawing": "",
-      "material": "304",
-      "part": "E2.25L.02-自製接頭B-02",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "電控用",
-      "expected": "2026-10-05",
-      "drawing": "",
-      "material": "304",
-      "part": "L4.38.050-自製接頭A",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "電控用",
-      "expected": "2026-10-05",
-      "drawing": "",
-      "material": "304",
-      "part": "L4.38.050-自製接頭B-01",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "電控用",
-      "expected": "2026-10-05",
-      "drawing": "",
-      "material": "304",
-      "part": "L4.38.050-自製接頭B-02",
-      "qty": 4,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2605006",
-      "expected": "2026-10-07",
-      "drawing": "",
-      "material": "304",
-      "part": "2605006-TW014-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2605006",
-      "expected": "2026-10-07",
-      "drawing": "",
-      "material": "304",
-      "part": "2605006-TW015",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2605001",
-      "expected": "2026-10-06",
-      "drawing": "",
-      "material": "304",
-      "part": "2605001-TW106",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2605001",
-      "expected": "2026-10-06",
-      "drawing": "",
-      "material": "304",
-      "part": "2605001-TW107-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2605001",
-      "expected": "2026-10-06",
-      "drawing": "",
-      "material": "304",
-      "part": "2605001-TW108",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
       "no": "2608004",
       "expected": "2026-10-20",
       "drawing": "",
@@ -4811,16 +3352,6 @@
       "part": "2608004-TW001-03",
       "qty": 1,
       "status": "待到貨"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607005",
-      "expected": "2026-10-07",
-      "drawing": "",
-      "material": "304",
-      "part": "2607005-TW110-01",
-      "qty": 1,
-      "status": "逾期"
     },
     {
       "supplier": "佳欣",
@@ -4839,6 +3370,16 @@
       "drawing": "",
       "material": "41",
       "part": "2605006-TW016",
+      "qty": 1,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "2606007",
+      "expected": "2026-10-20",
+      "drawing": "",
+      "material": "41",
+      "part": "2606007-TW049-01",
       "qty": 1,
       "status": "待到貨"
     },
@@ -5953,6 +4494,16 @@
       "status": "待到貨"
     },
     {
+      "supplier": "毅和",
+      "no": "2606005",
+      "expected": "2026-10-13",
+      "drawing": "",
+      "material": "304",
+      "part": "2606005-TW001-01",
+      "qty": 2,
+      "status": "待到貨"
+    },
+    {
       "supplier": "三綾",
       "no": "2606007",
       "expected": "2026-10-19",
@@ -5979,16 +4530,6 @@
       "drawing": "",
       "material": "41",
       "part": "2606007-TW048-01",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "三綾",
-      "no": "2606007",
-      "expected": "2026-10-19",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-TW049-01",
       "qty": 1,
       "status": "待到貨"
     },
@@ -6383,6 +4924,46 @@
       "status": "逾期"
     },
     {
+      "supplier": "金大展(銑304)",
+      "no": "2608003",
+      "expected": "2026-10-14",
+      "drawing": "前平台",
+      "material": "304",
+      "part": "2608003-BB001-11",
+      "qty": 2,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "金大展(銑304)",
+      "no": "2608003",
+      "expected": "2026-10-14",
+      "drawing": "前平台",
+      "material": "304",
+      "part": "2608003-BB001-12",
+      "qty": 2,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "金大展(銑304)",
+      "no": "2608003",
+      "expected": "2026-10-14",
+      "drawing": "前平台",
+      "material": "304",
+      "part": "2608003-BB001-13",
+      "qty": 1,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "金大展(銑304)",
+      "no": "2607002",
+      "expected": "2026-10-14",
+      "drawing": "皮帶固定板L",
+      "material": "41",
+      "part": "2412004-HH108",
+      "qty": 1,
+      "status": "待到貨"
+    },
+    {
       "supplier": "崧禾",
       "no": "2608004",
       "expected": "2026-10-28",
@@ -6409,6 +4990,16 @@
       "drawing": "拍打軸心",
       "material": "SUJ2",
       "part": "1909004-SH045",
+      "qty": 2,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "崧禾",
+      "no": "1602006",
+      "expected": "2026-10-22",
+      "drawing": "軸承鋼",
+      "material": "SUJ2",
+      "part": "1602006-SH006",
       "qty": 2,
       "status": "待到貨"
     },
@@ -6890,26 +5481,6 @@
       "material": "522茶色透明壓克力",
       "part": "20260917-XX001",
       "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "坤益(元鑫)鍍鋅輪",
-      "no": "2606007",
-      "expected": "2026-10-22",
-      "drawing": "無動力滾輪",
-      "material": "6061",
-      "part": "V1000T-SH010",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "坤益(元鑫)鍍鋅輪",
-      "no": "2606007",
-      "expected": "2026-10-22",
-      "drawing": "無動力滾輪",
-      "material": "6061",
-      "part": "V1000T-SH010",
-      "qty": 1,
       "status": "待到貨"
     },
     {
@@ -8878,7 +7449,7 @@
       "orderNos": [
         "2606005"
       ],
-      "status": "未回",
+      "status": "已回",
       "importedAt": "2026-10-04"
     },
     {
@@ -8906,7 +7477,7 @@
         "2606002",
         "2607002"
       ],
-      "status": "未回",
+      "status": "已回",
       "importedAt": "2026-10-04"
     },
     {
@@ -8920,7 +7491,7 @@
         "2608001",
         "2606002"
       ],
-      "status": "未回",
+      "status": "已回",
       "importedAt": "2026-10-06"
     },
     {
@@ -8931,7 +7502,7 @@
       "orderNos": [
         "2605008"
       ],
-      "status": "未回",
+      "status": "已回",
       "importedAt": "2026-10-06"
     }
   ]
