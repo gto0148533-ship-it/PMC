@@ -1695,7 +1695,7 @@ input,select{min-height:38px}
 
 </style>
 <style id="pmc-v333-schedule-responsive-fix">
-/* PMC V3.34：初始狀態與目前製程狀態分離；保留 V3.33 生產排程 PC／手機版隔離。 */
+/* PMC V3.35：初始狀態與目前製程狀態分離；保留 V3.33 生產排程 PC／手機版隔離。 */
 #page-schedule .schedule-mobile-view{display:none!important;}
 @media (max-width:760px){
   #page-schedule .schedule-mobile-view{display:block!important;}
@@ -1721,7 +1721,7 @@ input,select{min-height:38px}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>V3.34</span></div>
+    <div>PMC <span>V3.35</span></div>
     <small>生產管理系統</small>
   </div>
 
@@ -1762,7 +1762,7 @@ input,select{min-height:38px}
 
 
   <div class="top-actions">
-    <span class="mobile-version-badge" aria-label="版本">V3.34</span>
+    <span class="mobile-version-badge" aria-label="版本">V3.35</span>
     <span id="dataUpdatedAt" class="data-updated-badge" aria-label="資料更新時間">資料更新：—</span>
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
     <button class="btn secondary" id="openDataFileBtn" type="button" style="display:none">選擇 PMC_Data.json</button>
@@ -3110,7 +3110,7 @@ function currentProcessKey(order){
   return "design";
 }
 function overallStatus(order){
-  // V3.34：目前狀態依實際製程判定；初始狀態另由 order.initialStatus 保存。
+  // V3.35：目前狀態依實際製程判定；初始狀態另由 order.initialStatus 保存。
   const ps=processStatus(order);
   if(ps==="已完成") return "已完成";
   if(daysLeft(order.due)<0) return "逾期";
@@ -3247,7 +3247,7 @@ function loadDataFromFile(file){
 ========================================================= */
 
 function normalizeOrder(order){
-  // V3.34：初始狀態獨立保存，避免更新生產進度時被目前狀態覆蓋。
+  // V3.35：初始狀態獨立保存，避免更新生產進度時被目前狀態覆蓋。
   // 舊資料若尚未有 initialStatus，優先利用原本「維修」標記進行一次性補回。
   if(!order.initialStatus) order.initialStatus=(order.status==="維修"||order.priority==="維修")?"維修":(order.status||"待生產");
   order.processMode=order.processMode||"semi";
@@ -3430,7 +3430,7 @@ function renderBoard(){
   document.getElementById("boardKpis").innerHTML=kpis.filter(x=>x[1]>0).map(x=>`<button type="button" class="card kpi board-kpi-clickable" data-board-status="${esc(x[0])}"><div class="label">${x[0]}</div><div class="value">${x[1]}${x[2]}</div></button>`).join("");
   document.getElementById("boardOrders").innerHTML=active.length?pageOrders.map(o=>`<div class="board-order-row"><b><button type="button" class="board-order-no-btn" onclick="openOrderWorkflow('schedule','${esc(o.no)}')">${esc(o.no)}</button></b><span>${esc(o.customer)}</span><span>${esc(o.product)}</span><span class="board-status-badge-wrap">${(o.images||[]).length ? `<button type="button" class="btn small secondary board-inline-photo-btn" onclick="openOrderPhotoModal('${esc(o.no)}')">照片</button>` : ""}${badge(processStatus(o))}</span><span>${daysLeft(o.due)<0?"逾期 "+Math.abs(daysLeft(o.due))+" 天":"剩 "+daysLeft(o.due)+" 天"}</span></div>`).join(""):`<div class="empty">目前沒有未完成工單</div>`;
   document.getElementById("boardPagination").innerHTML=active.length?`<span>顯示 ${start+1}–${Math.min(start+BOARD_PAGE_SIZE,active.length)} / ${active.length} 筆</span><div class="board-page-buttons"><button class="btn secondary small" type="button" data-board-page="prev" ${boardPage<=1?"disabled":""}>上一頁</button>${Array.from({length:totalPages},(_,i)=>i+1).map(n=>`<button class="btn ${n===boardPage?"":"secondary"} small" type="button" data-board-page="${n}">${n}</button>`).join("")}<button class="btn secondary small" type="button" data-board-page="next" ${boardPage>=totalPages?"disabled":""}>下一頁</button></div>`:"";
-  const repairs=orders.filter(o=>o.initialStatus==="維修");
+  const repairs=orders.filter(o=>o.initialStatus==="維修"&&overallStatus(o)!=="已完成");
   document.getElementById("boardMaintenance").innerHTML=repairs.length?`<div style="font-size:22px;font-weight:800;margin-bottom:8px">${repairs.length} 筆維修工單</div><div class="board-maintenance-list">${repairs.map(o=>`<div class="board-maintenance-row"><button type="button" class="board-order-no-btn" onclick="openOrderWorkflow('schedule','${esc(o.no)}')"><b>${esc(o.no)}</b></button><span>${esc(o.customer)}</span><span class="board-maintenance-status">${(o.images||[]).length ? `<button type="button" class="btn small secondary board-inline-photo-btn" onclick="openOrderPhotoModal('${esc(o.no)}')">照片</button>` : ""}${badge(maintenanceProcessStatus(o))}</span></div>`).join("")}</div>`:`<div class="empty">目前沒有維修工單</div>`;
 }
 
