@@ -1200,35 +1200,65 @@ input,select{min-height:38px}
 @media(max-width:700px){.workflow-arrow{display:none}.workflow-step{padding:7px 8px}.workflow-step b{font-size:12px}.workflow-strip{gap:2px}.workflow-quick-actions{width:100%}.workflow-quick-actions .btn{flex:1 1 45%}.page-flow-actions{width:100%}.page-flow-actions .btn{flex:1 1 auto}}
 
 
-/* v5：跨頁快速操作／看板狀態明細 */
+/* V3.37：PMC 看板狀態彈窗 PC／手機分流、搜尋與分頁 */
 .board-kpi-clickable{cursor:pointer;transition:transform .12s,box-shadow .12s}
 .board-kpi-clickable:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,23,42,.10)}
 .board-kpi-clickable:active{transform:translateY(0)}
-.board-order-no-btn{border:0;background:transparent;padding:0;color:#1d4ed8;font:inherit;font-weight:800;cursor:pointer;text-align:left;text-decoration:underline;text-underline-offset:2px}
-.board-status-modal{position:fixed;inset:0;z-index:2147483000;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(15,23,42,.34)}
+.board-order-no-btn{border:0;background:transparent;padding:0;color:#1d4ed8;font:inherit;font-weight:800;cursor:pointer;text-align:left;text-decoration:underline;text-underline-offset:2px;overflow-wrap:anywhere}
+.board-status-modal{position:fixed;inset:0;z-index:2147483000;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(15,23,42,.42);backdrop-filter:blur(2px)}
 .board-status-modal.open{display:flex}
-.board-status-box{width:min(720px,94vw);max-height:min(78vh,720px);overflow:hidden;background:#fff;border-radius:16px;box-shadow:0 24px 70px rgba(15,23,42,.28);display:flex;flex-direction:column}
-.board-status-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px;border-bottom:1px solid #e5e7eb}
-.board-status-head b{font-size:17px}
-.board-status-body{overflow:auto;padding:10px 16px 16px;-webkit-overflow-scrolling:touch}
-.board-status-row{display:grid;grid-template-columns:minmax(120px,1.1fr) minmax(120px,1fr) 100px minmax(210px,auto);gap:10px;align-items:center;padding:11px 4px;border-bottom:1px solid #edf1f5}
+.board-status-box{width:min(1000px,96vw);max-height:min(86vh,820px);overflow:hidden;background:#fff;border:1px solid rgba(148,163,184,.25);border-radius:16px;box-shadow:0 24px 70px rgba(15,23,42,.30);display:flex;flex-direction:column;min-height:0}
+.board-status-head{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px;border-bottom:1px solid #e5e7eb;background:#fff}
+.board-status-head b{font-size:17px;line-height:1.35}
+.board-status-toolbar{flex:0 0 auto;display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid #edf1f5;background:#fff}
+.board-status-search{width:min(440px,100%);min-width:0;min-height:38px;background:#f8fafc}
+.board-status-results{margin-left:auto;font-size:12px;color:#64748b;white-space:nowrap}
+.board-status-columns{flex:0 0 auto;display:grid;grid-template-columns:minmax(92px,110px) minmax(120px,1.1fr) minmax(130px,1fr) minmax(135px,auto) minmax(220px,auto);gap:10px;align-items:center;padding:9px 18px;background:#f8fafc;border-bottom:1px solid #e2e8f0;color:#64748b;font-size:11px;font-weight:800}
+.board-status-body{overflow:auto;flex:1 1 auto;min-height:0;padding:3px 18px 12px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.board-status-row{display:grid;grid-template-columns:minmax(92px,110px) minmax(120px,1.1fr) minmax(130px,1fr) minmax(135px,auto) minmax(220px,auto);gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid #edf1f5;min-height:56px}
 .board-status-row:last-child{border-bottom:0}
-.board-status-actions{display:flex;gap:5px;justify-content:flex-end;flex-wrap:wrap}
-.board-status-actions .btn{min-width:58px}
+.status-customer{min-width:0;overflow-wrap:anywhere}
+.status-badge{min-width:0}
+.status-process-display{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.status-process-name{font-size:11px;color:#64748b;line-height:1.25}
+.status-due{display:flex;flex-direction:column;align-items:flex-start;gap:3px;line-height:1.35;font-size:12px;white-space:nowrap}
+.status-due-label{color:#64748b;font-size:10px}
+.status-due-summary{font-weight:800;color:#475569}
+.status-due-summary.overdue{color:#b91c1c}
+.status-due-summary.today{color:#b45309}
+.board-status-actions{display:flex;gap:5px;justify-content:flex-start;flex-wrap:wrap;min-width:0}
+.board-status-actions .btn{min-width:54px;padding:6px 8px;white-space:nowrap}
+.board-status-pagination{flex:0 0 auto;display:none;align-items:center;justify-content:center;gap:12px;padding:10px 14px;border-top:1px solid #e5e7eb;background:#fff}
+.board-status-pagination .btn{min-width:76px}
+.board-status-page-label{font-size:12px;color:#64748b;white-space:nowrap}
+.board-status-empty{padding:28px 12px;text-align:center;color:#64748b}
 .purchase-link-btn{border:0;background:transparent;padding:0;cursor:pointer;color:#1d4ed8;font:inherit;font-weight:800;text-decoration:underline;text-underline-offset:2px}
 .purchase-link-btn.overdue{color:var(--danger)}
 .purchase-detail-actions{display:inline-flex;gap:4px;flex-wrap:wrap;margin-left:5px}
 .purchase-detail-actions .btn{font-size:11px;padding:3px 7px;min-height:28px}
 @media(max-width:760px){
   .board-status-modal{align-items:flex-end;padding:0}
-  .board-status-box{width:100%;max-height:86vh;border-radius:16px 16px 0 0}
-  .board-status-head{padding:13px 14px}
-  .board-status-body{padding:6px 12px 16px}
-  .board-status-row{grid-template-columns:1fr auto;gap:4px 8px;padding:11px 2px}
-  .board-status-row .status-customer{grid-column:1/2;font-size:12px;color:#475569}
-  .board-status-row .status-badge{grid-column:2/3;grid-row:1/3;align-self:start}
-  .board-status-actions{grid-column:1/3;justify-content:stretch}
-  .board-status-actions .btn{flex:1;min-width:0;min-height:34px}
+  .board-status-box{width:100%;max-height:89vh;max-height:89dvh;border-radius:18px 18px 0 0;border:0;box-shadow:0 -10px 40px rgba(15,23,42,.24)}
+  .board-status-head{padding:12px 14px;min-height:54px}
+  .board-status-head b{font-size:16px}
+  .board-status-toolbar{align-items:stretch;flex-direction:column;gap:7px;padding:9px 14px}
+  .board-status-search{width:100%;min-height:42px;font-size:16px}
+  .board-status-results{margin:0;text-align:left;font-size:11px}
+  .board-status-columns{display:none}
+  .board-status-body{padding:5px 12px 12px}
+  .board-status-row{grid-template-columns:minmax(0,1fr) auto;gap:5px 10px;padding:12px 3px;border-bottom:1px solid #e2e8f0;align-items:start}
+  .board-status-row .status-order{grid-column:1/2;grid-row:1;font-size:14px;min-width:0}
+  .board-status-row .status-customer{grid-column:1/3;grid-row:2;font-size:12px;color:#475569;line-height:1.4}
+  .board-status-row .status-badge{grid-column:2/3;grid-row:1;justify-self:end;text-align:right}
+  .board-status-row .status-process-display{align-items:flex-end}
+  .board-status-row .status-due{grid-column:1/3;grid-row:3;display:flex;flex-direction:row;align-items:baseline;flex-wrap:wrap;gap:5px 8px;white-space:normal;padding-top:3px}
+  .board-status-row .status-due-label{font-size:11px}
+  .board-status-row .status-due-summary{font-size:12px}
+  .board-status-actions{grid-column:1/3;grid-row:4;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:5px}
+  .board-status-actions .btn{width:100%;min-width:0;min-height:39px;padding:8px 6px;font-size:12px;white-space:normal;line-height:1.25}
+  .board-status-pagination{padding:9px 12px;gap:10px}
+  .board-status-pagination .btn{min-width:82px;min-height:38px}
+  .board-status-page-label{font-size:11px}
   #page-purchase .mobile-purchase-import-card{display:none!important}
   .purchase-detail-actions{display:flex;margin:5px 0 0}
   .purchase-detail-actions .btn{min-height:32px}
@@ -1695,7 +1725,7 @@ input,select{min-height:38px}
 
 </style>
 <style id="pmc-v333-schedule-responsive-fix">
-/* PMC V3.36：初始狀態與目前製程狀態分離；保留 V3.33 生產排程 PC／手機版隔離。 */
+/* PMC V3.37：看板狀態彈窗搜尋、分頁、製程狀態及 PC／手機版優化；保留 V3.36 狀態分離。 */
 #page-schedule .schedule-mobile-view{display:none!important;}
 @media (max-width:760px){
   #page-schedule .schedule-mobile-view{display:block!important;}
@@ -1721,7 +1751,7 @@ input,select{min-height:38px}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>V3.36</span></div>
+    <div>PMC <span>V3.37</span></div>
     <small>生產管理系統</small>
   </div>
 
@@ -1762,7 +1792,7 @@ input,select{min-height:38px}
 
 
   <div class="top-actions">
-    <span class="mobile-version-badge" aria-label="版本">V3.36</span>
+    <span class="mobile-version-badge" aria-label="版本">V3.37</span>
     <span id="dataUpdatedAt" class="data-updated-badge" aria-label="資料更新時間">資料更新：—</span>
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
     <button class="btn secondary" id="openDataFileBtn" type="button" style="display:none">選擇 PMC_Data.json</button>
@@ -3056,6 +3086,8 @@ function badge(status){
 
   const statusColors={
     "待生產":"gray",
+    "待開始":"gray",
+    "進行中":"blue",
     "生產中":"blue",
     "已完成":"ok",
     "逾期":"danger",
@@ -3429,8 +3461,8 @@ function renderBoard(){
   if(boardPage>totalPages)boardPage=totalPages;
   const start=(boardPage-1)*BOARD_PAGE_SIZE;
   const pageOrders=active.slice(start,start+BOARD_PAGE_SIZE);
-  const parallelCount=key=>active.filter(o=>o.actual?.design?.end&&!o.actual?.[key]?.end).length;
-  const kpis=[["工單總數",active.length,"筆"],["維修",orders.filter(o=>o.initialStatus==="維修"&&overallStatus(o)!=="已完成").length,"筆"],["繪圖",active.filter(o=>overallStatus(o)==="繪圖").length,"筆"],["加工",parallelCount("weld"),"筆"],["採購",parallelCount("purchase"),"筆"],["委外",parallelCount("outsourcing"),"筆"],["組裝",active.filter(o=>overallStatus(o)==="組裝").length,"筆"],["測試中",active.filter(o=>overallStatus(o)==="測試中").length,"筆"],["待結案",active.filter(o=>overallStatus(o)==="待結案").length,"筆"],["逾期",active.filter(o=>overallStatus(o)==="逾期").length,"筆"]];
+  const statusNames=["工單總數","維修","繪圖","加工","採購","委外","組裝","測試中","待結案","逾期"];
+  const kpis=statusNames.map(status=>[status,getBoardStatusOrders(status).length,"筆"]);
   document.getElementById("boardKpis").innerHTML=kpis.filter(x=>x[1]>0).map(x=>`<button type="button" class="card kpi board-kpi-clickable" data-board-status="${esc(x[0])}"><div class="label">${x[0]}</div><div class="value">${x[1]}${x[2]}</div></button>`).join("");
   document.getElementById("boardOrders").innerHTML=active.length?pageOrders.map(o=>`<div class="board-order-row"><b><button type="button" class="board-order-no-btn" onclick="openOrderWorkflow('schedule','${esc(o.no)}')">${esc(o.no)}</button></b><span>${esc(o.customer)}</span><span>${esc(o.product)}</span><span class="board-status-badge-wrap">${(o.images||[]).length ? `<button type="button" class="btn small secondary board-inline-photo-btn" onclick="openOrderPhotoModal('${esc(o.no)}')">照片</button>` : ""}${badge(processStatus(o))}</span><span>${daysLeft(o.due)<0?"逾期 "+Math.abs(daysLeft(o.due))+" 天":"剩 "+daysLeft(o.due)+" 天"}</span></div>`).join(""):`<div class="empty">目前沒有未完成工單</div>`;
   document.getElementById("boardPagination").innerHTML=active.length?`<span>顯示 ${start+1}–${Math.min(start+BOARD_PAGE_SIZE,active.length)} / ${active.length} 筆</span><div class="board-page-buttons"><button class="btn secondary small" type="button" data-board-page="prev" ${boardPage<=1?"disabled":""}>上一頁</button>${Array.from({length:totalPages},(_,i)=>i+1).map(n=>`<button class="btn ${n===boardPage?"":"secondary"} small" type="button" data-board-page="${n}">${n}</button>`).join("")}<button class="btn secondary small" type="button" data-board-page="next" ${boardPage>=totalPages?"disabled":""}>下一頁</button></div>`:"";
@@ -5260,44 +5292,97 @@ function exportGanttImage(){
    V3.17：看板狀態明細 → 採購／委外時保留上一層狀態明細
 ========================================================= */
 function getBoardStatusOrders(status){
-  const parallel={
-    "加工": "weld",
-    "採購": "purchase",
-    "委外": "outsourcing"
-  };
+  // 共用唯一篩選規則，確保看板卡片數字和彈窗筆數一致。
+  const active=orders.filter(o=>overallStatus(o)!=="已完成"&&o.initialStatus!=="維修");
+  const parallel={"加工":"weld","採購":"purchase","委外":"outsourcing"};
+  if(status==="維修") return orders.filter(o=>o.initialStatus==="維修"&&overallStatus(o)!=="已完成");
+  if(status==="工單總數") return active;
   if(parallel[status]){
     const key=parallel[status];
-    return orders.filter(o=>o.actual?.design?.end&&!o.actual?.[key]?.end&&overallStatus(o)!=="已完成");
+    return active.filter(o=>o.actual?.design?.end&&!o.actual?.[key]?.end);
   }
-  if(status==="繪圖") return orders.filter(o=>overallStatus(o)==="繪圖");
-  if(status==="組裝") return orders.filter(o=>overallStatus(o)==="組裝");
-  if(status==="測試中") return orders.filter(o=>overallStatus(o)==="測試中");
-  if(status==="待結案") return orders.filter(o=>overallStatus(o)==="待結案");
-  if(status==="逾期") return orders.filter(o=>overallStatus(o)==="逾期");
-  if(status==="維修") return orders.filter(o=>o.initialStatus==="維修"&&overallStatus(o)!=="已完成");
-  if(status==="工單總數") return orders.filter(o=>overallStatus(o)!=="已完成");
+  if(["繪圖","組裝","測試中","待結案","逾期"].includes(status)){
+    return active.filter(o=>overallStatus(o)===status);
+  }
   return [];
 }
-function openBoardStatusModal(status){
+
+let boardStatusCurrentStatus="";
+let boardStatusCurrentPage=1;
+function boardStatusEscapedQuery(value){return String(value||"").trim().toLocaleLowerCase();}
+function boardStatusGetFilteredOrders(){
+  const status=boardStatusCurrentStatus;
   const list=getBoardStatusOrders(status);
+  const input=document.getElementById("boardStatusSearch");
+  const q=boardStatusEscapedQuery(input?.value);
+  if(!q)return list;
+  return list.filter(o=>[o.no,o.customer,o.product,o.model,o.machine].some(value=>String(value||"").toLocaleLowerCase().includes(q)));
+}
+function boardStatusProcessHtml(order,status){
+  const parallel={"加工":{key:"weld",name:"加工焊接"},"採購":{key:"purchase",name:"採購"},"委外":{key:"outsourcing",name:"委外製造"}};
+  if(parallel[status]){
+    const lane=parallel[status];
+    const a=order.actual||{};
+    const laneStatus=a[lane.key]?.end?"已完成":(a.design?.end?"進行中":"待開始");
+    return `<div class="status-process-display"><span class="status-process-name">${esc(lane.name)}</span>${badge(laneStatus)}</div>`;
+  }
+  return badge(maintenanceProcessStatus(order));
+}
+function boardStatusDueHtml(order){
+  const due=parseDate(order.due);
+  if(!due)return `<div class="status-due"><span class="status-due-label">交期</span><strong>未設定</strong><span class="status-due-summary">請確認交期</span></div>`;
+  const left=daysLeft(order.due);
+  let summary="";let cls="";
+  if(left<0){summary=`逾期 ${Math.abs(left)} 天`;cls="overdue";}
+  else if(left===0){summary="今天到期";cls="today";}
+  else summary=`剩 ${left} 天`;
+  return `<div class="status-due"><span class="status-due-label">交期</span><strong>${esc(fmt(due))}</strong><span class="status-due-summary ${cls}">${summary}</span></div>`;
+}
+function boardStatusRenderRow(order,status,isMobile){
+  const no=esc(order.no);
+  const customer=esc(order.customer||"未填客戶");
+  const actions=`<div class="board-status-actions">
+    <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('schedule','${no}')">排程</button>
+    ${isMobile ? "" : `<button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('progress','${no}')">進度</button>`}
+    <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('purchase','${no}')">${isMobile ? "採購明細" : "採購"}</button>
+    <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('outsourcing','${no}')">${isMobile ? "委外明細" : "委外"}</button>
+    ${(order.images||[]).length ? `<button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderPhotoModal('${no}')">照片</button>` : ""}
+  </div>`;
+  return `<div class="board-status-row">
+    <div class="status-order"><button type="button" class="board-order-no-btn" onclick="closeBoardStatusModal();openOrderWorkflow('schedule','${no}')">${no}</button></div>
+    <div class="status-customer">${customer}</div>
+    <div class="status-badge">${boardStatusProcessHtml(order,status)}</div>
+    ${boardStatusDueHtml(order)}
+    ${actions}
+  </div>`;
+}
+function renderBoardStatusModalResults(){
+  const body=document.getElementById("boardStatusModalBody");
+  const result=document.getElementById("boardStatusResults");
+  const pager=document.getElementById("boardStatusPagination");
+  if(!body||!result||!pager)return;
+  const list=boardStatusGetFilteredOrders();
+  const isMobile=window.matchMedia("(max-width: 760px)").matches;
+  const pageSize=isMobile?4:8;
+  const totalPages=Math.max(1,Math.ceil(list.length/pageSize));
+  boardStatusCurrentPage=Math.min(Math.max(1,boardStatusCurrentPage),totalPages);
+  const start=(boardStatusCurrentPage-1)*pageSize;
+  const pageList=list.slice(start,start+pageSize);
+  result.textContent=list.length?`共 ${list.length} 筆符合，顯示 ${start+1}–${Math.min(start+pageSize,list.length)} 筆`:`共 0 筆符合`;
+  body.innerHTML=pageList.length?pageList.map(o=>boardStatusRenderRow(o,boardStatusCurrentStatus,isMobile)).join(""):`<div class="board-status-empty">${document.getElementById("boardStatusSearch")?.value.trim()?"找不到符合的工單":"目前沒有符合的工單"}</div>`;
+  pager.style.display=totalPages>1?"flex":"none";
+  pager.innerHTML=totalPages>1?`<button type="button" class="btn secondary small" data-board-status-page="prev" ${boardStatusCurrentPage<=1?"disabled":""}>上一頁</button><span class="board-status-page-label">第 ${boardStatusCurrentPage} / ${totalPages} 頁</span><button type="button" class="btn secondary small" data-board-status-page="next" ${boardStatusCurrentPage>=totalPages?"disabled":""}>下一頁</button>`:"";
+}
+function openBoardStatusModal(status){
   const modal=document.getElementById("boardStatusModal");
   const title=document.getElementById("boardStatusModalTitle");
-  const body=document.getElementById("boardStatusModalBody");
-  if(!modal||!title||!body)return;
-  const isMobile=window.matchMedia("(max-width: 768px)").matches;
-  title.textContent=`${status}｜${list.length} 筆工單`;
-  body.innerHTML=list.length?list.map(o=>`<div class="board-status-row">
-    <div><button type="button" class="board-order-no-btn" onclick="closeBoardStatusModal();openOrderWorkflow('schedule','${esc(o.no)}')">${esc(o.no)}</button></div>
-    <div class="status-customer">${esc(o.customer||"")}</div>
-    <div class="status-badge">${badge(maintenanceProcessStatus(o))}</div>
-    <div class="board-status-actions">
-      <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('schedule','${esc(o.no)}')">排程</button>
-      ${isMobile ? "" : `<button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('progress','${esc(o.no)}')">進度</button>`}
-      <button type="button" class="btn small secondary" onclick="openOrderWorkflow('purchase','${esc(o.no)}')">${isMobile ? "採購明細" : "採購"}</button>
-      <button type="button" class="btn small secondary" onclick="openOrderWorkflow('outsourcing','${esc(o.no)}')">${isMobile ? "委外明細" : "委外"}</button>
-      ${(o.images||[]).length ? `<button type="button" class="btn small secondary" onclick="openOrderPhotoModal('${esc(o.no)}')">照片</button>` : ""}
-    </div>
-  </div>`).join(""):`<div class="empty">目前沒有符合的工單</div>`;
+  const search=document.getElementById("boardStatusSearch");
+  if(!modal||!title||!search)return;
+  boardStatusCurrentStatus=status;
+  boardStatusCurrentPage=1;
+  search.value="";
+  title.textContent=`${status}｜${getBoardStatusOrders(status).length} 筆工單`;
+  renderBoardStatusModalResults();
   modal.classList.add("open");
   modal.setAttribute("aria-hidden","false");
   document.body.style.overflow="hidden";
@@ -7291,7 +7376,13 @@ document.addEventListener(
       <b id="boardStatusModalTitle">狀態工單</b>
       <button type="button" class="btn secondary small" onclick="closeBoardStatusModal()">關閉</button>
     </div>
+    <div class="board-status-toolbar">
+      <input id="boardStatusSearch" class="board-status-search" type="search" placeholder="搜尋工單號碼／客戶／機型" autocomplete="off" aria-label="搜尋目前狀態的工單">
+      <span id="boardStatusResults" class="board-status-results">共 0 筆符合</span>
+    </div>
+    <div class="board-status-columns" aria-hidden="true"><span>工單號碼</span><span>客戶</span><span>目前製程／製程狀態</span><span>交期／剩餘天數</span><span>快速操作</span></div>
     <div id="boardStatusModalBody" class="board-status-body"></div>
+    <div id="boardStatusPagination" class="board-status-pagination"></div>
   </div>
 </div>
 
@@ -7299,13 +7390,30 @@ document.addEventListener(
 (function(){
   function bindBoardStatus(){
     document.addEventListener('click',function(e){
+      const pageButton=e.target.closest('[data-board-status-page]');
+      if(pageButton){
+        if(pageButton.disabled)return;
+        boardStatusCurrentPage += pageButton.dataset.boardStatusPage==='prev'?-1:1;
+        renderBoardStatusModalResults();
+        return;
+      }
       const b=e.target.closest('[data-board-status]');
       if(!b)return;
       openBoardStatusModal(b.dataset.boardStatus||'');
     });
+    document.addEventListener('input',function(e){
+      if(e.target && e.target.id==='boardStatusSearch'){
+        boardStatusCurrentPage=1;
+        renderBoardStatusModalResults();
+      }
+    });
     const modal=document.getElementById('boardStatusModal');
     if(modal)modal.addEventListener('click',function(e){if(e.target===modal)closeBoardStatusModal();});
     document.addEventListener('keydown',function(e){if(e.key==='Escape')closeBoardStatusModal();});
+    window.addEventListener('resize',function(){
+      const modal=document.getElementById('boardStatusModal');
+      if(modal&&modal.classList.contains('open'))renderBoardStatusModalResults();
+    });
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindBoardStatus);else bindBoardStatus();
 })();
