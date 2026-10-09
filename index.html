@@ -1695,7 +1695,7 @@ input,select{min-height:38px}
 
 </style>
 <style id="pmc-v333-schedule-responsive-fix">
-/* PMC V3.35：初始狀態與目前製程狀態分離；保留 V3.33 生產排程 PC／手機版隔離。 */
+/* PMC V3.36：初始狀態與目前製程狀態分離；保留 V3.33 生產排程 PC／手機版隔離。 */
 #page-schedule .schedule-mobile-view{display:none!important;}
 @media (max-width:760px){
   #page-schedule .schedule-mobile-view{display:block!important;}
@@ -1721,7 +1721,7 @@ input,select{min-height:38px}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>V3.35</span></div>
+    <div>PMC <span>V3.36</span></div>
     <small>生產管理系統</small>
   </div>
 
@@ -1762,7 +1762,7 @@ input,select{min-height:38px}
 
 
   <div class="top-actions">
-    <span class="mobile-version-badge" aria-label="版本">V3.35</span>
+    <span class="mobile-version-badge" aria-label="版本">V3.36</span>
     <span id="dataUpdatedAt" class="data-updated-badge" aria-label="資料更新時間">資料更新：—</span>
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
     <button class="btn secondary" id="openDataFileBtn" type="button" style="display:none">選擇 PMC_Data.json</button>
@@ -2963,9 +2963,13 @@ function fmt(date){
 
   if(!date) return "";
 
-  return date
-    .toISOString()
-    .slice(0,10);
+  const d = new Date(date);
+  if(isNaN(d)) return "";
+
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,"0");
+  const day = String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
 
 }
 
@@ -3110,7 +3114,7 @@ function currentProcessKey(order){
   return "design";
 }
 function overallStatus(order){
-  // V3.35：目前狀態依實際製程判定；初始狀態另由 order.initialStatus 保存。
+  // V3.36：目前狀態依實際製程判定；初始狀態另由 order.initialStatus 保存。
   const ps=processStatus(order);
   if(ps==="已完成") return "已完成";
   if(daysLeft(order.due)<0) return "逾期";
@@ -3247,7 +3251,7 @@ function loadDataFromFile(file){
 ========================================================= */
 
 function normalizeOrder(order){
-  // V3.35：初始狀態獨立保存，避免更新生產進度時被目前狀態覆蓋。
+  // V3.36：初始狀態獨立保存，避免更新生產進度時被目前狀態覆蓋。
   // 舊資料若尚未有 initialStatus，優先利用原本「維修」標記進行一次性補回。
   if(!order.initialStatus) order.initialStatus=(order.status==="維修"||order.priority==="維修")?"維修":(order.status||"待生產");
   order.processMode=order.processMode||"semi";
@@ -4118,7 +4122,9 @@ function renderMobileSchedule(order){
   const steps=PROCESS.map(function(p){
     const actual=a[p.key];
     const done=Boolean(actual?.end);
-    const active=!done && (Boolean(actual?.start)||p.key===currentKey);
+    const isParallel=["weld","purchase","outsourcing"].includes(p.key);
+    const parallelInProgress=isParallel && Boolean(a.design?.end) && !done;
+    const active=!done && (Boolean(actual?.start)||parallelInProgress||p.key===currentKey);
     const plan=order.schedule?.[p.key]||{};
     const overdue=!done && parseDate(plan.end)<TODAY;
     let status=done?"已完成":active?"進行中":overdue?"逾期":"待完成";
