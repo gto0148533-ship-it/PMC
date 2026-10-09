@@ -1738,6 +1738,9 @@ input,select{min-height:38px}
   #page-schedule #scheduleSummary{display:block!important;}
 }
 </style>
+
+
+
 </head>
 
 <body>
@@ -1751,7 +1754,7 @@ input,select{min-height:38px}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>V3.38</span></div>
+    <div>PMC <span>V3.39</span></div>
     <small>生產管理系統</small>
   </div>
 
@@ -1792,7 +1795,7 @@ input,select{min-height:38px}
 
 
   <div class="top-actions">
-    <span class="mobile-version-badge" aria-label="版本">V3.38</span>
+    <span class="mobile-version-badge" aria-label="版本">V3.39</span>
     <span id="dataUpdatedAt" class="data-updated-badge" aria-label="資料更新時間">資料更新：—</span>
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
     <button class="btn secondary" id="openDataFileBtn" type="button" style="display:none">選擇 PMC_Data.json</button>
@@ -5342,7 +5345,7 @@ function boardStatusRenderRow(order,status,isMobile){
   const no=esc(order.no);
   const customer=esc(order.customer||"未填客戶");
   const actions=`<div class="board-status-actions">
-    <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('schedule','${no}')">排程</button>
+    <button type="button" class="btn small board-status-action-primary" onclick="closeBoardStatusModal();openOrderWorkflow('schedule','${no}')">排程</button>
     ${isMobile ? "" : `<button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('progress','${no}')">進度</button>`}
     <button type="button" class="btn small secondary" onclick="openOrderWorkflow('purchase','${no}')">${isMobile ? "採購明細" : "採購"}</button>
     <button type="button" class="btn small secondary" onclick="openOrderWorkflow('outsourcing','${no}')">${isMobile ? "委外明細" : "委外"}</button>
@@ -5381,6 +5384,8 @@ function openBoardStatusModal(status){
   boardStatusCurrentStatus=status;
   boardStatusCurrentPage=1;
   search.value="";
+  const clearButton=document.getElementById("boardStatusSearchClear");
+  if(clearButton)clearButton.disabled=true;
   title.textContent=`${status}｜${getBoardStatusOrders(status).length} 筆工單`;
   renderBoardStatusModalResults();
   modal.classList.add("open");
@@ -7383,13 +7388,17 @@ document.addEventListener(
 
 <div id="boardStatusModal" class="board-status-modal" aria-hidden="true">
   <div class="board-status-box" role="dialog" aria-modal="true" aria-labelledby="boardStatusModalTitle">
+    <div class="board-status-handle" aria-hidden="true"></div>
     <div class="board-status-head">
       <b id="boardStatusModalTitle">狀態工單</b>
-      <button type="button" class="btn secondary small" onclick="closeBoardStatusModal()">關閉</button>
+      <button type="button" class="btn secondary small board-status-close" onclick="closeBoardStatusModal()">關閉</button>
     </div>
     <div class="board-status-toolbar">
-      <input id="boardStatusSearch" class="board-status-search" type="search" placeholder="搜尋工單號碼／客戶／機型" autocomplete="off" aria-label="搜尋目前狀態的工單">
-      <span id="boardStatusResults" class="board-status-results">共 0 筆符合</span>
+      <div class="board-status-search-wrap">
+        <input id="boardStatusSearch" class="board-status-search" type="search" placeholder="搜尋工單號碼／客戶／機型" autocomplete="off" aria-label="搜尋目前狀態的工單">
+        <button id="boardStatusSearchClear" type="button" class="btn secondary small board-status-clear" aria-label="清除搜尋" title="清除搜尋" disabled>清除</button>
+      </div>
+      <span id="boardStatusResults" class="board-status-results" aria-live="polite">共 0 筆符合</span>
     </div>
     <div class="board-status-columns" aria-hidden="true"><span>工單號碼</span><span>客戶</span><span>目前製程／製程狀態</span><span>交期／剩餘天數</span><span>快速操作</span></div>
     <div id="boardStatusModalBody" class="board-status-body"></div>
@@ -7415,7 +7424,16 @@ document.addEventListener(
     document.addEventListener('input',function(e){
       if(e.target && e.target.id==='boardStatusSearch'){
         boardStatusCurrentPage=1;
+        const clear=document.getElementById('boardStatusSearchClear');
+        if(clear)clear.disabled=!e.target.value;
         renderBoardStatusModalResults();
+      }
+    });
+    document.addEventListener('click',function(e){
+      const clear=e.target.closest('#boardStatusSearchClear');
+      if(clear){
+        const search=document.getElementById('boardStatusSearch');
+        if(search){search.value='';clear.disabled=true;boardStatusCurrentPage=1;renderBoardStatusModalResults();search.focus({preventScroll:true});}
       }
     });
     const modal=document.getElementById('boardStatusModal');
@@ -8080,5 +8098,75 @@ function closeOrderMoreModal(){
   document.addEventListener('keydown',function(e){if(e.key==='Escape')closeOrderMoreModal();});
 })();
 </script>
+
+<style id="pmc-v339-board-status-polish">
+/* PMC V3.39：看板狀態彈窗 PC／手機閱讀層次與搜尋操作優化 */
+.board-status-box{width:min(1120px,96vw);max-height:min(84vh,800px)}
+.board-status-head{background:#fff;gap:14px}
+.board-status-head b{min-width:0;overflow-wrap:anywhere}
+.board-status-search-wrap{display:flex;align-items:center;gap:8px;flex:0 1 620px;min-width:0}
+.board-status-search-wrap .board-status-search{flex:1 1 auto;width:100%;min-width:0}
+.board-status-clear{flex:0 0 auto;min-width:66px;min-height:38px}
+.board-status-clear:disabled{opacity:.45;cursor:default}
+.board-status-results{font-variant-numeric:tabular-nums}
+.board-status-row{transition:background-color .12s ease,border-color .12s ease}
+.board-status-row:hover{background:#f8fbff}
+.board-status-row:focus-within{background:#f8fbff;outline:2px solid rgba(37,99,235,.20);outline-offset:-2px}
+.board-status-action-primary{background:#2563eb!important;color:#fff!important;border:1px solid #2563eb!important}
+.board-status-action-primary:hover{background:#1d4ed8!important}
+.board-status-action-primary:focus-visible,.board-status-actions .btn:focus-visible,.board-status-close:focus-visible,.board-status-clear:focus-visible{outline:3px solid rgba(37,99,235,.28);outline-offset:2px}
+.board-status-handle{display:none}
+@media(min-width:1024px){
+  .board-status-box{width:min(1160px,96vw)}
+  .board-status-columns,.board-status-row{grid-template-columns:minmax(112px,130px) minmax(150px,1.15fr) minmax(125px,.95fr) minmax(145px,150px) minmax(310px,1.55fr);gap:9px}
+  .board-status-columns{padding-left:20px;padding-right:20px}
+  .board-status-body{padding-left:20px;padding-right:20px}
+  .board-status-row{padding-top:11px;padding-bottom:11px}
+  .board-status-actions{flex-wrap:nowrap!important;align-items:center;gap:5px;overflow:visible}
+  .board-status-actions .btn{min-width:58px;min-height:32px;padding:6px 8px;font-size:12px}
+  .board-status-search{min-height:40px}
+}
+@media(min-width:761px) and (max-width:1023px){
+  .board-status-box{width:min(960px,96vw);max-height:84vh}
+  .board-status-search-wrap{flex:1 1 540px}
+  .board-status-columns,.board-status-row{grid-template-columns:minmax(80px,90px) minmax(90px,1fr) minmax(72px,85px) minmax(95px,110px) minmax(240px,auto);gap:6px}
+  .board-status-row:hover{background:#f8fbff}
+  .board-status-actions{flex-wrap:nowrap!important;gap:3px;overflow:visible}
+  .board-status-actions .btn{min-width:44px;flex:0 0 auto;padding:5px 4px;font-size:10px}
+}
+@media(max-width:760px){
+  .board-status-box{max-height:90vh;max-height:90dvh;overscroll-behavior:contain}
+  .board-status-handle{display:block;width:42px;height:4px;flex:0 0 auto;align-self:center;border-radius:99px;background:#cbd5e1;margin:8px auto 1px}
+  .board-status-head{padding:9px 14px 11px;min-height:48px}
+  .board-status-head b{font-size:16px;line-height:1.35}
+  .board-status-close{min-height:34px;padding:6px 10px}
+  .board-status-toolbar{padding:9px 14px 10px;gap:6px}
+  .board-status-search-wrap{width:100%;flex:0 0 auto;gap:7px}
+  .board-status-search-wrap .board-status-search{min-height:44px;font-size:16px}
+  .board-status-clear{min-height:44px;min-width:60px}
+  .board-status-results{padding:0 1px;font-size:11px}
+  .board-status-body{background:#f8fafc;padding:9px 10px 12px;scroll-padding-bottom:12px}
+  .board-status-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;padding:12px 11px;margin:0 0 9px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 1px 2px rgba(15,23,42,.035);align-items:start;min-height:0}
+  .board-status-row:last-child{margin-bottom:0}
+  .board-status-row:hover{background:#fff}
+  .board-status-row .status-order{grid-column:1/2;grid-row:1;font-size:14px;min-width:0;align-self:center}
+  .board-status-row .status-customer{grid-column:1/3;grid-row:2;font-size:12px;color:#475569;line-height:1.45;overflow-wrap:anywhere}
+  .board-status-row .status-customer::before{content:'客戶：';font-size:11px;color:#64748b;font-weight:700}
+  .board-status-row .status-badge{grid-column:2/3;grid-row:1;justify-self:end;text-align:right;max-width:50%}
+  .board-status-row .status-process-display{align-items:flex-end;gap:3px}
+  .board-status-row .status-process-name{font-size:10px}
+  .board-status-row .status-due{grid-column:1/3;grid-row:3;display:flex;flex-direction:row;align-items:baseline;flex-wrap:wrap;gap:4px 8px;white-space:normal;padding:7px 0 2px;border-top:1px solid #f1f5f9}
+  .board-status-row .status-due-label{font-size:11px}
+  .board-status-row .status-due strong{font-size:12px}
+  .board-status-row .status-due-summary{font-size:12px}
+  .board-status-actions{grid-column:1/3;grid-row:4;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:4px;padding-top:8px;border-top:1px solid #f1f5f9}
+  .board-status-actions .btn{width:100%;min-width:0;min-height:42px;padding:8px 6px;font-size:12px;white-space:normal;line-height:1.25;border-radius:8px}
+  .board-status-action-primary{box-shadow:0 1px 2px rgba(37,99,235,.15)}
+  .board-status-pagination{padding:9px 12px;gap:12px;min-height:58px}
+  .board-status-pagination .btn{min-width:88px;min-height:40px}
+  .board-status-page-label{font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){.board-status-row,.board-kpi-clickable{transition:none!important}}
+</style>
 </body>
 </html>
