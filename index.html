@@ -1200,7 +1200,7 @@ input,select{min-height:38px}
 @media(max-width:700px){.workflow-arrow{display:none}.workflow-step{padding:7px 8px}.workflow-step b{font-size:12px}.workflow-strip{gap:2px}.workflow-quick-actions{width:100%}.workflow-quick-actions .btn{flex:1 1 45%}.page-flow-actions{width:100%}.page-flow-actions .btn{flex:1 1 auto}}
 
 
-/* V3.37：PMC 看板狀態彈窗 PC／手機分流、搜尋與分頁 */
+/* V3.38：修正 PC 快速操作欄位換行；明細彈窗關閉後保留看板狀態視窗 */
 .board-kpi-clickable{cursor:pointer;transition:transform .12s,box-shadow .12s}
 .board-kpi-clickable:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,23,42,.10)}
 .board-kpi-clickable:active{transform:translateY(0)}
@@ -1725,7 +1725,7 @@ input,select{min-height:38px}
 
 </style>
 <style id="pmc-v333-schedule-responsive-fix">
-/* PMC V3.37：看板狀態彈窗搜尋、分頁、製程狀態及 PC／手機版優化；保留 V3.36 狀態分離。 */
+/* PMC V3.38：修正看板狀態彈窗快速操作列與巢狀明細視窗返回行為；保留 V3.37 搜尋／分頁與 V3.36 狀態分離。 */
 #page-schedule .schedule-mobile-view{display:none!important;}
 @media (max-width:760px){
   #page-schedule .schedule-mobile-view{display:block!important;}
@@ -1751,7 +1751,7 @@ input,select{min-height:38px}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>V3.37</span></div>
+    <div>PMC <span>V3.38</span></div>
     <small>生產管理系統</small>
   </div>
 
@@ -1792,7 +1792,7 @@ input,select{min-height:38px}
 
 
   <div class="top-actions">
-    <span class="mobile-version-badge" aria-label="版本">V3.37</span>
+    <span class="mobile-version-badge" aria-label="版本">V3.38</span>
     <span id="dataUpdatedAt" class="data-updated-badge" aria-label="資料更新時間">資料更新：—</span>
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
     <button class="btn secondary" id="openDataFileBtn" type="button" style="display:none">選擇 PMC_Data.json</button>
@@ -5344,9 +5344,9 @@ function boardStatusRenderRow(order,status,isMobile){
   const actions=`<div class="board-status-actions">
     <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('schedule','${no}')">排程</button>
     ${isMobile ? "" : `<button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('progress','${no}')">進度</button>`}
-    <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('purchase','${no}')">${isMobile ? "採購明細" : "採購"}</button>
-    <button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderWorkflow('outsourcing','${no}')">${isMobile ? "委外明細" : "委外"}</button>
-    ${(order.images||[]).length ? `<button type="button" class="btn small secondary" onclick="closeBoardStatusModal();openOrderPhotoModal('${no}')">照片</button>` : ""}
+    <button type="button" class="btn small secondary" onclick="openOrderWorkflow('purchase','${no}')">${isMobile ? "採購明細" : "採購"}</button>
+    <button type="button" class="btn small secondary" onclick="openOrderWorkflow('outsourcing','${no}')">${isMobile ? "委外明細" : "委外"}</button>
+    ${(order.images||[]).length ? `<button type="button" class="btn small secondary" onclick="openOrderPhotoModal('${no}')">照片</button>` : ""}
   </div>`;
   return `<div class="board-status-row">
     <div class="status-order"><button type="button" class="board-order-no-btn" onclick="closeBoardStatusModal();openOrderWorkflow('schedule','${no}')">${no}</button></div>
@@ -6431,7 +6431,8 @@ function closeOrderPhotoModal(){
     const parent=document.getElementById("imageManageModal");
     if(parent){parent.classList.remove("hidden");parent.setAttribute("aria-hidden","false");parent.style.display="flex";document.body.style.overflow="hidden";return;}
   }
-  document.body.style.overflow="";
+  const boardStatusParent=document.getElementById("boardStatusModal");
+  document.body.style.overflow=boardStatusParent?.classList.contains("open")?"hidden":"";
 }
 function getOrderPhotoById(no,id){
   const o=findOrder(no);
@@ -6593,7 +6594,17 @@ document.addEventListener(
     document.getElementById("imageLightboxModal")?.addEventListener("click",function(e){if(e.target===this)closeImageLightbox();});
     document.getElementById("orderPhotoModal")?.addEventListener("click",function(e){if(e.target===this)closeOrderPhotoModal();});
     document.getElementById("imageManageModal")?.addEventListener("click",function(e){if(e.target===this)closeImageManageModal();});
-    document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeImageLightbox();closeOrderPhotoModal();closeImageManageModal();}});
+    document.addEventListener("keydown",function(e){
+      if(e.key!=="Escape")return;
+      const boardParent=document.getElementById("boardStatusModal");
+      const parentWasOpen=!!boardParent?.classList.contains("open");
+      const photo=document.getElementById("orderPhotoModal");
+      const photoWasOpen=!!photo&&!photo.classList.contains("hidden")&&photo.style.display!=="none";
+      closeImageLightbox();
+      closeOrderPhotoModal();
+      closeImageManageModal();
+      if(parentWasOpen&&photoWasOpen)e.stopImmediatePropagation();
+    });
     cleanupClosedOrderImages();
     document.getElementById("loginCloseBtn").addEventListener("click",closeLoginModal);
     document.getElementById("loginCancelBtn").addEventListener("click",closeLoginModal);
@@ -7409,7 +7420,16 @@ document.addEventListener(
     });
     const modal=document.getElementById('boardStatusModal');
     if(modal)modal.addEventListener('click',function(e){if(e.target===modal)closeBoardStatusModal();});
-    document.addEventListener('keydown',function(e){if(e.key==='Escape')closeBoardStatusModal();});
+    document.addEventListener('keydown',function(e){
+      if(e.key!=='Escape')return;
+      const detail=document.getElementById('pmcOrderDetailModal');
+      const photo=document.getElementById('orderPhotoModal');
+      const detailIsOpen=!!detail&&detail.classList.contains('open');
+      const photoIsOpen=!!photo&&!photo.classList.contains('hidden')&&photo.style.display!=='none';
+      /* 巢狀採購／委外／照片明細開啟時，Esc 只處理最上層，不關掉底下的狀態清單。 */
+      if(detailIsOpen||photoIsOpen)return;
+      closeBoardStatusModal();
+    });
     window.addEventListener('resize',function(){
       const modal=document.getElementById('boardStatusModal');
       if(modal&&modal.classList.contains('open'))renderBoardStatusModalResults();
@@ -7721,11 +7741,20 @@ table tbody tr:hover{background:#f8fafc}
 .pmc-order-detail-pagination button{min-width:34px;flex:0 0 auto}
 
 /* V3.24 PC 看板明細：照片視窗層級與操作列版面優化 */
-@media(min-width:761px){
+@media(min-width:1024px){
   .board-status-box{width:min(1120px,96vw);max-height:min(82vh,760px)}
-  .board-status-row{grid-template-columns:minmax(110px,150px) minmax(140px,1fr) minmax(90px,110px) minmax(360px,auto);gap:10px;padding:10px 4px}
-  .board-status-actions{flex-wrap:nowrap;justify-content:flex-end;gap:5px;white-space:nowrap}
-  .board-status-actions .btn{min-width:60px;padding:6px 8px;font-size:12px;line-height:1.15;white-space:nowrap}
+  /* 這個彈窗每列有五個欄位；標題列與資料列使用相同欄寬，避免快速操作掉到下一列。 */
+  .board-status-columns,.board-status-row{grid-template-columns:minmax(110px,130px) minmax(140px,1fr) minmax(100px,120px) minmax(130px,150px) minmax(340px,1.6fr);gap:10px}
+  .board-status-row{padding:10px 4px}
+  .board-status-actions{flex-wrap:nowrap!important;justify-content:flex-start;align-items:center;gap:5px;white-space:nowrap;overflow:hidden}
+  .board-status-actions .btn{min-width:58px;flex:0 0 auto;padding:6px 7px;font-size:12px;line-height:1.15;white-space:nowrap}
+}
+@media(min-width:761px) and (max-width:1023px){
+  .board-status-box{width:min(960px,96vw);max-height:84vh}
+  .board-status-columns,.board-status-row{grid-template-columns:minmax(80px,90px) minmax(90px,1fr) minmax(72px,85px) minmax(95px,110px) minmax(240px,auto);gap:6px}
+  .board-status-row{padding:9px 2px}
+  .board-status-actions{flex-wrap:nowrap!important;justify-content:flex-start;gap:3px;white-space:nowrap;overflow:hidden}
+  .board-status-actions .btn{min-width:44px;flex:0 0 auto;padding:5px 4px;font-size:10px;line-height:1.15;white-space:nowrap}
 }
 </style>
 
