@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PMC 生產管理系統 V3.40 - 驗退管理版</title>
+<title>PMC 生產管理系統 V3.41 - 驗退管理版</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
@@ -1754,7 +1754,7 @@ input,select{min-height:38px}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>V3.40</span></div>
+    <div>PMC <span>V3.41</span></div>
     <small>生產管理系統</small>
   </div>
 
@@ -1796,7 +1796,7 @@ input,select{min-height:38px}
 
 
   <div class="top-actions">
-    <span class="mobile-version-badge" aria-label="版本">V3.40</span>
+    <span class="mobile-version-badge" aria-label="版本">V3.41</span>
     <span id="dataUpdatedAt" class="data-updated-badge" aria-label="資料更新時間">資料更新：—</span>
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
     <button class="btn secondary" id="openDataFileBtn" type="button" style="display:none">選擇 PMC_Data.json</button>
@@ -2321,7 +2321,7 @@ input,select{min-height:38px}
 </section>
 
 <!-- =========================================================
-     V3.40 驗退管理
+     V3.41 驗退管理
 ========================================================= -->
 <section id="page-returns" class="page">
   <div class="page-intro">
@@ -8291,7 +8291,8 @@ function closeOrderMoreModal(){
   function detail(id){const r=returnRecords.find(x=>x.id===id);if(!r)return;const box=$('returnEditModal');openEditor(id);$('returnEditTitle').textContent='驗退案件明細';document.querySelectorAll('#returnEditModal input,#returnEditModal select,#returnEditModal textarea').forEach(el=>{if(el.type!=='hidden'&&el.id!=='returnFiles')el.disabled=true;});$('returnSaveBtn').style.display='none';$('returnModalCancel').textContent='關閉';$('returnModalClose').onclick=()=>{resetModal();hideModal();};}
   function resetModal(){document.querySelectorAll('#returnEditModal input,#returnEditModal select,#returnEditModal textarea').forEach(el=>el.disabled=false);$('returnSaveBtn').style.display='';$('returnModalCancel').textContent='取消';$('returnModalClose').onclick=hideModal;}
   function advance(id){const r=returnRecords.find(x=>x.id===id);if(!r)return;const next={'待處理':'重製中','重製中':'待重新驗收','待重新驗收':'已結案'};r.status=next[r.status]||'重製中';if(r.status==='已結案')r.closedAt=new Date().toISOString();r.updatedAt=new Date().toISOString();persist();cleanup();render();renderSettings();}
-  document.addEventListener('DOMContentLoaded',()=>{
+  function initReturnModule(){
+    if(window.__pmcV340ReturnInitDone)return;window.__pmcV340ReturnInitDone=true;
     $('returnAddBtn')?.addEventListener('click',()=>openEditor());
     $('returnSource')?.addEventListener('change',()=>{const sel=$('returnSourceRow'),src=$('returnSource').value;sel.innerHTML='<option value="">不帶入／手動輸入</option>';if(src==='採購明細'){(purchaseRows||[]).forEach((r,i)=>{const o=document.createElement('option');o.value=String(i);o.textContent=`${r.part||'未填零件'}｜工單 ${r.no||'—'}｜${r.supplier||'—'}｜數量 ${r.qty||'—'}`;sel.appendChild(o);});}else if(src==='委外明細'){(outsourcingRows||[]).forEach((r,i)=>{const o=document.createElement('option');o.value=String(i);o.textContent=`${(r.orderNos||[]).join(', ')||'未辨識工單'}｜${r.fileName||'委外檔案'}｜${r.folder||''}`;sel.appendChild(o);});}});
     $('returnSourceRow')?.addEventListener('change',()=>{const src=$('returnSource').value,i=Number($('returnSourceRow').value);if($('returnSourceRow').value==='')return;let r;if(src==='採購明細')r=(purchaseRows||[])[i];else if(src==='委外明細')r=(outsourcingRows||[])[i];if(!r)return;$('returnSupplier').value=r.supplier||r.folder||'';$('returnOrderNo').value=r.no||(r.orderNos||[]).join(', ')||'';$('returnPart').value=r.part||'';$('returnMaterial').value=r.material||'';$('returnQty').value=r.qty||'';});
@@ -8305,8 +8306,9 @@ function closeOrderMoreModal(){
     // 若匯入 PMC_Data.json，重新套用其中驗退紀錄
     const oldApply=window.applyServerData; if(typeof oldApply==='function'&&!oldApply.__v340Wrapped){window.applyServerData=function(data){oldApply(data);if(Array.isArray(data.returnRecords)){returnRecords=data.returnRecords;persist();}render();renderSettings();};window.applyServerData.__v340Wrapped=true;}
     // 在原本主程式完成初始資料讀取後再更新一次統計
-    setTimeout(()=>{try{if(Array.isArray(returnRecords))render();renderSettings();}catch(e){}},1200);
-  });
+    setTimeout(()=>{try{if(Array.isArray(returnRecords))render();renderSettings();}catch(e){console.error('PMC 驗退管理初始化後更新失敗',e);}},1200);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initReturnModule,{once:true});else initReturnModule();
   window.pmcV340RenderReturns=render;
 })();
 </script>
