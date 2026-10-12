@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PMC 生產管理系統 V3.47 - 手機驗退查閱版面</title>
+<title>PMC 生產管理系統 V3.48 - 驗退管理者權限</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
@@ -1557,6 +1557,12 @@ input,select{min-height:38px}
   #page-returns .return-record-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px!important;margin-top:8px}
   #page-returns .return-record-actions .btn{width:100%;min-height:35px;padding:5px 6px;font-size:11px;white-space:normal}
   #page-returns .return-record .return-record-main{min-width:0}
+  #returnEditModal.return-detail-mode .form-grid{display:none!important}
+  #returnEditModal.return-detail-mode #returnAttachmentPicker{display:none!important}
+  #returnEditModal.return-detail-mode #returnExistingFiles{margin-top:0;padding:0;border:0}
+  #returnEditModal.return-detail-mode #returnExistingFiles a{display:inline-flex;align-items:center;min-height:42px;padding:8px 12px;margin:5px 6px 0 0;border:1px solid #cbd5e1;border-radius:9px;background:#f8fafc;color:#1d4ed8;text-decoration:none;overflow-wrap:anywhere}
+  #returnEditModal.return-detail-mode #returnNotesField{margin-top:0!important}
+  #returnEditModal.return-detail-mode #returnNotes{min-height:120px;font-size:15px;line-height:1.6}
 
   /* v2：手機篩選操作修正 */
   #page-orders #orderDateFrom,
@@ -1784,7 +1790,7 @@ input,select{min-height:38px}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>V3.47</span></div>
+    <div>PMC <span>V3.48</span></div>
     <small>生產管理系統</small>
   </div>
 
@@ -1826,7 +1832,7 @@ input,select{min-height:38px}
 
 
   <div class="top-actions">
-    <span class="mobile-version-badge" aria-label="版本">V3.47</span>
+    <span class="mobile-version-badge" aria-label="版本">V3.48</span>
     <span id="dataUpdatedAt" class="data-updated-badge" aria-label="資料更新時間">資料更新：—</span>
     <span id="dataStorageStatus" class="data-updated-badge" aria-live="polite" style="display:none"></span>
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
@@ -2393,8 +2399,8 @@ input,select{min-height:38px}
         <div class="field"><label>處理方式</label><select id="returnHandling"><option value="重製">重製</option><option value="補件">補件</option><option value="其他">其他</option></select></div>
         <div class="field"><label>進度</label><select id="returnStatus"><option value="待處理">待處理</option><option value="重製中">重製中</option><option value="待重新驗收">待重新驗收</option><option value="已結案">已結案</option></select></div>
       </div>
-      <div class="field" style="margin-top:12px"><label>備註／處理紀錄</label><textarea id="returnNotes" rows="3" style="width:100%;border:1px solid #cdd6e0;border-radius:8px;padding:10px" placeholder="記錄重製進度、重新驗收結果等"></textarea></div>
-      <div class="field" style="margin-top:12px"><label>照片／紙本驗退單附件（可多選；支援圖片及 PDF）</label><input id="returnFiles" type="file" accept="image/*,.pdf,application/pdf" capture="environment" multiple style="width:100%"><div class="footer-note">照片會壓縮至約 150KB 內；PDF 保留原掃描檔。建議只附上這筆驗退需要留存的照片或文件。</div><div id="returnExistingFiles" class="footer-note"></div></div>
+      <div class="field return-notes-field" id="returnNotesField" style="margin-top:12px"><label>備註／處理紀錄</label><textarea id="returnNotes" rows="3" style="width:100%;border:1px solid #cdd6e0;border-radius:8px;padding:10px" placeholder="記錄重製進度、重新驗收結果等"></textarea></div>
+      <div class="field" id="returnAttachmentField" style="margin-top:12px"><div id="returnAttachmentPicker"><label>照片／紙本驗退單附件（可多選；支援圖片及 PDF）</label><input id="returnFiles" type="file" accept="image/*,.pdf,application/pdf" capture="environment" multiple style="width:100%"><div class="footer-note">照片會壓縮至約 150KB 內；PDF 保留原掃描檔。建議只附上這筆驗退需要留存的照片或文件。</div></div><div id="returnExistingFiles" class="footer-note"></div></div>
     </div>
     <div class="modal-actions"><button class="btn secondary" id="returnModalCancel" type="button">取消</button><button class="btn" id="returnSaveBtn" type="button">儲存紀錄</button></div>
   </div>
@@ -6729,11 +6735,12 @@ function doLogout(){isAdmin=false;sessionStorage.removeItem("PMC_V3_ADMIN_LOGIN"
 function updatePermissions(){
   const b=document.getElementById("permissionBadge");b.textContent=isAdmin?"權限：管理者":"權限：訪客查詢";b.classList.toggle("admin",isAdmin);
   document.getElementById("loginBtn").textContent=isAdmin?"登出":"登入";
-  ["openOrderBtn","orderQuickAddBtn","orderAddBtn","purchaseImportBtn","purchaseClearBtn","outsourcingChooseBtn","outsourcingScanPdfBtn","outsourcingScanTiffBtn","outsourcingClearBtn","resetBtn","exportBtn","saveProcessSettingsBtn"].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display=isAdmin?"inline-block":"none";});
+  ["openOrderBtn","orderQuickAddBtn","orderAddBtn","returnAddBtn","purchaseImportBtn","purchaseClearBtn","outsourcingChooseBtn","outsourcingScanPdfBtn","outsourcingScanTiffBtn","outsourcingClearBtn","resetBtn","exportBtn","saveProcessSettingsBtn"].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display=isAdmin?"inline-block":"none";});
   const note=document.getElementById("orderReadonlyNote");if(note)note.textContent=isAdmin?"管理者可新增／編輯／刪除":"訪客模式：僅查詢";
   const settingsNav=document.querySelector('.nav[data-page="settings"]');if(settingsNav)settingsNav.style.display=isAdmin?"":"none";
 }
 function requireAdmin(){if(isAdmin)return true;alert("目前為訪客查詢模式，請先登入管理者帳號。");return false;}
+window.pmcIsAdmin=()=>isAdmin;
 
 /* =========================================================
    EVENTS
@@ -8400,10 +8407,11 @@ function closeOrderMoreModal(){
   function bytes(f){return Number(f.size||0)||Math.floor(String(f.data||'').length*3/4)}
   function fmtSize(n){n=Number(n)||0;return n<1024?n+' B':n<1048576?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(2)+' MB'}
   function days(){try{const n=Number(localStorage.getItem(DAYS_KEY));return Number.isFinite(n)&&n>=0?n:7}catch(e){return 7}}
-  function admin(){return typeof window.requireAdmin==='function'?window.requireAdmin():true}
+  function hasAdminSession(){return typeof window.pmcIsAdmin==='function'&&window.pmcIsAdmin()}
+  function admin(){if(hasAdminSession())return true;if(typeof window.requireAdmin==='function')window.requireAdmin();return false}
   function showModal(){const m=$('returnEditModal');if(!m)return;m.classList.remove('hidden');m.style.display='flex';m.setAttribute('aria-hidden','false');document.body.style.overflow='hidden'}
-  function hideModal(){const m=$('returnEditModal');if(!m)return;m.classList.add('hidden');m.style.display='none';m.setAttribute('aria-hidden','true');document.body.style.overflow='';if($('returnFiles'))$('returnFiles').value='';resetReadOnly();if(returnToImageList){returnToImageList=false;showImageListModal()}}
-  function resetReadOnly(){document.querySelectorAll('#returnEditModal input,#returnEditModal select,#returnEditModal textarea').forEach(el=>{el.disabled=false});if($('returnSaveBtn')){$('returnSaveBtn').style.display='';$('returnSaveBtn').disabled=false;$('returnSaveBtn').textContent='儲存紀錄'}if($('returnModalCancel'))$('returnModalCancel').textContent='取消'}
+  function hideModal(){const m=$('returnEditModal');if(!m)return;m.classList.add('hidden');m.classList.remove('return-detail-mode');m.style.display='none';m.setAttribute('aria-hidden','true');document.body.style.overflow='';if($('returnFiles'))$('returnFiles').value='';resetReadOnly();if(returnToImageList){returnToImageList=false;showImageListModal()}}
+  function resetReadOnly(){const m=$('returnEditModal');m?.classList.remove('return-detail-mode');document.querySelectorAll('#returnEditModal input,#returnEditModal select,#returnEditModal textarea').forEach(el=>{el.disabled=false});document.querySelectorAll('#returnEditModal [data-return-delete-file]').forEach(el=>el.closest('label')?.remove());if($('returnSaveBtn')){$('returnSaveBtn').style.display='';$('returnSaveBtn').disabled=false;$('returnSaveBtn').textContent='儲存紀錄'}if($('returnModalCancel'))$('returnModalCancel').textContent='取消'}
   function openEditor(id=null,seed={},readOnly=false){
     if(!readOnly&&!admin())return;
     const records=getRecords(),r=id?records.find(x=>x.id===id):null;
@@ -8411,8 +8419,8 @@ function closeOrderMoreModal(){
     const vals={Source:r?.source||seed.source||'手動輸入',Supplier:r?.supplier??seed.supplier??'',OrderNo:r?.orderNo??seed.orderNo??'',Part:r?.part??seed.part??'',Material:r?.material??seed.material??'',Qty:r?.qty??seed.qty??'',Reason:r?.reason??'',Handling:r?.handling||'重製',Status:r?.status||'待處理',Notes:r?.notes??seed.notes??''};
     Object.entries(vals).forEach(([k,v])=>{const el=$('return'+k);if(el)el.value=v});
     $('returnSourceRow').disabled=!!r;$('returnSourceRow').value='';$('returnFiles').value='';
-    $('returnExistingFiles').innerHTML=r?.files?.length?`目前附件 ${r.files.length} 個：`+r.files.map((f,i)=>`<span style="display:inline-flex;gap:4px;align-items:center;margin:4px 8px 4px 0"><a href="#" data-return-open-file="${i}" data-return-file-id="${esc(r.id)}">${esc(f.name||'附件')}</a> <label><input type="checkbox" data-return-delete-file="${i}"> 刪除</label></span>`).join(''):'尚無附件';
-    resetReadOnly();showModal();
+    $('returnExistingFiles').innerHTML=r?.files?.length?`目前附件 ${r.files.length} 個：`+r.files.map((f,i)=>`<span style="display:inline-flex;gap:4px;align-items:center;margin:4px 8px 4px 0"><a href="#" data-return-open-file="${i}" data-return-file-id="${esc(r.id)}">${esc(f.name||'附件')}</a>${hasAdminSession()&&!readOnly?` <label><input type="checkbox" data-return-delete-file="${i}"> 刪除</label>`:''}</span>`).join(''):'尚無附件';
+    resetReadOnly();if(readOnly){$('returnEditModal').classList.add('return-detail-mode');$('returnAttachmentPicker').style.display='none'}else{$('returnAttachmentPicker').style.display=''}showModal();
   }
   function viewDetail(id){const r=getRecords().find(x=>x.id===id);if(!r)return;openEditor(id,{},true);$('returnEditTitle').textContent='驗退案件明細';document.querySelectorAll('#returnEditModal input,#returnEditModal select,#returnEditModal textarea').forEach(el=>{if(el.type!=='hidden'&&el.id!=='returnFiles')el.disabled=true});$('returnSaveBtn').style.display='none';$('returnModalCancel').textContent='關閉'}
   function imageToData(file){return new Promise((resolve,reject)=>{
@@ -8444,12 +8452,12 @@ function closeOrderMoreModal(){
   }
   function render(){const list=$('returnRecordsList');if(!list)return;const records=getRecords(),filter=$('returnStatusFilter')?.value||'active',q=($('returnSearch')?.value||'').trim().toLowerCase();$('returnKpiTotal').textContent=records.length;$('returnKpiPending').textContent=records.filter(r=>r.status==='待處理').length;$('returnKpiRedo').textContent=records.filter(r=>r.status==='重製中'||r.status==='待重新驗收').length;$('returnKpiClosed').textContent=records.filter(r=>r.status==='已結案').length;
     const rows=records.filter(r=>{if(filter==='active'&&r.status==='已結案')return false;if(filter!=='active'&&filter!=='全部'&&r.status!==filter)return false;return !q||[r.part,r.orderNo,r.supplier,r.reason,r.material,r.notes].join(' ').toLowerCase().includes(q)});
-    list.innerHTML=rows.map(r=>`<article class="return-record"><div class="return-record-main"><div class="return-record-title">零件：${esc(r.part)} <span class="badge ${r.status==='已結案'?'gray':r.status==='重製中'?'blue':r.status==='待重新驗收'?'purple':'warn'}">${esc(r.status)}</span></div><div class="return-record-meta return-meta-core"><span class="return-meta-qty">數量：<b>${esc(r.qty)}</b></span><span class="return-meta-supplier">廠商：${esc(r.supplier||'—')}</span><span class="return-meta-order">工單：${esc(r.orderNo||'—')}</span><span class="return-meta-material">材質：${esc(r.material||'—')}</span><span class="return-meta-source">來源：${esc(r.source||'手動輸入')}</span><span class="return-meta-updated">更新：${esc((r.updatedAt||'').slice(0,10))}</span></div><div class="return-record-meta return-meta-reason"><span>異常原因：${esc(r.reason||'未填寫')}</span><span>處理方式：${esc(r.handling||'重製')}</span><span>附件：${(r.files||[]).length} 個</span></div>${r.notes?`<div class="return-record-notes">備註：${esc(r.notes)}</div>`:''}<div class="return-file-list">${(r.files||[]).map(f=>`<span class="return-file-chip">📎 ${esc(f.name)}</span>`).join('')}</div></div><div class="return-record-actions"><button class="btn secondary small" type="button" data-return-detail="${esc(r.id)}">查看明細</button><button class="btn secondary small" type="button" data-return-edit="${esc(r.id)}">編輯</button>${r.status!=='已結案'?`<button class="btn small" type="button" data-return-next="${esc(r.id)}">更新進度</button><button class="btn success small" type="button" data-return-close="${esc(r.id)}">驗收合格／結案</button>`:`<button class="btn secondary small" type="button" data-return-reopen="${esc(r.id)}">重新開案</button>`}<button class="btn danger small" type="button" data-return-delete="${esc(r.id)}">刪除紀錄</button></div></article>`).join('')||'<div class="empty">沒有符合條件的驗退紀錄</div>';
+    const canManage=hasAdminSession();list.innerHTML=rows.map(r=>`<article class="return-record"><div class="return-record-main"><div class="return-record-title">零件：${esc(r.part)} <span class="badge ${r.status==='已結案'?'gray':r.status==='重製中'?'blue':r.status==='待重新驗收'?'purple':'warn'}">${esc(r.status)}</span></div><div class="return-record-meta return-meta-core"><span class="return-meta-qty">數量：<b>${esc(r.qty)}</b></span><span class="return-meta-supplier">廠商：${esc(r.supplier||'—')}</span><span class="return-meta-order">工單：${esc(r.orderNo||'—')}</span><span class="return-meta-material">材質：${esc(r.material||'—')}</span><span class="return-meta-source">來源：${esc(r.source||'手動輸入')}</span><span class="return-meta-updated">更新：${esc((r.updatedAt||'').slice(0,10))}</span></div><div class="return-record-meta return-meta-reason"><span>異常原因：${esc(r.reason||'未填寫')}</span><span>處理方式：${esc(r.handling||'重製')}</span><span>附件：${(r.files||[]).length} 個</span></div>${r.notes?`<div class="return-record-notes">備註：${esc(r.notes)}</div>`:''}<div class="return-file-list">${(r.files||[]).map(f=>`<span class="return-file-chip">📎 ${esc(f.name)}</span>`).join('')}</div></div><div class="return-record-actions"><button class="btn secondary small" type="button" data-return-detail="${esc(r.id)}">查看明細</button>${canManage?`<button class="btn secondary small" type="button" data-return-edit="${esc(r.id)}">編輯</button>${r.status!=='已結案'?`<button class="btn small" type="button" data-return-next="${esc(r.id)}">更新進度</button><button class="btn success small" type="button" data-return-close="${esc(r.id)}">驗收合格／結案</button>`:`<button class="btn secondary small" type="button" data-return-reopen="${esc(r.id)}">重新開案</button>`}<button class="btn danger small" type="button" data-return-delete="${esc(r.id)}">刪除紀錄</button>`:''}</div></article>`).join('')||'<div class="empty">沒有符合條件的驗退紀錄</div>';
   }
   function renderSettings(){if(!$('returnImageSummary'))return;const records=getRecords(),files=records.flatMap(r=>(r.files||[]).map((f,i)=>({...f,rec:r,index:i}))),total=files.reduce((a,f)=>a+bytes(f),0);$('returnImageSummary').innerHTML=`<div class="image-stat clickable" id="returnImageCount" role="button" tabindex="0" title="點擊查看附件清單"><span>全部有</span><b>${files.length} 張／個附件</b></div><div class="image-stat"><span>占用容量</span><b>${fmtSize(total)}</b></div>`;const countCard=$('returnImageCount');if(countCard){countCard.onclick=e=>{e.preventDefault();e.stopPropagation();renderImageList()};countCard.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();renderImageList()}}}if($('returnImageCleanupDays'))$('returnImageCleanupDays').value=days();const list=$('returnImageManageList');if(list&&list.style.display!=='none')renderImageList()}
   function renderImageList(){const body=$('returnImageListBody');if(!body)return;const records=getRecords().filter(r=>(r.files||[]).length);const total=records.reduce((n,r)=>n+r.files.length,0);$('returnImageListTitle').textContent='驗退附件清單（'+total+' 個附件）';body.innerHTML=records.map(r=>`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><b>${esc(r.part)}</b>｜工單 ${esc(r.orderNo||'—')}｜${esc(r.supplier||'—')}<div class="footer-note">${r.files.length} 個附件 · 狀態：${esc(r.status||'—')}</div></div><button class="btn secondary small" type="button" data-return-settings-open="${esc(r.id)}">查看案件</button></div><div class="return-file-list">${r.files.map(f=>`<span class="return-file-chip">📎 ${esc(f.name||'附件')}（${fmtSize(bytes(f))}）</span>`).join('')}</div></div>`).join('')||'<div class="empty">目前沒有驗退附件</div>';showImageListModal()}
   function cleanup(){const d=days(),now=Date.now(),records=getRecords();let changed=false;records.forEach(r=>{if(r.status!=='已結案'||!r.closedAt||!(r.files||[]).length)return;if((now-new Date(r.closedAt).getTime())/86400000>=d){r.files=[];r.attachmentsDeletedAt=new Date().toISOString();changed=true}});if(changed){setRecords(records);persist()}}
-  async function handleListAction(btn){const records=getRecords(),id=btn.dataset.returnDetail||btn.dataset.returnEdit||btn.dataset.returnNext||btn.dataset.returnClose||btn.dataset.returnDelete||btn.dataset.returnReopen,r=records.find(x=>x.id===id);if(!r)return;if(btn.hasAttribute('data-return-detail'))return viewDetail(id);if(btn.hasAttribute('data-return-edit'))return openEditor(id);if(btn.hasAttribute('data-return-next')){const next={'待處理':'重製中','重製中':'待重新驗收','待重新驗收':'已結案'};r.status=next[r.status]||'重製中';if(r.status==='已結案')r.closedAt=new Date().toISOString();r.updatedAt=new Date().toISOString();setRecords(records);await persist();cleanup();render();renderSettings();return}if(btn.hasAttribute('data-return-close')){if(confirm('確認此零件已重新驗收合格並結案？')){r.status='已結案';r.closedAt=new Date().toISOString();r.updatedAt=r.closedAt;setRecords(records);await persist();cleanup();render();renderSettings()}return}if(btn.hasAttribute('data-return-reopen')){r.status='待處理';r.closedAt='';r.updatedAt=new Date().toISOString();setRecords(records);await persist();render();renderSettings();return}if(btn.hasAttribute('data-return-delete')&&confirm('確定刪除此驗退紀錄及其附件？')){setRecords(records.filter(x=>x.id!==id));await persist();render();renderSettings()}}
+  async function handleListAction(btn){if(btn.hasAttribute('data-return-detail')){const id=btn.dataset.returnDetail;if(getRecords().some(x=>x.id===id))return viewDetail(id);return}if(!admin())return;const records=getRecords(),id=btn.dataset.returnEdit||btn.dataset.returnNext||btn.dataset.returnClose||btn.dataset.returnDelete||btn.dataset.returnReopen,r=records.find(x=>x.id===id);if(!r)return;if(btn.hasAttribute('data-return-edit'))return openEditor(id);if(btn.hasAttribute('data-return-next')){const next={'待處理':'重製中','重製中':'待重新驗收','待重新驗收':'已結案'};r.status=next[r.status]||'重製中';if(r.status==='已結案')r.closedAt=new Date().toISOString();r.updatedAt=new Date().toISOString();setRecords(records);await persist();cleanup();render();renderSettings();return}if(btn.hasAttribute('data-return-close')){if(confirm('確認此零件已重新驗收合格並結案？')){r.status='已結案';r.closedAt=new Date().toISOString();r.updatedAt=r.closedAt;setRecords(records);await persist();cleanup();render();renderSettings()}return}if(btn.hasAttribute('data-return-reopen')){r.status='待處理';r.closedAt='';r.updatedAt=new Date().toISOString();setRecords(records);await persist();render();renderSettings();return}if(btn.hasAttribute('data-return-delete')&&confirm('確定刪除此驗退紀錄及其附件？')){setRecords(records.filter(x=>x.id!==id));await persist();render();renderSettings()}}
   function bind(){if(window.__pmcV340ReturnBound)return;window.__pmcV340ReturnBound=true;
     document.addEventListener('click',e=>{const btn=e.target.closest('button');if(!btn)return;
       if(btn.id==='returnImageListCloseBtn'||btn.id==='returnImageListDoneBtn'){e.preventDefault();hideImageListModal();return}if(btn.id==='returnAddBtn'){e.preventDefault();openEditor();return}if(btn.id==='returnModalClose'||btn.id==='returnModalCancel'){e.preventDefault();hideModal();return}if(btn.id==='returnSaveBtn'){e.preventDefault();saveRecord();return}if(btn.id==='returnClearFilterBtn'){$('returnSearch').value='';$('returnStatusFilter').value='active';render();return}
