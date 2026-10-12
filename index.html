@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PMC 生產管理系統 V3.44 - 驗退手機版優化</title>
+<title>PMC 生產管理系統 V3.45 - 修正資料載入容量錯誤</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
@@ -1522,7 +1522,7 @@ input,select{min-height:38px}
   #page-settings .grid.two{grid-template-columns:1fr!important}
   #page-settings .statline{align-items:flex-start;gap:8px;flex-wrap:wrap}
 
-  /* 底部導覽：V3.44 加入驗退入口 */
+  /* 底部導覽：V3.45 修正資料載入容量錯誤 */
   .mobile-bottom-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;z-index:9998;height:64px;padding:5px 6px calc(5px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);border-top:1px solid #dbe3ec;box-shadow:0 -8px 24px rgba(15,23,42,.08);backdrop-filter:blur(10px)}
   .mobile-bottom-nav button{border:0;background:transparent;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#64748b;font-size:10px;font-weight:800;min-width:0}
   .mobile-bottom-nav button .mi{font-size:19px;line-height:1}
@@ -1754,7 +1754,7 @@ input,select{min-height:38px}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>V3.44</span></div>
+    <div>PMC <span>V3.45</span></div>
     <small>生產管理系統</small>
   </div>
 
@@ -1796,7 +1796,7 @@ input,select{min-height:38px}
 
 
   <div class="top-actions">
-    <span class="mobile-version-badge" aria-label="版本">V3.44</span>
+    <span class="mobile-version-badge" aria-label="版本">V3.45</span>
     <span id="dataUpdatedAt" class="data-updated-badge" aria-label="資料更新時間">資料更新：—</span>
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
     <button class="btn secondary" id="openDataFileBtn" type="button" style="display:none">選擇 PMC_Data.json</button>
@@ -3245,8 +3245,26 @@ function processFilterMatch(order,key){
    STORAGE
 ========================================================= */
 
+/* V3.45：瀏覽器儲存空間不足時，不可因此判定中央 JSON 載入失敗。
+   GitHub Pages 的 JSON 才是跨裝置同步來源；localStorage 僅作本機快取。 */
+let pmcStorageQuotaWarningShown=false;
+function trySetLocalStorage(key,value){
+  try{
+    localStorage.setItem(key,value);
+    return true;
+  }catch(storageError){
+    console.warn("PMC 本機快取寫入失敗（不影響目前已載入的資料）:",key,storageError);
+    return false;
+  }
+}
+
 function saveData(){
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(orders));
+  try{
+    return trySetLocalStorage(STORAGE_KEY,JSON.stringify(orders));
+  }catch(serializationError){
+    console.warn("PMC 工單快取序列化失敗；目前畫面資料仍保留在記憶體中。",serializationError);
+    return false;
+  }
 }
 
 function applyServerData(data){
@@ -3254,6 +3272,7 @@ function applyServerData(data){
     throw new Error("PMC_Data.json 格式錯誤或沒有工單資料");
   }
 
+  /* 先把資料載入執行中的變數，再嘗試快取；快取失敗不應中斷資料載入。 */
   dataUpdatedAt=String(data.exportedAt||new Date().toISOString());
 
   orders=data.orders.map(normalizeOrder);
@@ -3264,27 +3283,27 @@ function applyServerData(data){
       semi:{...DEFAULT_PROCESS_RULES.semi,...(data.processRules.semi||{})},
       auto:{...DEFAULT_PROCESS_RULES.auto,...(data.processRules.auto||{})}
     };
-    localStorage.setItem("PMC_V3_PROCESS_RULES",JSON.stringify(processRules));
+    trySetLocalStorage("PMC_V3_PROCESS_RULES",JSON.stringify(processRules));
   }
 
   if(data.scheduleMode==="semi" || data.scheduleMode==="auto"){
     scheduleMode=data.scheduleMode;
-    localStorage.setItem("PMC_V3_SCHEDULE_MODE",scheduleMode);
+    trySetLocalStorage("PMC_V3_SCHEDULE_MODE",scheduleMode);
   }
 
   if(Array.isArray(data.purchaseRows)){
     purchaseRows=data.purchaseRows;
-    localStorage.setItem("PMC_V3_PURCHASE_ROWS",JSON.stringify(purchaseRows));
+    trySetLocalStorage("PMC_V3_PURCHASE_ROWS",JSON.stringify(purchaseRows));
   }
 
   if(Array.isArray(data.outsourcingRows)){
     outsourcingRows=data.outsourcingRows;
-    localStorage.setItem("PMC_V7_OUTSOURCING_ROWS",JSON.stringify(outsourcingRows));
+    trySetLocalStorage("PMC_V7_OUTSOURCING_ROWS",JSON.stringify(outsourcingRows));
   }
 
   if(Array.isArray(data.returnRecords)){
     returnRecords=data.returnRecords;
-    localStorage.setItem("PMC_V340_RETURN_RECORDS",JSON.stringify(returnRecords));
+    trySetLocalStorage("PMC_V340_RETURN_RECORDS",JSON.stringify(returnRecords));
   }
 
   saveData();
