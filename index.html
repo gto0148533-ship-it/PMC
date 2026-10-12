@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PMC 生產管理系統 V3.49 - 驗退權限與狀態統計</title>
+<title>PMC 生產管理系統 V3.50 - 驗退排程提醒</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
@@ -1235,6 +1235,7 @@ input,select{min-height:38px}
 .purchase-link-btn{border:0;background:transparent;padding:0;cursor:pointer;color:#1d4ed8;font:inherit;font-weight:800;text-decoration:underline;text-underline-offset:2px}
 .purchase-link-btn.overdue{color:var(--danger)}
 .purchase-detail-actions{display:inline-flex;gap:4px;flex-wrap:wrap;margin-left:5px}
+.purchase-detail-actions.return-rework-summary{display:flex;margin:5px 0 0}
 .purchase-detail-actions .btn{font-size:11px;padding:3px 7px;min-height:28px}
 @media(max-width:760px){
   .board-status-modal{align-items:flex-end;padding:0}
@@ -1466,6 +1467,7 @@ input,select{min-height:38px}
   .schedule-mobile-alert.danger .schedule-mobile-alert-head{color:#b91c1c}
   .schedule-mobile-alert-body{font-size:11px;color:#475569;line-height:1.6;margin-top:3px}
   .schedule-mobile-alert-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px}
+  .schedule-mobile-alert-actions.has-rework{grid-template-columns:repeat(3,minmax(0,1fr))}
   .schedule-mobile-alert-actions .btn{min-height:36px!important;font-size:12px!important}
   .schedule-mobile-photo{margin-top:9px;width:100%;min-height:38px}
 
@@ -1790,7 +1792,7 @@ input,select{min-height:38px}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>V3.49</span></div>
+    <div>PMC <span>V3.50</span></div>
     <small>生產管理系統</small>
   </div>
 
@@ -1832,7 +1834,7 @@ input,select{min-height:38px}
 
 
   <div class="top-actions">
-    <span class="mobile-version-badge" aria-label="版本">V3.49</span>
+    <span class="mobile-version-badge" aria-label="版本">V3.50</span>
     <span id="dataUpdatedAt" class="data-updated-badge" aria-label="資料更新時間">資料更新：—</span>
     <span id="dataStorageStatus" class="data-updated-badge" aria-live="polite" style="display:none"></span>
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
@@ -4337,12 +4339,13 @@ function renderMobileSchedule(order){
 
   const pst=purchaseStatsForOrder(order.no);
   const ost=outsourcingStatsForOrder(order.no);
+  const rst=returnReworkStatsForOrder(order.no);
   const alerts=[];
-  if(pst.total && pst.pending){
+  if((pst.total && pst.pending)||rst.rework){
     alerts.push(`<div class="schedule-mobile-alert ${pst.overdue?"danger":""}">
-      <div class="schedule-mobile-alert-head"><span>⚠ 採購</span><span>待進貨 ${pst.pending} 筆${pst.overdue?`／逾期 ${pst.overdue} 筆`:""}</span></div>
-      <div class="schedule-mobile-alert-body">這張工單還有採購項目未完成。</div>
-      <div class="schedule-mobile-alert-actions"><button type="button" class="btn small secondary" onclick="openPurchaseDetail('${esc(order.no)}','待到貨')">查看待進貨</button><button type="button" class="btn small secondary" onclick="openPurchaseDetail('${esc(order.no)}','逾期')">查看逾期</button></div>
+      <div class="schedule-mobile-alert-head"><span>⚠ 採購</span><span>待進貨 ${pst.pending} 筆｜逾期 ${pst.overdue} 筆${rst.rework?`｜重製 ${rst.rework} 筆`:""}</span></div>
+      <div class="schedule-mobile-alert-body">${pst.pending?"這張工單還有採購項目未完成。":""}${rst.rework?`${pst.pending?" ":""}驗退重製案件尚未結案。`:""}</div>
+      <div class="schedule-mobile-alert-actions ${rst.rework?"has-rework":""}"><button type="button" class="btn small secondary" onclick="openPurchaseDetail('${esc(order.no)}','待到貨')">查看待進貨</button><button type="button" class="btn small secondary" onclick="openPurchaseDetail('${esc(order.no)}','逾期')">查看逾期</button>${rst.rework?`<button type="button" class="btn small secondary" onclick="openReturnReworkDetail('${esc(order.no)}')">查看重製中</button>`:""}</div>
     </div>`);
   }
   if(ost.total && ost.pending){
@@ -4809,11 +4812,30 @@ function purchaseStatsForOrder(no){
   const overdue=rows.filter(r=>getPurchaseDisplayStatus(r)==="逾期").length;
   return {total:rows.length,pending,overdue};
 }
+function returnReworkStatsForOrder(no){
+  const key=String(no||"").trim();if(!key)return {rework:0};
+  const records=Array.isArray(window.pmcReturnRecords)?window.pmcReturnRecords:(Array.isArray(returnRecords)?returnRecords:[]);
+  const rework=records.filter(r=>{
+    if(r.status!=="重製中")return false;
+    const raw=String(r.orderNo||"").trim();
+    return raw===key||raw.split(/[,，、;；\s]+/).some(x=>x.trim()===key);
+  }).length;
+  return {rework};
+}
+function openReturnReworkDetail(no){
+  const search=document.getElementById("returnSearch"),status=document.getElementById("returnStatusFilter");
+  if(search)search.value=String(no||"");if(status)status.value="重製中";
+  if(window.pmcReturnRender)window.pmcReturnRender();showPage("returns");
+}
 function purchaseSummaryHtml(no){
   const st=purchaseStatsForOrder(no);
-  if(!st.total)return `<div class="purchase-detail">尚無採購明細</div>`;
-  if(st.pending===0)return `<div class="purchase-detail"><b style="color:var(--ok)">全數進貨完成</b></div>`;
-  return `<div class="purchase-detail"><span class="purchase-detail-actions"><button type="button" class="purchase-link-btn" onclick="openPurchaseDetail('${esc(no)}','待到貨')">待進貨 ${st.pending} 筆</button><span>｜</span><button type="button" class="purchase-link-btn overdue" onclick="openPurchaseDetail('${esc(no)}','逾期')">逾期 ${st.overdue} 筆</button></span></div>`;
+  const rst=returnReworkStatsForOrder(no);
+  let purchaseHtml="";
+  if(!st.total)purchaseHtml="尚無採購明細";
+  else if(st.pending===0)purchaseHtml='<b style="color:var(--ok)">全數進貨完成</b>';
+  else purchaseHtml=`<span class="purchase-detail-actions"><button type="button" class="purchase-link-btn" onclick="openPurchaseDetail('${esc(no)}','待到貨')">待進貨 ${st.pending} 筆</button><span>｜</span><button type="button" class="purchase-link-btn overdue" onclick="openPurchaseDetail('${esc(no)}','逾期')">逾期 ${st.overdue} 筆</button></span>`;
+  const reworkHtml=rst.rework?`<div class="purchase-detail-actions return-rework-summary"><button type="button" class="purchase-link-btn" onclick="openReturnReworkDetail('${esc(no)}')">重製中 ${rst.rework} 筆</button></div>`:"";
+  return `<div class="purchase-detail">${purchaseHtml}${reworkHtml}</div>`;
 }
 function renderPurchase(){
   const rows=purchaseRows||[],overdue=rows.filter(r=>getPurchaseDisplayStatus(r)==="逾期"),pending=rows.filter(r=>getPurchaseDisplayStatus(r)!=="已到貨"),filtered=getFilteredPurchaseRows();
@@ -8454,6 +8476,7 @@ function closeOrderMoreModal(){
   function render(){const list=$('returnRecordsList');if(!list)return;const records=getRecords(),filter=$('returnStatusFilter')?.value||'active',q=($('returnSearch')?.value||'').trim().toLowerCase();$('returnKpiTotal').textContent=records.filter(r=>r.status==='待處理').length;$('returnKpiPending').textContent=records.filter(r=>r.status==='重製中').length;$('returnKpiRedo').textContent=records.filter(r=>r.status==='待重新驗收').length;$('returnKpiClosed').textContent=records.filter(r=>r.status==='已結案').length;
     const rows=records.filter(r=>{if(filter==='active'&&r.status==='已結案')return false;if(filter!=='active'&&filter!=='全部'&&r.status!==filter)return false;return !q||[r.part,r.orderNo,r.supplier,r.reason,r.material,r.notes].join(' ').toLowerCase().includes(q)});
     const canManage=hasAdminSession();list.innerHTML=rows.map(r=>`<article class="return-record"><div class="return-record-main"><div class="return-record-title">零件：${esc(r.part)} <span class="badge ${r.status==='已結案'?'gray':r.status==='重製中'?'blue':r.status==='待重新驗收'?'purple':'warn'}">${esc(r.status)}</span></div><div class="return-record-meta return-meta-core"><span class="return-meta-qty">數量：<b>${esc(r.qty)}</b></span><span class="return-meta-supplier">廠商：${esc(r.supplier||'—')}</span><span class="return-meta-order">工單：${esc(r.orderNo||'—')}</span><span class="return-meta-material">材質：${esc(r.material||'—')}</span><span class="return-meta-source">來源：${esc(r.source||'手動輸入')}</span><span class="return-meta-updated">更新：${esc((r.updatedAt||'').slice(0,10))}</span></div><div class="return-record-meta return-meta-reason"><span>異常原因：${esc(r.reason||'未填寫')}</span><span>處理方式：${esc(r.handling||'重製')}</span><span>附件：${(r.files||[]).length} 個</span></div>${r.notes?`<div class="return-record-notes">備註：${esc(r.notes)}</div>`:''}<div class="return-file-list">${(r.files||[]).map(f=>`<span class="return-file-chip">📎 ${esc(f.name)}</span>`).join('')}</div></div><div class="return-record-actions"><button class="btn secondary small" type="button" data-return-detail="${esc(r.id)}">查看明細</button>${canManage?`<button class="btn secondary small" type="button" data-return-edit="${esc(r.id)}">編輯</button>${r.status!=='已結案'?`<button class="btn small" type="button" data-return-next="${esc(r.id)}">更新進度</button><button class="btn success small" type="button" data-return-close="${esc(r.id)}">驗收合格／結案</button>`:`<button class="btn secondary small" type="button" data-return-reopen="${esc(r.id)}">重新開案</button>`}<button class="btn danger small" type="button" data-return-delete="${esc(r.id)}">刪除紀錄</button>`:''}</div></article>`).join('')||'<div class="empty">沒有符合條件的驗退紀錄</div>';
+    if(document.getElementById('page-schedule')?.classList.contains('active'))renderSchedule();
   }
   function renderSettings(){if(!$('returnImageSummary'))return;const records=getRecords(),files=records.flatMap(r=>(r.files||[]).map((f,i)=>({...f,rec:r,index:i}))),total=files.reduce((a,f)=>a+bytes(f),0);$('returnImageSummary').innerHTML=`<div class="image-stat clickable" id="returnImageCount" role="button" tabindex="0" title="點擊查看附件清單"><span>全部有</span><b>${files.length} 張／個附件</b></div><div class="image-stat"><span>占用容量</span><b>${fmtSize(total)}</b></div>`;const countCard=$('returnImageCount');if(countCard){countCard.onclick=e=>{e.preventDefault();e.stopPropagation();renderImageList()};countCard.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();renderImageList()}}}if($('returnImageCleanupDays'))$('returnImageCleanupDays').value=days();const list=$('returnImageManageList');if(list&&list.style.display!=='none')renderImageList()}
   function renderImageList(){const body=$('returnImageListBody');if(!body)return;const records=getRecords().filter(r=>(r.files||[]).length);const total=records.reduce((n,r)=>n+r.files.length,0);$('returnImageListTitle').textContent='驗退附件清單（'+total+' 個附件）';body.innerHTML=records.map(r=>`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><b>${esc(r.part)}</b>｜工單 ${esc(r.orderNo||'—')}｜${esc(r.supplier||'—')}<div class="footer-note">${r.files.length} 個附件 · 狀態：${esc(r.status||'—')}</div></div><button class="btn secondary small" type="button" data-return-settings-open="${esc(r.id)}">查看案件</button></div><div class="return-file-list">${r.files.map(f=>`<span class="return-file-chip">📎 ${esc(f.name||'附件')}（${fmtSize(bytes(f))}）</span>`).join('')}</div></div>`).join('')||'<div class="empty">目前沒有驗退附件</div>';showImageListModal()}
