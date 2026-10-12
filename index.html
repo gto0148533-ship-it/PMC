@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PMC 生產管理系統 V3.43 - 驗退管理修正版</title>
+<title>PMC 生產管理系統 V3.44 - 驗退附件容量修正版</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
@@ -1754,7 +1754,7 @@ input,select{min-height:38px}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>V3.43</span></div>
+    <div>PMC <span>V3.44</span></div>
     <small>生產管理系統</small>
   </div>
 
@@ -1796,7 +1796,7 @@ input,select{min-height:38px}
 
 
   <div class="top-actions">
-    <span class="mobile-version-badge" aria-label="版本">V3.43</span>
+    <span class="mobile-version-badge" aria-label="版本">V3.44</span>
     <span id="dataUpdatedAt" class="data-updated-badge" aria-label="資料更新時間">資料更新：—</span>
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
     <button class="btn secondary" id="openDataFileBtn" type="button" style="display:none">選擇 PMC_Data.json</button>
@@ -2363,7 +2363,7 @@ input,select{min-height:38px}
         <div class="field"><label>進度</label><select id="returnStatus"><option value="待處理">待處理</option><option value="重製中">重製中</option><option value="待重新驗收">待重新驗收</option><option value="已結案">已結案</option></select></div>
       </div>
       <div class="field" style="margin-top:12px"><label>備註／處理紀錄</label><textarea id="returnNotes" rows="3" style="width:100%;border:1px solid #cdd6e0;border-radius:8px;padding:10px" placeholder="記錄重製進度、重新驗收結果等"></textarea></div>
-      <div class="field" style="margin-top:12px"><label>照片／紙本驗退單附件（可多選；支援圖片及 PDF）</label><input id="returnFiles" type="file" accept="image/*,.pdf,application/pdf" capture="environment" multiple style="width:100%"><div class="footer-note">圖片會嘗試壓縮後儲存；PDF 以原檔保存。附件只在開啟案件明細時載入。</div><div id="returnExistingFiles" class="footer-note"></div></div>
+      <div class="field" style="margin-top:12px"><label>照片／紙本驗退單附件（可多選；支援圖片及 PDF）</label><input id="returnFiles" type="file" accept="image/*,.pdf,application/pdf" capture="environment" multiple style="width:100%"><div class="footer-note">照片會壓縮至約 150KB 內；PDF 保留原掃描檔。建議只附上這筆驗退需要留存的照片或文件。</div><div id="returnExistingFiles" class="footer-note"></div></div>
     </div>
     <div class="modal-actions"><button class="btn secondary" id="returnModalCancel" type="button">取消</button><button class="btn" id="returnSaveBtn" type="button">儲存紀錄</button></div>
   </div>
@@ -8249,7 +8249,7 @@ function closeOrderMoreModal(){
 @media(max-width:760px){.return-record{grid-template-columns:1fr}.return-record-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.return-record-actions .btn{width:100%}.return-toolbar select{max-width:none;width:100%}.return-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 </style>
 <script id="pmc-v340-return-script">
-/* V3.43 驗退管理互動修正版：事件統一由 document 委派，避免頁面切換/重繪後失去按鈕事件。 */
+/* V3.44 驗退附件容量修正：照片限量壓縮、PDF 保留原掃描檔、保存失敗還原暫存狀態。 */
 (function(){
   const KEY='PMC_V340_RETURN_RECORDS', DAYS_KEY='PMC_V340_RETURN_IMAGE_CLEANUP_DAYS';
   const $=id=>document.getElementById(id);
@@ -8278,13 +8278,32 @@ function closeOrderMoreModal(){
     resetReadOnly();showModal();
   }
   function viewDetail(id){const r=getRecords().find(x=>x.id===id);if(!r)return;openEditor(id,{},true);$('returnEditTitle').textContent='驗退案件明細';document.querySelectorAll('#returnEditModal input,#returnEditModal select,#returnEditModal textarea').forEach(el=>{if(el.type!=='hidden'&&el.id!=='returnFiles')el.disabled=true});$('returnSaveBtn').style.display='none';$('returnModalCancel').textContent='關閉'}
-  function imageToData(file){return new Promise(resolve=>{const fallback=()=>{const rd=new FileReader();rd.onload=()=>resolve({name:file.name,type:file.type||'application/octet-stream',size:file.size,data:rd.result});rd.onerror=()=>resolve(null);rd.readAsDataURL(file)};if(!file.type.startsWith('image/')||file.type==='image/gif'){fallback();return}const rd=new FileReader();rd.onload=()=>{const img=new Image();img.onload=()=>{try{const scale=Math.min(1,1800/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));const ctx=c.getContext('2d');if(!ctx)throw Error('canvas unavailable');ctx.drawImage(img,0,0,c.width,c.height);const data=c.toDataURL('image/jpeg',.78);resolve({name:file.name.replace(/\.[^.]+$/,'')+'.jpg',type:'image/jpeg',size:Math.floor(data.length*.75),data})}catch(e){resolve({name:file.name,type:file.type,size:file.size,data:rd.result})}};img.onerror=()=>resolve({name:file.name,type:file.type,size:file.size,data:rd.result});img.src=rd.result};rd.onerror=()=>resolve(null);rd.readAsDataURL(file)})}
+  function imageToData(file){return new Promise((resolve,reject)=>{
+    const readOriginal=()=>{const rd=new FileReader();rd.onload=()=>resolve({name:file.name,type:file.type||'application/octet-stream',size:file.size,data:rd.result});rd.onerror=()=>reject(new Error('附件讀取失敗'));rd.readAsDataURL(file)};
+    const isPdf=file.type==='application/pdf'||/\.pdf$/i.test(file.name||'');
+    if(isPdf||file.type==='image/gif'){readOriginal();return}
+    if(!file.type.startsWith('image/')){reject(new Error('不支援的附件格式'));return}
+    const rd=new FileReader();rd.onerror=()=>reject(new Error('照片讀取失敗'));rd.onload=()=>{
+      const img=new Image();img.onerror=()=>reject(new Error('照片無法解碼，未保存原始大檔'));img.onload=()=>{
+        try{
+          const maxBytes=150*1024,maxDimension=1800,dimensions=[1800,1600,1400,1200,1000],qualities=[.76,.68,.60,.52];
+          const sourceMax=Math.max(img.naturalWidth,img.naturalHeight);let best=null;
+          for(const limit of dimensions){
+            const scale=Math.min(1,limit/sourceMax),w=Math.max(1,Math.round(img.naturalWidth*scale)),h=Math.max(1,Math.round(img.naturalHeight*scale));
+            const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d');if(!ctx)throw new Error('無法建立照片壓縮畫布');ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);
+            for(const quality of qualities){const data=canvas.toDataURL('image/jpeg',quality),size=Math.floor((data.length-'data:image/jpeg;base64,'.length)*3/4);if(!best||size<best.size)best={data,size,w,h};if(size<=maxBytes){resolve({name:file.name.replace(/\.[^.]+$/i,'')+'.jpg',type:'image/jpeg',size,width:w,height:h,data});return}}
+          }
+          reject(new Error(`照片壓縮後仍有 ${Math.ceil((best?.size||0)/1024)}KB，超過每張 150KB 上限。請裁切至驗退需要的範圍後再選取。`));
+        }catch(err){reject(err)}
+      };img.src=rd.result;
+    };rd.readAsDataURL(file);
+  })}
   async function saveRecord(){
     if(!admin())return;const part=$('returnPart').value.trim(),qty=$('returnQty').value;
     if(!part){alert('請填寫必填欄位：零件編號');$('returnPart').focus();return}if(qty===''||!Number.isFinite(Number(qty))||Number(qty)<=0){alert('請輸入大於 0 的數量');$('returnQty').focus();return}
     const records=getRecords(),id=$('returnEditId').value,old=records.find(x=>x.id===id),now=new Date().toISOString(),removed=[...document.querySelectorAll('[data-return-delete-file]:checked')].map(x=>Number(x.dataset.returnDeleteFile));let files=(old?.files||[]).filter((f,i)=>!removed.includes(i));const selected=[...($('returnFiles').files||[])];
     const save=$('returnSaveBtn');save.disabled=true;save.textContent=selected.length?'正在處理附件…':'儲存中…';
-    try{for(const f of selected){const v=await imageToData(f);if(v)files.push(v)}const status=$('returnStatus').value;const r={id:id||('RET-'+Date.now().toString(36).toUpperCase()),source:$('returnSource').value,supplier:$('returnSupplier').value.trim(),orderNo:$('returnOrderNo').value.trim(),part,material:$('returnMaterial').value.trim(),qty:Number(qty),reason:$('returnReason').value.trim(),handling:$('returnHandling').value,status,notes:$('returnNotes').value.trim(),files,createdAt:old?.createdAt||now,updatedAt:now,closedAt:status==='已結案'?(old?.closedAt||now):''};setRecords(old?records.map(x=>x.id===id?r:x):[r,...records]);persist();hideModal();render();renderSettings();alert('驗退紀錄已儲存。若要同步到其他裝置，請匯出 PMC_Data.json 並更新資料來源。')}finally{save.disabled=false;save.textContent='儲存紀錄'}
+    let stagedRecords=null;try{for(const f of selected){const v=await imageToData(f);if(v)files.push(v)}const status=$('returnStatus').value;const r={id:id||('RET-'+Date.now().toString(36).toUpperCase()),source:$('returnSource').value,supplier:$('returnSupplier').value.trim(),orderNo:$('returnOrderNo').value.trim(),part,material:$('returnMaterial').value.trim(),qty:Number(qty),reason:$('returnReason').value.trim(),handling:$('returnHandling').value,status,notes:$('returnNotes').value.trim(),files,createdAt:old?.createdAt||now,updatedAt:now,closedAt:status==='已結案'?(old?.closedAt||now):''};stagedRecords=old?records.map(x=>x.id===id?r:x):[r,...records];setRecords(stagedRecords);persist();hideModal();render();renderSettings();alert('驗退紀錄已儲存。若要同步到其他裝置，請匯出 PMC_Data.json 並更新資料來源。')}catch(err){if(stagedRecords)setRecords(records);console.error('驗退附件處理／儲存失敗',err);if(err?.name!=='QuotaExceededError'&&err?.name!=='NS_ERROR_DOM_QUOTA_REACHED'&&err?.message!=='QuotaExceededError')alert(err?.message||'附件處理或儲存失敗，原紀錄已保留。')}finally{save.disabled=false;save.textContent='儲存紀錄'}
   }
   function render(){const list=$('returnRecordsList');if(!list)return;const records=getRecords(),filter=$('returnStatusFilter')?.value||'active',q=($('returnSearch')?.value||'').trim().toLowerCase();$('returnKpiTotal').textContent=records.length;$('returnKpiPending').textContent=records.filter(r=>r.status==='待處理').length;$('returnKpiRedo').textContent=records.filter(r=>r.status==='重製中'||r.status==='待重新驗收').length;$('returnKpiClosed').textContent=records.filter(r=>r.status==='已結案').length;
     const rows=records.filter(r=>{if(filter==='active'&&r.status==='已結案')return false;if(filter!=='active'&&filter!=='全部'&&r.status!==filter)return false;return !q||[r.part,r.orderNo,r.supplier,r.reason,r.material,r.notes].join(' ').toLowerCase().includes(q)});
