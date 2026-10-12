@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PMC 生產管理系統 V3.46 - 修正驗退附件快取容量錯誤</title>
+<title>PMC 生產管理系統 V3.44 - 驗退手機版優化</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
@@ -1522,7 +1522,7 @@ input,select{min-height:38px}
   #page-settings .grid.two{grid-template-columns:1fr!important}
   #page-settings .statline{align-items:flex-start;gap:8px;flex-wrap:wrap}
 
-  /* 底部導覽：V3.45 修正資料載入容量錯誤 */
+  /* 底部導覽：V3.44 加入驗退入口 */
   .mobile-bottom-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;z-index:9998;height:64px;padding:5px 6px calc(5px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);border-top:1px solid #dbe3ec;box-shadow:0 -8px 24px rgba(15,23,42,.08);backdrop-filter:blur(10px)}
   .mobile-bottom-nav button{border:0;background:transparent;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#64748b;font-size:10px;font-weight:800;min-width:0}
   .mobile-bottom-nav button .mi{font-size:19px;line-height:1}
@@ -1754,7 +1754,7 @@ input,select{min-height:38px}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>V3.45</span></div>
+    <div>PMC <span>V3.44</span></div>
     <small>生產管理系統</small>
   </div>
 
@@ -1796,7 +1796,7 @@ input,select{min-height:38px}
 
 
   <div class="top-actions">
-    <span class="mobile-version-badge" aria-label="版本">V3.45</span>
+    <span class="mobile-version-badge" aria-label="版本">V3.44</span>
     <span id="dataUpdatedAt" class="data-updated-badge" aria-label="資料更新時間">資料更新：—</span>
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
     <button class="btn secondary" id="openDataFileBtn" type="button" style="display:none">選擇 PMC_Data.json</button>
@@ -3245,26 +3245,8 @@ function processFilterMatch(order,key){
    STORAGE
 ========================================================= */
 
-/* V3.45：瀏覽器儲存空間不足時，不可因此判定中央 JSON 載入失敗。
-   GitHub Pages 的 JSON 才是跨裝置同步來源；localStorage 僅作本機快取。 */
-let pmcStorageQuotaWarningShown=false;
-function trySetLocalStorage(key,value){
-  try{
-    localStorage.setItem(key,value);
-    return true;
-  }catch(storageError){
-    console.warn("PMC 本機快取寫入失敗（不影響目前已載入的資料）:",key,storageError);
-    return false;
-  }
-}
-
 function saveData(){
-  try{
-    return trySetLocalStorage(STORAGE_KEY,JSON.stringify(orders));
-  }catch(serializationError){
-    console.warn("PMC 工單快取序列化失敗；目前畫面資料仍保留在記憶體中。",serializationError);
-    return false;
-  }
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(orders));
 }
 
 function applyServerData(data){
@@ -3272,7 +3254,6 @@ function applyServerData(data){
     throw new Error("PMC_Data.json 格式錯誤或沒有工單資料");
   }
 
-  /* 先把資料載入執行中的變數，再嘗試快取；快取失敗不應中斷資料載入。 */
   dataUpdatedAt=String(data.exportedAt||new Date().toISOString());
 
   orders=data.orders.map(normalizeOrder);
@@ -3283,27 +3264,27 @@ function applyServerData(data){
       semi:{...DEFAULT_PROCESS_RULES.semi,...(data.processRules.semi||{})},
       auto:{...DEFAULT_PROCESS_RULES.auto,...(data.processRules.auto||{})}
     };
-    trySetLocalStorage("PMC_V3_PROCESS_RULES",JSON.stringify(processRules));
+    localStorage.setItem("PMC_V3_PROCESS_RULES",JSON.stringify(processRules));
   }
 
   if(data.scheduleMode==="semi" || data.scheduleMode==="auto"){
     scheduleMode=data.scheduleMode;
-    trySetLocalStorage("PMC_V3_SCHEDULE_MODE",scheduleMode);
+    localStorage.setItem("PMC_V3_SCHEDULE_MODE",scheduleMode);
   }
 
   if(Array.isArray(data.purchaseRows)){
     purchaseRows=data.purchaseRows;
-    trySetLocalStorage("PMC_V3_PURCHASE_ROWS",JSON.stringify(purchaseRows));
+    localStorage.setItem("PMC_V3_PURCHASE_ROWS",JSON.stringify(purchaseRows));
   }
 
   if(Array.isArray(data.outsourcingRows)){
     outsourcingRows=data.outsourcingRows;
-    trySetLocalStorage("PMC_V7_OUTSOURCING_ROWS",JSON.stringify(outsourcingRows));
+    localStorage.setItem("PMC_V7_OUTSOURCING_ROWS",JSON.stringify(outsourcingRows));
   }
 
   if(Array.isArray(data.returnRecords)){
     returnRecords=data.returnRecords;
-    trySetLocalStorage("PMC_V340_RETURN_RECORDS",JSON.stringify(returnRecords));
+    localStorage.setItem("PMC_V340_RETURN_RECORDS",JSON.stringify(returnRecords));
   }
 
   saveData();
@@ -8329,7 +8310,7 @@ function closeOrderMoreModal(){
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const getRecords=()=>Array.isArray(window.pmcReturnRecords)?window.pmcReturnRecords:(typeof returnRecords!=='undefined'&&Array.isArray(returnRecords)?returnRecords:[]);
   function setRecords(v){window.pmcReturnRecords=v;try{returnRecords=v;}catch(e){};}
-  function persist(){try{localStorage.setItem(KEY,JSON.stringify(getRecords()));return true;}catch(e){/* 驗退附件以 PMC_Data.json／目前記憶體資料為準；避免大量 Base64 附件塞滿 localStorage 後中斷操作。 */try{localStorage.removeItem(KEY)}catch(cleanErr){}console.warn('驗退紀錄本機快取寫入失敗；目前畫面中的資料仍保留，請以系統設定匯出 PMC_Data.json 備份。',e);return false;}}
+  function persist(){try{localStorage.setItem(KEY,JSON.stringify(getRecords()));}catch(e){alert('儲存失敗：瀏覽器可用容量可能不足。請先匯出資料或刪除部分圖片。');throw e;}}
   function bytes(f){return Number(f.size||0)||Math.floor(String(f.data||'').length*3/4)}
   function fmtSize(n){n=Number(n)||0;return n<1024?n+' B':n<1048576?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(2)+' MB'}
   function days(){const n=Number(localStorage.getItem(DAYS_KEY));return Number.isFinite(n)&&n>=0?n:7}
@@ -8382,7 +8363,7 @@ function closeOrderMoreModal(){
     const countCard=$('returnImageCount');if(countCard){countCard.onclick=e=>{e.preventDefault();e.stopPropagation();renderImageList()};countCard.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();renderImageList()}}}
     
     $('returnEditModal')?.addEventListener('click',e=>{const a=e.target.closest('[data-return-open-file]');if(!a)return;e.preventDefault();const r=getRecords().find(x=>x.id===a.dataset.returnFileId),f=r?.files?.[Number(a.dataset.returnOpenFile)];if(!f?.data){alert('此附件沒有可預覽的檔案資料。');return}const w=window.open();if(!w){alert('瀏覽器封鎖了新視窗，請允許此頁面開啟視窗後重試。');return}if(f.type==='application/pdf'||f.name?.toLowerCase().endsWith('.pdf')){try{const raw=String(f.data);const blobPromise=raw.startsWith('data:')?fetch(raw).then(resp=>resp.blob()):Promise.resolve(new Blob([raw],{type:'application/pdf'}));blobPromise.then(blob=>{const pdfBlob=blob.type==='application/pdf'?blob:new Blob([blob],{type:'application/pdf'});const url=URL.createObjectURL(pdfBlob);w.location.replace(url);setTimeout(()=>URL.revokeObjectURL(url),60000)}).catch(err=>{console.error('PDF 預覽失敗',err);w.close();alert('PDF 無法預覽，可能是檔案內容不完整或格式異常。請下載原檔後用 PDF 閱讀器開啟。')})}catch(err){w.close();alert('PDF 預覽失敗：'+err.message)}}else{w.document.open();w.document.write(`<title>${esc(f.name)}</title><img style="max-width:100%;height:auto" src="${f.data}">`);w.document.close()}});
-    const oldApply=window.applyServerData;if(typeof oldApply==='function'&&!oldApply.__pmcReturnWrapped){window.applyServerData=function(data){oldApply(data);if(Array.isArray(data?.returnRecords)){/* 載入伺服器 JSON 時只更新記憶體，不再把整批含 Base64 的附件重複寫入 localStorage。 */setRecords(data.returnRecords)}render();renderSettings()};window.applyServerData.__pmcReturnWrapped=true}
+    const oldApply=window.applyServerData;if(typeof oldApply==='function'&&!oldApply.__pmcReturnWrapped){window.applyServerData=function(data){oldApply(data);if(Array.isArray(data?.returnRecords)){setRecords(data.returnRecords);persist()}render();renderSettings()};window.applyServerData.__pmcReturnWrapped=true}
   }
   window.pmcReturnRender=render;window.pmcReturnRenderSettings=renderSettings;
   function init(){try{bind();if(!Array.isArray(getRecords()))setRecords([]);cleanup();render();renderSettings()}catch(err){console.error('驗退管理初始化錯誤',err);const list=$('returnRecordsList');if(list)list.innerHTML='<div class="empty">驗退管理初始化失敗，請重新載入頁面；若仍發生請回報錯誤。</div>'}}
