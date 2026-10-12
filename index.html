@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PMC 生產管理系統 V3.48 - 驗退管理者權限</title>
+<title>PMC 生產管理系統 V3.49 - 驗退權限與狀態統計</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
@@ -1790,7 +1790,7 @@ input,select{min-height:38px}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>V3.48</span></div>
+    <div>PMC <span>V3.49</span></div>
     <small>生產管理系統</small>
   </div>
 
@@ -1832,7 +1832,7 @@ input,select{min-height:38px}
 
 
   <div class="top-actions">
-    <span class="mobile-version-badge" aria-label="版本">V3.48</span>
+    <span class="mobile-version-badge" aria-label="版本">V3.49</span>
     <span id="dataUpdatedAt" class="data-updated-badge" aria-label="資料更新時間">資料更新：—</span>
     <span id="dataStorageStatus" class="data-updated-badge" aria-live="polite" style="display:none"></span>
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
@@ -2366,10 +2366,10 @@ input,select{min-height:38px}
     <button class="btn" id="returnAddBtn" type="button">＋ 新增驗退紀錄</button>
   </div>
   <div class="grid kpi-grid return-kpis" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:14px">
-    <div class="card kpi"><div class="label">全部紀錄</div><div class="value" id="returnKpiTotal">0</div></div>
-    <div class="card kpi"><div class="label">待處理</div><div class="value" id="returnKpiPending">0</div></div>
-    <div class="card kpi"><div class="label">重製中</div><div class="value" id="returnKpiRedo">0</div></div>
-    <div class="card kpi"><div class="label">已結案（保留紀錄）</div><div class="value" id="returnKpiClosed">0</div></div>
+    <div class="card kpi"><div class="label">待處理</div><div class="value" id="returnKpiTotal">0</div></div>
+    <div class="card kpi"><div class="label">重製中</div><div class="value" id="returnKpiPending">0</div></div>
+    <div class="card kpi"><div class="label">待驗收</div><div class="value" id="returnKpiRedo">0</div></div>
+    <div class="card kpi"><div class="label">已結案</div><div class="value" id="returnKpiClosed">0</div></div>
   </div>
   <div class="card">
     <div class="toolbar return-toolbar">
@@ -6738,6 +6738,7 @@ function updatePermissions(){
   ["openOrderBtn","orderQuickAddBtn","orderAddBtn","returnAddBtn","purchaseImportBtn","purchaseClearBtn","outsourcingChooseBtn","outsourcingScanPdfBtn","outsourcingScanTiffBtn","outsourcingClearBtn","resetBtn","exportBtn","saveProcessSettingsBtn"].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display=isAdmin?"inline-block":"none";});
   const note=document.getElementById("orderReadonlyNote");if(note)note.textContent=isAdmin?"管理者可新增／編輯／刪除":"訪客模式：僅查詢";
   const settingsNav=document.querySelector('.nav[data-page="settings"]');if(settingsNav)settingsNav.style.display=isAdmin?"":"none";
+  if(window.pmcReturnRender)window.pmcReturnRender();
 }
 function requireAdmin(){if(isAdmin)return true;alert("目前為訪客查詢模式，請先登入管理者帳號。");return false;}
 window.pmcIsAdmin=()=>isAdmin;
@@ -8450,7 +8451,7 @@ function closeOrderMoreModal(){
     const save=$('returnSaveBtn');save.disabled=true;save.textContent=selected.length?'正在處理附件…':'儲存中…';
     let stagedRecords=null;try{for(const f of selected){const v=await imageToData(f);if(v)files.push(v)}const status=$('returnStatus').value;const r={id:id||('RET-'+Date.now().toString(36).toUpperCase()),source:$('returnSource').value,supplier:$('returnSupplier').value.trim(),orderNo:$('returnOrderNo').value.trim(),part,material:$('returnMaterial').value.trim(),qty:Number(qty),reason:$('returnReason').value.trim(),handling:$('returnHandling').value,status,notes:$('returnNotes').value.trim(),files,createdAt:old?.createdAt||now,updatedAt:now,closedAt:status==='已結案'?(old?.closedAt||now):''};stagedRecords=old?records.map(x=>x.id===id?r:x):[r,...records];setRecords(stagedRecords);if(!await persist()){setRecords(records);render();renderSettings();return}hideModal();render();renderSettings();alert('驗退紀錄已儲存。若要同步到其他裝置，請匯出 PMC_Data.json 並更新 GitHub。')}catch(err){if(stagedRecords)setRecords(records);console.error('驗退附件處理／儲存失敗',err);alert(err?.message||'附件處理或儲存失敗，原紀錄已保留。')}finally{save.disabled=false;save.textContent='儲存紀錄'}
   }
-  function render(){const list=$('returnRecordsList');if(!list)return;const records=getRecords(),filter=$('returnStatusFilter')?.value||'active',q=($('returnSearch')?.value||'').trim().toLowerCase();$('returnKpiTotal').textContent=records.length;$('returnKpiPending').textContent=records.filter(r=>r.status==='待處理').length;$('returnKpiRedo').textContent=records.filter(r=>r.status==='重製中'||r.status==='待重新驗收').length;$('returnKpiClosed').textContent=records.filter(r=>r.status==='已結案').length;
+  function render(){const list=$('returnRecordsList');if(!list)return;const records=getRecords(),filter=$('returnStatusFilter')?.value||'active',q=($('returnSearch')?.value||'').trim().toLowerCase();$('returnKpiTotal').textContent=records.filter(r=>r.status==='待處理').length;$('returnKpiPending').textContent=records.filter(r=>r.status==='重製中').length;$('returnKpiRedo').textContent=records.filter(r=>r.status==='待重新驗收').length;$('returnKpiClosed').textContent=records.filter(r=>r.status==='已結案').length;
     const rows=records.filter(r=>{if(filter==='active'&&r.status==='已結案')return false;if(filter!=='active'&&filter!=='全部'&&r.status!==filter)return false;return !q||[r.part,r.orderNo,r.supplier,r.reason,r.material,r.notes].join(' ').toLowerCase().includes(q)});
     const canManage=hasAdminSession();list.innerHTML=rows.map(r=>`<article class="return-record"><div class="return-record-main"><div class="return-record-title">零件：${esc(r.part)} <span class="badge ${r.status==='已結案'?'gray':r.status==='重製中'?'blue':r.status==='待重新驗收'?'purple':'warn'}">${esc(r.status)}</span></div><div class="return-record-meta return-meta-core"><span class="return-meta-qty">數量：<b>${esc(r.qty)}</b></span><span class="return-meta-supplier">廠商：${esc(r.supplier||'—')}</span><span class="return-meta-order">工單：${esc(r.orderNo||'—')}</span><span class="return-meta-material">材質：${esc(r.material||'—')}</span><span class="return-meta-source">來源：${esc(r.source||'手動輸入')}</span><span class="return-meta-updated">更新：${esc((r.updatedAt||'').slice(0,10))}</span></div><div class="return-record-meta return-meta-reason"><span>異常原因：${esc(r.reason||'未填寫')}</span><span>處理方式：${esc(r.handling||'重製')}</span><span>附件：${(r.files||[]).length} 個</span></div>${r.notes?`<div class="return-record-notes">備註：${esc(r.notes)}</div>`:''}<div class="return-file-list">${(r.files||[]).map(f=>`<span class="return-file-chip">📎 ${esc(f.name)}</span>`).join('')}</div></div><div class="return-record-actions"><button class="btn secondary small" type="button" data-return-detail="${esc(r.id)}">查看明細</button>${canManage?`<button class="btn secondary small" type="button" data-return-edit="${esc(r.id)}">編輯</button>${r.status!=='已結案'?`<button class="btn small" type="button" data-return-next="${esc(r.id)}">更新進度</button><button class="btn success small" type="button" data-return-close="${esc(r.id)}">驗收合格／結案</button>`:`<button class="btn secondary small" type="button" data-return-reopen="${esc(r.id)}">重新開案</button>`}<button class="btn danger small" type="button" data-return-delete="${esc(r.id)}">刪除紀錄</button>`:''}</div></article>`).join('')||'<div class="empty">沒有符合條件的驗退紀錄</div>';
   }
