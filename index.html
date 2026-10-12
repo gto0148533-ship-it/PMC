@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PMC 生產管理系統 V3.50 - 驗退排程提醒</title>
+<title>PMC 生產管理系統 V3.51 - 驗退彈出明細</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
@@ -1792,7 +1792,7 @@ input,select{min-height:38px}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>V3.50</span></div>
+    <div>PMC <span>V3.51</span></div>
     <small>生產管理系統</small>
   </div>
 
@@ -1834,7 +1834,7 @@ input,select{min-height:38px}
 
 
   <div class="top-actions">
-    <span class="mobile-version-badge" aria-label="版本">V3.50</span>
+    <span class="mobile-version-badge" aria-label="版本">V3.51</span>
     <span id="dataUpdatedAt" class="data-updated-badge" aria-label="資料更新時間">資料更新：—</span>
     <span id="dataStorageStatus" class="data-updated-badge" aria-live="polite" style="display:none"></span>
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
@@ -4823,9 +4823,7 @@ function returnReworkStatsForOrder(no){
   return {rework};
 }
 function openReturnReworkDetail(no){
-  const search=document.getElementById("returnSearch"),status=document.getElementById("returnStatusFilter");
-  if(search)search.value=String(no||"");if(status)status.value="重製中";
-  if(window.pmcReturnRender)window.pmcReturnRender();showPage("returns");
+  if(typeof window.openPmcReturnDetail==="function")window.openPmcReturnDetail(no);
 }
 function purchaseSummaryHtml(no){
   const st=purchaseStatsForOrder(no);
@@ -7988,6 +7986,17 @@ table tbody tr:hover{background:#f8fafc}
     if(typeof purchaseRows!=='undefined' && Array.isArray(purchaseRows)) return purchaseRows;
     return Array.isArray(window.purchaseRows)?window.purchaseRows:[];
   }
+  function getReturnRows(){
+    if(Array.isArray(window.pmcReturnRecords))return window.pmcReturnRecords;
+    return typeof returnRecords!=='undefined'&&Array.isArray(returnRecords)?returnRecords:[];
+  }
+  function returnReworkRowsFor(no){
+    return getReturnRows().filter(r=>{
+      if(r.status!=='重製中')return false;
+      const raw=String(r.orderNo||'').trim();
+      return raw===no||raw.split(/[,，、;；\s]+/).some(x=>x.trim()===no);
+    });
+  }
   function close(){
     const m=document.getElementById(modalId); if(!m)return;
     m.classList.remove('open');m.setAttribute('aria-hidden','true');
@@ -8022,6 +8031,8 @@ table tbody tr:hover{background:#f8fafc}
       body.innerHTML=rows.length?rows.map(r=>`<div class="pmc-order-detail-row"><div class="main">${escText(r.part||r.drawing||'未填零件')}</div><div class="muted">廠商：${escText(r.supplier||'—')}</div><div class="muted">預計交期：${escText(r.expected||'—')}</div><div>${escText(r.qty||'—')}　${typeof badge==='function'?badge(typeof getPurchaseDisplayStatus==='function'?getPurchaseDisplayStatus(r):(r.status||'待到貨')):escText(r.status||'待到貨')}</div></div>`).join(''):`<div class="pmc-order-detail-empty">此工單目前沒有符合條件的採購明細</div>`;
     }else if(detailState.type==='outsourcing'){
       body.innerHTML=rows.length?rows.map(r=>`<div class="pmc-order-detail-row"><div class="main">${escText((typeof outsourcingOrderDisplay==='function'?outsourcingOrderDisplay(r.orderNos):detailState.no)||detailState.no)}</div><div class="muted">檔案：${escText(typeof outsourcingShortFileName==='function'?outsourcingShortFileName(r.fileName):(r.fileName||'—'))}</div><div class="muted">來源：${escText(r.folder||'—')}</div><div>狀態：${typeof badge==='function'?badge(r.status||'未回'):escText(r.status||'未回')}${typeof isOutsourcingRowOverdue==='function'&&isOutsourcingRowOverdue(r)?' <span class="badge danger">逾期</span>':''}</div></div>`).join(''):`<div class="pmc-order-detail-empty">此工單目前沒有未回委外明細</div>`;
+    }else if(detailState.type==='returnRework'){
+      body.innerHTML=rows.length?rows.map(r=>`<div class="pmc-order-detail-row"><div class="main">零件：${escText(r.part||'—')}　${typeof badge==='function'?badge(r.status):escText(r.status)}</div><div class="muted">廠商：${escText(r.supplier||'—')}｜數量：${escText(r.qty??'—')}</div><div class="muted">異常原因：${escText(r.reason||'—')}</div>${r.notes?`<div>處理紀錄：${escText(r.notes)}</div>`:''}${(r.files||[]).length?`<div class="muted">附件：${r.files.map(f=>escText(f.name||'附件')).join('、')}</div>`:''}</div>`).join(''):`<div class="pmc-order-detail-empty">此工單目前沒有重製中的驗退案件</div>`;
     }
     body.scrollTop=0;
     renderPagination();
@@ -8037,6 +8048,9 @@ table tbody tr:hover{background:#f8fafc}
     }else if(type==='outsourcing'){
       rows=outsourcingRowsFor(n);
       title.textContent=`${n}｜委外未回明細｜${rows.length} 筆`;
+    }else if(type==='returnRework'){
+      rows=returnReworkRowsFor(n);
+      title.textContent=`${n}｜驗退重製明細｜${rows.length} 筆`;
     }else return;
     detailState={type,no:n,status:status||'全部',rows,page:1};
     previousOverflow=document.body.style.overflow;
@@ -8046,6 +8060,7 @@ table tbody tr:hover{background:#f8fafc}
   }
   window.openPurchaseDetail=function(no,status){open('purchase',no,status||'全部')};
   window.openOutsourcingDetail=function(no){open('outsourcing',no,'未回')};
+  window.openPmcReturnDetail=function(no){open('returnRework',no,'重製中')};
   const originalWorkflow=window.openOrderWorkflow;
   window.openOrderWorkflow=function(page,no){
     if(page==='purchase'){if(window.pmcSetCurrentOrder)window.pmcSetCurrentOrder(String(no||''),true);open('purchase',no,'全部');return;}
