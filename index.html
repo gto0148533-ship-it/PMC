@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PMC 生產管理系統 V3.44 - 驗退附件容量修正版</title>
+<title>PMC 生產管理系統 V3.46 - 驗退資料 IndexedDB 儲存</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
@@ -1754,7 +1754,7 @@ input,select{min-height:38px}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>V3.44</span></div>
+    <div>PMC <span>V3.46</span></div>
     <small>生產管理系統</small>
   </div>
 
@@ -1796,8 +1796,9 @@ input,select{min-height:38px}
 
 
   <div class="top-actions">
-    <span class="mobile-version-badge" aria-label="版本">V3.44</span>
+    <span class="mobile-version-badge" aria-label="版本">V3.46</span>
     <span id="dataUpdatedAt" class="data-updated-badge" aria-label="資料更新時間">資料更新：—</span>
+    <span id="dataStorageStatus" class="data-updated-badge" aria-live="polite" style="display:none"></span>
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
     <button class="btn secondary" id="openDataFileBtn" type="button" style="display:none">選擇 PMC_Data.json</button>
     <input type="file" id="dataFileInput" accept=".json,application/json" hidden>
@@ -2910,7 +2911,7 @@ let scheduleMode=localStorage.getItem("PMC_V3_SCHEDULE_MODE")||"semi";
 let settingsDraftMode=scheduleMode;
 let purchaseRows=JSON.parse(localStorage.getItem("PMC_V3_PURCHASE_ROWS")||"[]");
 let outsourcingRows=JSON.parse(localStorage.getItem("PMC_V7_OUTSOURCING_ROWS")||"[]");
-let returnRecords=JSON.parse(localStorage.getItem("PMC_V340_RETURN_RECORDS")||"[]");
+let returnRecords=[];
 let outsourcingStatusFilter="未回";
 let outsourcingFolderLabel="";
 let outsourcingSelectedFiles=[];
@@ -3252,48 +3253,67 @@ function applyServerData(data){
       semi:{...DEFAULT_PROCESS_RULES.semi,...(data.processRules.semi||{})},
       auto:{...DEFAULT_PROCESS_RULES.auto,...(data.processRules.auto||{})}
     };
-    localStorage.setItem("PMC_V3_PROCESS_RULES",JSON.stringify(processRules));
+    try{localStorage.setItem("PMC_V3_PROCESS_RULES",JSON.stringify(processRules));}catch(error){console.warn("製程規則本機快取保存失敗：",error)}
   }
 
   if(data.scheduleMode==="semi" || data.scheduleMode==="auto"){
     scheduleMode=data.scheduleMode;
-    localStorage.setItem("PMC_V3_SCHEDULE_MODE",scheduleMode);
+    try{localStorage.setItem("PMC_V3_SCHEDULE_MODE",scheduleMode);}catch(error){console.warn("排程模式本機快取保存失敗：",error)}
   }
 
   if(Array.isArray(data.purchaseRows)){
     purchaseRows=data.purchaseRows;
-    localStorage.setItem("PMC_V3_PURCHASE_ROWS",JSON.stringify(purchaseRows));
+    try{localStorage.setItem("PMC_V3_PURCHASE_ROWS",JSON.stringify(purchaseRows));}catch(error){console.warn("採購資料本機快取保存失敗：",error)}
   }
 
   if(Array.isArray(data.outsourcingRows)){
     outsourcingRows=data.outsourcingRows;
-    localStorage.setItem("PMC_V7_OUTSOURCING_ROWS",JSON.stringify(outsourcingRows));
+    try{localStorage.setItem("PMC_V7_OUTSOURCING_ROWS",JSON.stringify(outsourcingRows));}catch(error){console.warn("委外資料本機快取保存失敗：",error)}
   }
 
   if(Array.isArray(data.returnRecords)){
     returnRecords=data.returnRecords;
-    localStorage.setItem("PMC_V340_RETURN_RECORDS",JSON.stringify(returnRecords));
+    if(typeof window.pmcSetReturnRecordsMemory==="function")window.pmcSetReturnRecordsMemory(returnRecords);
   }
 
-  saveData();
+  let localOrdersSaved=true;
+  try{saveData();}catch(error){
+    localOrdersSaved=false;
+    console.warn("中央資料已載入，但工單本機快取保存失敗：",error);
+  }
+  return {localOrdersSaved};
 }
 
 async function loadData(){
+  if(window.pmcReturnStorageReady){
+    try{await window.pmcReturnStorageReady;}catch(error){console.warn("驗退 IndexedDB 初始化失敗：",error);}
+  }
   try{
     const response=await fetch("./PMC_Data.json?ts="+Date.now(),{cache:"no-store"});
     if(!response.ok) throw new Error("HTTP "+response.status);
     const data=await response.json();
-    applyServerData(data);
-    return {source:"server",ok:true};
+    const applyResult=applyServerData(data)||{};
+    let returnRecordsPersisted=Array.isArray(data.returnRecords)?true:null,storageError=null;
+    if(Array.isArray(data.returnRecords)){
+      try{
+        if(!window.pmcPersistReturnRecords)throw new Error("IndexedDB 儲存服務尚未就緒");
+        await window.pmcPersistReturnRecords(data.returnRecords);
+      }catch(error){returnRecordsPersisted=false;storageError=error;console.error("中央驗退資料已載入，但 IndexedDB 保存失敗：",error);}
+    }
+    const result={source:"server",ok:true,returnRecordsPersisted,localOrdersSaved:applyResult.localOrdersSaved!==false,storageError};
+    if(window.pmcReturnRender)window.pmcReturnRender();
+    if(window.pmcReturnRenderSettings)window.pmcReturnRenderSettings();
+    return result;
   }catch(serverError){
-    console.warn("中央 PMC_Data.json 讀取失敗，改用本機快取：",serverError);
+    console.warn("中央 PMC_Data.json 讀取／解析失敗，改用本機快取：",serverError);
     try{
       const saved=localStorage.getItem(STORAGE_KEY);
       if(saved){
         const parsed=JSON.parse(saved);
         if(Array.isArray(parsed) && parsed.length){
           orders=parsed.map(normalizeOrder);
-          dataUpdatedAt=new Date().toISOString();
+          dataUpdatedAt="";
+          if(window.pmcReturnRender)window.pmcReturnRender();
           return {source:"local",ok:true};
         }
       }
@@ -3307,7 +3327,7 @@ async function loadData(){
       normalizeOrder(order);
       order.schedule=buildSchedule(order);
     });
-    saveData();
+    dataUpdatedAt="";
     return {source:"demo",ok:false};
   }
 }
@@ -3332,18 +3352,53 @@ function updateDataSourceUI(result){
   const button=document.getElementById("openDataFileBtn");
   if(!button)return;
   button.style.display=result?.source==="server"?"none":"inline-block";
-  button.title=result?.source==="local"?"目前使用本機快取；可選擇最新的 PMC_Data.json":"Server 無法讀取中央資料；請選擇最新的 PMC_Data.json";
+  button.title=result?.source==="local"?"目前使用本機快取；可選擇最新的 PMC_Data.json":result?.source==="file"?"已載入選取的 JSON；可重新選擇 PMC_Data.json":"Server 無法讀取中央資料；請選擇最新的 PMC_Data.json";
+  const status=document.getElementById("dataStorageStatus");
+  if(!status)return;
+  status.style.display="inline-flex";
+  const dataLoaded=result?.source==="server"||result?.source==="file";
+  if(dataLoaded&&result.returnRecordsPersisted===false){
+    status.textContent="驗退資料本機保存失敗";
+    status.style.color="#b42318";
+    status.title="中央 PMC_Data.json 已載入並顯示，但驗退資料無法保存至此瀏覽器的 IndexedDB。請先匯出 PMC_Data.json。"+(result.storageError?.message?" 詳情："+result.storageError.message:"");
+  }else if(dataLoaded&&result.localOrdersSaved===false){
+    status.textContent="本機快取保存失敗";
+    status.style.color="#b42318";
+    status.title="中央資料已載入；工單本機快取未保存。請確認瀏覽器儲存空間。";
+  }else if(dataLoaded&&result.returnRecordsPersisted===true){
+    status.textContent="驗退資料已保存至本機資料庫";
+    status.style.color="#166534";
+    status.title="中央資料已載入；驗退資料已保存至此瀏覽器的 IndexedDB。跨裝置同步仍需匯出並更新 GitHub。";
+  }else if(dataLoaded){
+    status.textContent="資料已載入（沒有驗退資料欄位）";
+    status.style.color="#475569";
+    status.title="JSON 未包含 returnRecords，驗退紀錄沿用本機現有資料。";
+  }else if(result?.source==="local"){
+    status.textContent="目前使用本機快取";
+    status.style.color="#92400e";
+    status.title="中央資料讀取失敗，目前顯示先前的本機資料。更新時間不代表中央資料版本。";
+  }else{
+    status.textContent="目前使用示範資料";
+    status.style.color="#92400e";
+    status.title="中央資料讀取失敗，且沒有可用的本機快取。";
+  }
 }
 
 function loadDataFromFile(file){
   const reader=new FileReader();
-  reader.onload=function(){
+  reader.onload=async function(){
     try{
       const data=JSON.parse(reader.result);
-      applyServerData(data);
+      const applyResult=applyServerData(data)||{};
+      let returnRecordsPersisted=Array.isArray(data.returnRecords)?true:null,storageError=null;
+      if(Array.isArray(data.returnRecords)){
+        try{if(!window.pmcPersistReturnRecords)throw new Error("IndexedDB 儲存服務尚未就緒");await window.pmcPersistReturnRecords(data.returnRecords)}
+        catch(error){returnRecordsPersisted=false;storageError=error;console.error("選取檔案已載入，但驗退資料保存失敗：",error)}
+      }
       renderAll();
-      updateDataSourceUI({source:"file"});
-      alert("已載入選取的 PMC_Data.json");
+      updateDataSourceUI({source:"file",returnRecordsPersisted,localOrdersSaved:applyResult.localOrdersSaved!==false,storageError});
+      if(returnRecordsPersisted)alert("已載入選取的 PMC_Data.json");
+      else alert("已載入並顯示選取檔案，但驗退資料無法保存至此瀏覽器。請立即匯出 PMC_Data.json。");
     }catch(error){
       console.error(error);
       alert("載入失敗：請選擇有效的 PMC_Data.json");
@@ -6274,7 +6329,7 @@ function importData(file){
 
 
   reader.onload =
-    function(){
+    async function(){
 
       try{
 
@@ -6298,13 +6353,17 @@ function importData(file){
         }
 
 
-        applyServerData(data);
+        const applyResult=applyServerData(data)||{};
+        let returnRecordsPersisted=Array.isArray(data.returnRecords)?true:null,storageError=null;
+        if(Array.isArray(data.returnRecords)){
+          try{if(!window.pmcPersistReturnRecords)throw new Error("IndexedDB 儲存服務尚未就緒");await window.pmcPersistReturnRecords(data.returnRecords)}
+          catch(error){returnRecordsPersisted=false;storageError=error;console.error("匯入資料已載入，但驗退資料保存失敗：",error)}
+        }
 
         renderAll();
+        updateDataSourceUI({source:"file",returnRecordsPersisted,localOrdersSaved:applyResult.localOrdersSaved!==false,storageError});
 
-        alert(
-          "資料匯入完成"
-        );
+        alert(returnRecordsPersisted?"資料匯入完成":"資料已載入，但驗退資料無法保存至此瀏覽器。請立即匯出 PMC_Data.json。");
 
 
       }catch(error){
@@ -8038,7 +8097,7 @@ table tbody tr:hover{background:#f8fafc}
     if(!el)return;
     const v=formatUpdatedAt(dataUpdatedAt);
     el.textContent=v?'資料更新：'+v:'資料更新：—';
-    el.title=v?'中央 PMC_Data.json 的匯出／讀取時間':'目前沒有可用的資料更新時間';
+    el.title=v?'中央 PMC_Data.json 的匯出／讀取時間':'目前沒有可用的中央資料更新時間';
   }
   function refreshCurrentBar(){
     const no=window.pmcCurrentOrderNo;
@@ -8249,20 +8308,67 @@ function closeOrderMoreModal(){
 @media(max-width:760px){.return-record{grid-template-columns:1fr}.return-record-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.return-record-actions .btn{width:100%}.return-toolbar select{max-width:none;width:100%}.return-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 </style>
 <script id="pmc-v340-return-script">
-/* V3.44 驗退附件容量修正：照片限量壓縮、PDF 保留原掃描檔、保存失敗還原暫存狀態。 */
+/* V3.46 驗退紀錄改存 IndexedDB；中央資料載入與本機保存狀態分開處理。 */
 (function(){
   const KEY='PMC_V340_RETURN_RECORDS', DAYS_KEY='PMC_V340_RETURN_IMAGE_CLEANUP_DAYS';
+  const DB_NAME='PMC_V346_RETURN_DB', STORE_NAME='returnRecords', DB_VERSION=1;
   const $=id=>document.getElementById(id);
   let returnToImageList=false;
+  let dbPromise=null;
   function showImageListModal(){const m=$('returnImageListModal');if(!m)return;m.classList.remove('hidden');m.style.display='flex';m.setAttribute('aria-hidden','false');document.body.style.overflow='hidden'}
   function hideImageListModal(){const m=$('returnImageListModal');if(!m)return;m.classList.add('hidden');m.style.display='none';m.setAttribute('aria-hidden','true');if($('returnEditModal')?.classList.contains('hidden'))document.body.style.overflow=''}
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const getRecords=()=>Array.isArray(window.pmcReturnRecords)?window.pmcReturnRecords:(typeof returnRecords!=='undefined'&&Array.isArray(returnRecords)?returnRecords:[]);
   function setRecords(v){window.pmcReturnRecords=v;try{returnRecords=v;}catch(e){};}
-  function persist(){try{localStorage.setItem(KEY,JSON.stringify(getRecords()));}catch(e){alert('儲存失敗：瀏覽器可用容量可能不足。請先匯出資料或刪除部分圖片。');throw e;}}
+  function openDb(){
+    if(!('indexedDB' in window))return Promise.reject(new Error('此瀏覽器不支援 IndexedDB'));
+    if(dbPromise)return dbPromise;
+    dbPromise=new Promise((resolve,reject)=>{
+      const req=indexedDB.open(DB_NAME,DB_VERSION);
+      req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(STORE_NAME))db.createObjectStore(STORE_NAME)};
+      req.onsuccess=()=>{const db=req.result;db.onversionchange=()=>db.close();resolve(db)};
+      req.onerror=()=>reject(req.error||new Error('無法開啟 IndexedDB'));
+      req.onblocked=()=>reject(new Error('IndexedDB 升級被其他分頁阻擋，請關閉其他 PMC 分頁後重試'));
+    });
+    return dbPromise;
+  }
+  async function readStoredRecords(){
+    const db=await openDb();
+    return new Promise((resolve,reject)=>{
+      const tx=db.transaction(STORE_NAME,'readonly'),req=tx.objectStore(STORE_NAME).get('current');let value;
+      req.onsuccess=()=>{value=req.result};req.onerror=()=>reject(req.error||new Error('讀取 IndexedDB 失敗'));
+      tx.oncomplete=()=>resolve(value);tx.onerror=()=>reject(tx.error||new Error('讀取 IndexedDB 失敗'));tx.onabort=()=>reject(tx.error||new Error('讀取 IndexedDB 中止'));
+    });
+  }
+  async function writeStoredRecords(records){
+    const db=await openDb();
+    return new Promise((resolve,reject)=>{
+      const tx=db.transaction(STORE_NAME,'readwrite');tx.objectStore(STORE_NAME).put(records,'current');
+      tx.oncomplete=()=>resolve(true);tx.onerror=()=>reject(tx.error||new Error('寫入 IndexedDB 失敗'));tx.onabort=()=>reject(tx.error||new Error('寫入 IndexedDB 中止'));
+    });
+  }
+  async function initializeStorage(){
+    let legacy=null;
+    try{const raw=localStorage.getItem(KEY);if(raw){const parsed=JSON.parse(raw);if(Array.isArray(parsed))legacy=parsed;}}catch(error){console.warn('讀取舊版驗退快取失敗：',error)}
+    try{
+      const stored=await readStoredRecords();
+      if(Array.isArray(stored)){setRecords(stored);return {available:true,source:'indexedDB'}}
+      if(legacy){setRecords(legacy);await writeStoredRecords(legacy);try{localStorage.removeItem(KEY)}catch(error){console.warn('移除舊版驗退快取失敗：',error)}return {available:true,source:'migration'}}
+      setRecords([]);return {available:true,source:'empty'}
+    }catch(error){if(legacy)setRecords(legacy);else setRecords([]);console.error('驗退 IndexedDB 初始化失敗：',error);return {available:false,error}}
+  }
+  function showPersistenceStatus(ok,error){
+    const el=$('dataStorageStatus');if(!el)return;el.style.display='inline-flex';
+    if(ok){el.textContent='驗退資料已保存至本機資料庫';el.style.color='#166534';el.title='驗退紀錄已保存至此瀏覽器的 IndexedDB；跨裝置同步仍需匯出並更新 GitHub。'}
+    else{el.textContent='驗退資料本機保存失敗';el.style.color='#b42318';el.title='資料仍在目前頁面記憶體中；請立即匯出 PMC_Data.json，避免重新載入後遺失。'+(error?.message?' 詳情：'+error.message:'')}
+  }
+  async function persist(){try{await writeStoredRecords(getRecords());showPersistenceStatus(true);return true}catch(error){console.error('驗退 IndexedDB 保存失敗：',error);showPersistenceStatus(false,error);alert('驗退資料已在目前頁面更新，但無法保存至此瀏覽器。請立即匯出 PMC_Data.json，避免重新載入後遺失。');return false}}
+  window.pmcSetReturnRecordsMemory=setRecords;
+  window.pmcPersistReturnRecords=async records=>{setRecords(records);return writeStoredRecords(records)};
+  window.pmcReturnStorageReady=initializeStorage();
   function bytes(f){return Number(f.size||0)||Math.floor(String(f.data||'').length*3/4)}
   function fmtSize(n){n=Number(n)||0;return n<1024?n+' B':n<1048576?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(2)+' MB'}
-  function days(){const n=Number(localStorage.getItem(DAYS_KEY));return Number.isFinite(n)&&n>=0?n:7}
+  function days(){try{const n=Number(localStorage.getItem(DAYS_KEY));return Number.isFinite(n)&&n>=0?n:7}catch(e){return 7}}
   function admin(){return typeof window.requireAdmin==='function'?window.requireAdmin():true}
   function showModal(){const m=$('returnEditModal');if(!m)return;m.classList.remove('hidden');m.style.display='flex';m.setAttribute('aria-hidden','false');document.body.style.overflow='hidden'}
   function hideModal(){const m=$('returnEditModal');if(!m)return;m.classList.add('hidden');m.style.display='none';m.setAttribute('aria-hidden','true');document.body.style.overflow='';if($('returnFiles'))$('returnFiles').value='';resetReadOnly();if(returnToImageList){returnToImageList=false;showImageListModal()}}
@@ -8303,7 +8409,7 @@ function closeOrderMoreModal(){
     if(!part){alert('請填寫必填欄位：零件編號');$('returnPart').focus();return}if(qty===''||!Number.isFinite(Number(qty))||Number(qty)<=0){alert('請輸入大於 0 的數量');$('returnQty').focus();return}
     const records=getRecords(),id=$('returnEditId').value,old=records.find(x=>x.id===id),now=new Date().toISOString(),removed=[...document.querySelectorAll('[data-return-delete-file]:checked')].map(x=>Number(x.dataset.returnDeleteFile));let files=(old?.files||[]).filter((f,i)=>!removed.includes(i));const selected=[...($('returnFiles').files||[])];
     const save=$('returnSaveBtn');save.disabled=true;save.textContent=selected.length?'正在處理附件…':'儲存中…';
-    let stagedRecords=null;try{for(const f of selected){const v=await imageToData(f);if(v)files.push(v)}const status=$('returnStatus').value;const r={id:id||('RET-'+Date.now().toString(36).toUpperCase()),source:$('returnSource').value,supplier:$('returnSupplier').value.trim(),orderNo:$('returnOrderNo').value.trim(),part,material:$('returnMaterial').value.trim(),qty:Number(qty),reason:$('returnReason').value.trim(),handling:$('returnHandling').value,status,notes:$('returnNotes').value.trim(),files,createdAt:old?.createdAt||now,updatedAt:now,closedAt:status==='已結案'?(old?.closedAt||now):''};stagedRecords=old?records.map(x=>x.id===id?r:x):[r,...records];setRecords(stagedRecords);persist();hideModal();render();renderSettings();alert('驗退紀錄已儲存。若要同步到其他裝置，請匯出 PMC_Data.json 並更新資料來源。')}catch(err){if(stagedRecords)setRecords(records);console.error('驗退附件處理／儲存失敗',err);if(err?.name!=='QuotaExceededError'&&err?.name!=='NS_ERROR_DOM_QUOTA_REACHED'&&err?.message!=='QuotaExceededError')alert(err?.message||'附件處理或儲存失敗，原紀錄已保留。')}finally{save.disabled=false;save.textContent='儲存紀錄'}
+    let stagedRecords=null;try{for(const f of selected){const v=await imageToData(f);if(v)files.push(v)}const status=$('returnStatus').value;const r={id:id||('RET-'+Date.now().toString(36).toUpperCase()),source:$('returnSource').value,supplier:$('returnSupplier').value.trim(),orderNo:$('returnOrderNo').value.trim(),part,material:$('returnMaterial').value.trim(),qty:Number(qty),reason:$('returnReason').value.trim(),handling:$('returnHandling').value,status,notes:$('returnNotes').value.trim(),files,createdAt:old?.createdAt||now,updatedAt:now,closedAt:status==='已結案'?(old?.closedAt||now):''};stagedRecords=old?records.map(x=>x.id===id?r:x):[r,...records];setRecords(stagedRecords);if(!await persist()){setRecords(records);render();renderSettings();return}hideModal();render();renderSettings();alert('驗退紀錄已儲存。若要同步到其他裝置，請匯出 PMC_Data.json 並更新 GitHub。')}catch(err){if(stagedRecords)setRecords(records);console.error('驗退附件處理／儲存失敗',err);alert(err?.message||'附件處理或儲存失敗，原紀錄已保留。')}finally{save.disabled=false;save.textContent='儲存紀錄'}
   }
   function render(){const list=$('returnRecordsList');if(!list)return;const records=getRecords(),filter=$('returnStatusFilter')?.value||'active',q=($('returnSearch')?.value||'').trim().toLowerCase();$('returnKpiTotal').textContent=records.length;$('returnKpiPending').textContent=records.filter(r=>r.status==='待處理').length;$('returnKpiRedo').textContent=records.filter(r=>r.status==='重製中'||r.status==='待重新驗收').length;$('returnKpiClosed').textContent=records.filter(r=>r.status==='已結案').length;
     const rows=records.filter(r=>{if(filter==='active'&&r.status==='已結案')return false;if(filter!=='active'&&filter!=='全部'&&r.status!==filter)return false;return !q||[r.part,r.orderNo,r.supplier,r.reason,r.material,r.notes].join(' ').toLowerCase().includes(q)});
@@ -8312,7 +8418,7 @@ function closeOrderMoreModal(){
   function renderSettings(){if(!$('returnImageSummary'))return;const records=getRecords(),files=records.flatMap(r=>(r.files||[]).map((f,i)=>({...f,rec:r,index:i}))),total=files.reduce((a,f)=>a+bytes(f),0);$('returnImageSummary').innerHTML=`<div class="image-stat clickable" id="returnImageCount" role="button" tabindex="0" title="點擊查看附件清單"><span>全部有</span><b>${files.length} 張／個附件</b></div><div class="image-stat"><span>占用容量</span><b>${fmtSize(total)}</b></div>`;const countCard=$('returnImageCount');if(countCard){countCard.onclick=e=>{e.preventDefault();e.stopPropagation();renderImageList()};countCard.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();renderImageList()}}}if($('returnImageCleanupDays'))$('returnImageCleanupDays').value=days();const list=$('returnImageManageList');if(list&&list.style.display!=='none')renderImageList()}
   function renderImageList(){const body=$('returnImageListBody');if(!body)return;const records=getRecords().filter(r=>(r.files||[]).length);const total=records.reduce((n,r)=>n+r.files.length,0);$('returnImageListTitle').textContent='驗退附件清單（'+total+' 個附件）';body.innerHTML=records.map(r=>`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><b>${esc(r.part)}</b>｜工單 ${esc(r.orderNo||'—')}｜${esc(r.supplier||'—')}<div class="footer-note">${r.files.length} 個附件 · 狀態：${esc(r.status||'—')}</div></div><button class="btn secondary small" type="button" data-return-settings-open="${esc(r.id)}">查看案件</button></div><div class="return-file-list">${r.files.map(f=>`<span class="return-file-chip">📎 ${esc(f.name||'附件')}（${fmtSize(bytes(f))}）</span>`).join('')}</div></div>`).join('')||'<div class="empty">目前沒有驗退附件</div>';showImageListModal()}
   function cleanup(){const d=days(),now=Date.now(),records=getRecords();let changed=false;records.forEach(r=>{if(r.status!=='已結案'||!r.closedAt||!(r.files||[]).length)return;if((now-new Date(r.closedAt).getTime())/86400000>=d){r.files=[];r.attachmentsDeletedAt=new Date().toISOString();changed=true}});if(changed){setRecords(records);persist()}}
-  function handleListAction(btn){const records=getRecords(),id=btn.dataset.returnDetail||btn.dataset.returnEdit||btn.dataset.returnNext||btn.dataset.returnClose||btn.dataset.returnDelete||btn.dataset.returnReopen,r=records.find(x=>x.id===id);if(!r)return;if(btn.hasAttribute('data-return-detail'))return viewDetail(id);if(btn.hasAttribute('data-return-edit'))return openEditor(id);if(btn.hasAttribute('data-return-next')){const next={'待處理':'重製中','重製中':'待重新驗收','待重新驗收':'已結案'};r.status=next[r.status]||'重製中';if(r.status==='已結案')r.closedAt=new Date().toISOString();r.updatedAt=new Date().toISOString();setRecords(records);persist();cleanup();render();renderSettings();return}if(btn.hasAttribute('data-return-close')){if(confirm('確認此零件已重新驗收合格並結案？')){r.status='已結案';r.closedAt=new Date().toISOString();r.updatedAt=r.closedAt;setRecords(records);persist();cleanup();render();renderSettings()}return}if(btn.hasAttribute('data-return-reopen')){r.status='待處理';r.closedAt='';r.updatedAt=new Date().toISOString();setRecords(records);persist();render();renderSettings();return}if(btn.hasAttribute('data-return-delete')&&confirm('確定刪除此驗退紀錄及其附件？')){setRecords(records.filter(x=>x.id!==id));persist();render();renderSettings()}}
+  async function handleListAction(btn){const records=getRecords(),id=btn.dataset.returnDetail||btn.dataset.returnEdit||btn.dataset.returnNext||btn.dataset.returnClose||btn.dataset.returnDelete||btn.dataset.returnReopen,r=records.find(x=>x.id===id);if(!r)return;if(btn.hasAttribute('data-return-detail'))return viewDetail(id);if(btn.hasAttribute('data-return-edit'))return openEditor(id);if(btn.hasAttribute('data-return-next')){const next={'待處理':'重製中','重製中':'待重新驗收','待重新驗收':'已結案'};r.status=next[r.status]||'重製中';if(r.status==='已結案')r.closedAt=new Date().toISOString();r.updatedAt=new Date().toISOString();setRecords(records);await persist();cleanup();render();renderSettings();return}if(btn.hasAttribute('data-return-close')){if(confirm('確認此零件已重新驗收合格並結案？')){r.status='已結案';r.closedAt=new Date().toISOString();r.updatedAt=r.closedAt;setRecords(records);await persist();cleanup();render();renderSettings()}return}if(btn.hasAttribute('data-return-reopen')){r.status='待處理';r.closedAt='';r.updatedAt=new Date().toISOString();setRecords(records);await persist();render();renderSettings();return}if(btn.hasAttribute('data-return-delete')&&confirm('確定刪除此驗退紀錄及其附件？')){setRecords(records.filter(x=>x.id!==id));await persist();render();renderSettings()}}
   function bind(){if(window.__pmcV340ReturnBound)return;window.__pmcV340ReturnBound=true;
     document.addEventListener('click',e=>{const btn=e.target.closest('button');if(!btn)return;
       if(btn.id==='returnImageListCloseBtn'||btn.id==='returnImageListDoneBtn'){e.preventDefault();hideImageListModal();return}if(btn.id==='returnAddBtn'){e.preventDefault();openEditor();return}if(btn.id==='returnModalClose'||btn.id==='returnModalCancel'){e.preventDefault();hideModal();return}if(btn.id==='returnSaveBtn'){e.preventDefault();saveRecord();return}if(btn.id==='returnClearFilterBtn'){$('returnSearch').value='';$('returnStatusFilter').value='active';render();return}
@@ -8327,10 +8433,9 @@ function closeOrderMoreModal(){
     const countCard=$('returnImageCount');if(countCard){countCard.onclick=e=>{e.preventDefault();e.stopPropagation();renderImageList()};countCard.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();renderImageList()}}}
     
     $('returnEditModal')?.addEventListener('click',e=>{const a=e.target.closest('[data-return-open-file]');if(!a)return;e.preventDefault();const r=getRecords().find(x=>x.id===a.dataset.returnFileId),f=r?.files?.[Number(a.dataset.returnOpenFile)];if(!f?.data){alert('此附件沒有可預覽的檔案資料。');return}const w=window.open();if(!w){alert('瀏覽器封鎖了新視窗，請允許此頁面開啟視窗後重試。');return}if(f.type==='application/pdf'||f.name?.toLowerCase().endsWith('.pdf')){try{const raw=String(f.data);const blobPromise=raw.startsWith('data:')?fetch(raw).then(resp=>resp.blob()):Promise.resolve(new Blob([raw],{type:'application/pdf'}));blobPromise.then(blob=>{const pdfBlob=blob.type==='application/pdf'?blob:new Blob([blob],{type:'application/pdf'});const url=URL.createObjectURL(pdfBlob);w.location.replace(url);setTimeout(()=>URL.revokeObjectURL(url),60000)}).catch(err=>{console.error('PDF 預覽失敗',err);w.close();alert('PDF 無法預覽，可能是檔案內容不完整或格式異常。請下載原檔後用 PDF 閱讀器開啟。')})}catch(err){w.close();alert('PDF 預覽失敗：'+err.message)}}else{w.document.open();w.document.write(`<title>${esc(f.name)}</title><img style="max-width:100%;height:auto" src="${f.data}">`);w.document.close()}});
-    const oldApply=window.applyServerData;if(typeof oldApply==='function'&&!oldApply.__pmcReturnWrapped){window.applyServerData=function(data){oldApply(data);if(Array.isArray(data?.returnRecords)){setRecords(data.returnRecords);persist()}render();renderSettings()};window.applyServerData.__pmcReturnWrapped=true}
   }
   window.pmcReturnRender=render;window.pmcReturnRenderSettings=renderSettings;
-  function init(){try{bind();if(!Array.isArray(getRecords()))setRecords([]);cleanup();render();renderSettings()}catch(err){console.error('驗退管理初始化錯誤',err);const list=$('returnRecordsList');if(list)list.innerHTML='<div class="empty">驗退管理初始化失敗，請重新載入頁面；若仍發生請回報錯誤。</div>'}}
+  async function init(){try{if(window.pmcReturnStorageReady)await window.pmcReturnStorageReady;bind();if(!Array.isArray(getRecords()))setRecords([]);cleanup();render();renderSettings()}catch(err){console.error('驗退管理初始化錯誤',err);const list=$('returnRecordsList');if(list)list.innerHTML='<div class="empty">驗退管理初始化失敗，請重新載入頁面；若仍發生請回報錯誤。</div>'}}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script>
