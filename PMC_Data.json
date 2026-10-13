@@ -1,6 +1,6 @@
 {
   "version": "3.1",
-  "exportedAt": "2026-10-13T03:45:18.035Z",
+  "exportedAt": "2026-10-13T09:34:26.773Z",
   "source": "PMC central JSON",
   "orders": [
     {
@@ -412,6 +412,10 @@
         "electrical": {
           "start": "2026-09-18",
           "end": "2026-09-18"
+        },
+        "test": {
+          "start": "2026-09-18",
+          "end": "2026-10-13"
         }
       },
       "schedule": {
@@ -3654,646 +3658,6 @@
     },
     {
       "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606007-TW009-01",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606007-TW009-02",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606007-TW009-03",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606007-TW009-05",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-TW012",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-TW013",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606007-TW091",
-      "qty": 4,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606007-TW092",
-      "qty": 4,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-HH039",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-TW020-01",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-TW020-02",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606007-TW021-01",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606007-TW021-02",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-BB017-04",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-BB017-05",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-BB017-06",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-BB017-04",
-      "qty": 8,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-HH001-01",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-HH001-02",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-TW001",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-TW002",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-TW003",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-TW004-01",
-      "qty": 4,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-TW008",
-      "qty": 3,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606007-TW078",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606007-TW079",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-TW086-01",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-TW086-02",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-TW087-01",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-BB001-36",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-BB001-41",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-BB001-42",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-HH046",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-HH047",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-TW026-01",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-TW028-01",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-TW029-01",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606007-TW031",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606007-TW032",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606007-TW033",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-TW034",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-TW022-01",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-TW022-02",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606007-TW023-01",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606007-TW023-02",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-HH076-01",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-HH077-01",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606007-TW060",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-BB005-16",
-      "qty": 8,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-BB005-17",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-BB005-18",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-BB006-06",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606007-TW078",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606007-TW079",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-TW019",
-      "qty": 4,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2506001-TW140",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-BB012-06",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "41",
-      "part": "2606007-BB013-01",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606007-TW039-01",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606007-TW039-02",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606007-TW039-07",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606007-TW039-08",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606007-TW046-01",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "2606007",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606007-TW009-04",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
       "no": "2608004",
       "expected": "2026-10-19",
       "drawing": "",
@@ -4763,16 +4127,6 @@
       "status": "待到貨"
     },
     {
-      "supplier": "毅和",
-      "no": "2606005",
-      "expected": "2026-10-13",
-      "drawing": "",
-      "material": "304",
-      "part": "2606005-TW001-01",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
       "supplier": "三綾",
       "no": "2606007",
       "expected": "2026-10-19",
@@ -4849,6 +4203,56 @@
       "drawing": "",
       "material": "41",
       "part": "2606007-TW094-01",
+      "qty": 1,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "三綾",
+      "no": "備庫存",
+      "expected": "2026-10-19",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW081-01",
+      "qty": 1,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "三綾",
+      "no": "備庫存",
+      "expected": "2026-10-19",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW081-02",
+      "qty": 2,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "三綾",
+      "no": "備庫存",
+      "expected": "2026-10-19",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW081-03",
+      "qty": 4,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "三綾",
+      "no": "備庫存",
+      "expected": "2026-10-19",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW081-04",
+      "qty": 2,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "三綾",
+      "no": "備庫存",
+      "expected": "2026-10-19",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW082-01",
       "qty": 1,
       "status": "待到貨"
     },
@@ -7777,6 +7181,17 @@
       ],
       "status": "未回",
       "importedAt": "2026-10-12"
+    },
+    {
+      "id": "os_mv6flmew_jm20k",
+      "fileName": "20261013元力共25個(藍13白7黃5)-2607002.pdf",
+      "fileType": "PDF",
+      "folder": "元力-圖面",
+      "orderNos": [
+        "2607002"
+      ],
+      "status": "未回",
+      "importedAt": "2026-10-13"
     }
   ],
   "returnRecords": [
@@ -7869,7 +7284,7 @@
       "reason": "攻牙斷裂要取出",
       "handling": "重製",
       "status": "待重新驗收",
-      "notes": "",
+      "notes": "10/12取回",
       "files": [
         {
           "name": "1812601_0.jpg",
@@ -7881,7 +7296,7 @@
         }
       ],
       "createdAt": "2026-10-12T17:57:00.106Z",
-      "updatedAt": "2026-10-13T02:24:55.533Z",
+      "updatedAt": "2026-10-13T03:54:59.215Z",
       "closedAt": ""
     }
   ]

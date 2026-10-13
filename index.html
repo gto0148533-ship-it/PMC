@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PMC 生產管理系統 V3.51 - 驗退彈出明細</title>
+<title>PMC 生產管理系統 V3.54 - 桌面拖曳捲動</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
@@ -1792,7 +1792,7 @@ input,select{min-height:38px}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>V3.51</span></div>
+    <div>PMC <span>V3.54</span></div>
     <small>生產管理系統</small>
   </div>
 
@@ -1834,7 +1834,7 @@ input,select{min-height:38px}
 
 
   <div class="top-actions">
-    <span class="mobile-version-badge" aria-label="版本">V3.51</span>
+    <span class="mobile-version-badge" aria-label="版本">V3.54</span>
     <span id="dataUpdatedAt" class="data-updated-badge" aria-label="資料更新時間">資料更新：—</span>
     <span id="dataStorageStatus" class="data-updated-badge" aria-live="polite" style="display:none"></span>
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
@@ -2391,6 +2391,7 @@ input,select{min-height:38px}
       <input type="hidden" id="returnEditId">
       <div class="form-grid">
         <div class="field"><label>來源</label><select id="returnSource"><option value="手動輸入">手動輸入</option><option value="採購明細">採購明細</option><option value="委外明細">委外明細</option></select></div>
+        <div class="field" style="grid-column:span 2"><label>搜尋零件編號</label><input id="returnSourceSearch" type="search" placeholder="輸入零件編號篩選採購／委外明細"></div>
         <div class="field" style="grid-column:span 2"><label>選擇原始明細（選填）</label><select id="returnSourceRow"><option value="">不帶入／手動輸入</option></select></div>
         <div class="field"><label>廠商（選填）</label><input id="returnSupplier" placeholder="輸入廠商"></div>
         <div class="field"><label>工單號碼（選填）</label><input id="returnOrderNo" placeholder="輸入工單號碼"></div>
@@ -8456,11 +8457,33 @@ function closeOrderMoreModal(){
     $('returnEditTitle').textContent=r?'編輯驗退紀錄':'新增驗退紀錄';$('returnEditId').value=r?.id||'';
     const vals={Source:r?.source||seed.source||'手動輸入',Supplier:r?.supplier??seed.supplier??'',OrderNo:r?.orderNo??seed.orderNo??'',Part:r?.part??seed.part??'',Material:r?.material??seed.material??'',Qty:r?.qty??seed.qty??'',Reason:r?.reason??'',Handling:r?.handling||'重製',Status:r?.status||'待處理',Notes:r?.notes??seed.notes??''};
     Object.entries(vals).forEach(([k,v])=>{const el=$('return'+k);if(el)el.value=v});
-    $('returnSourceRow').disabled=!!r;$('returnSourceRow').value='';$('returnFiles').value='';
+    $('returnSourceSearch').value='';$('returnSourceRow').disabled=!!r;$('returnSourceRow').value='';$('returnFiles').value='';
     $('returnExistingFiles').innerHTML=r?.files?.length?`目前附件 ${r.files.length} 個：`+r.files.map((f,i)=>`<span style="display:inline-flex;gap:4px;align-items:center;margin:4px 8px 4px 0"><a href="#" data-return-open-file="${i}" data-return-file-id="${esc(r.id)}">${esc(f.name||'附件')}</a>${hasAdminSession()&&!readOnly?` <label><input type="checkbox" data-return-delete-file="${i}"> 刪除</label>`:''}</span>`).join(''):'尚無附件';
-    resetReadOnly();if(readOnly){$('returnEditModal').classList.add('return-detail-mode');$('returnAttachmentPicker').style.display='none'}else{$('returnAttachmentPicker').style.display=''}showModal();
+    resetReadOnly();$('returnSourceRow').disabled=!!r;refreshReturnSourceRows();if(readOnly){$('returnEditModal').classList.add('return-detail-mode');$('returnAttachmentPicker').style.display='none'}else{$('returnAttachmentPicker').style.display=''}showModal();
   }
   function viewDetail(id){const r=getRecords().find(x=>x.id===id);if(!r)return;openEditor(id,{},true);$('returnEditTitle').textContent='驗退案件明細';document.querySelectorAll('#returnEditModal input,#returnEditModal select,#returnEditModal textarea').forEach(el=>{if(el.type!=='hidden'&&el.id!=='returnFiles')el.disabled=true});$('returnSaveBtn').style.display='none';$('returnModalCancel').textContent='關閉'}
+  function refreshReturnSourceRows(){
+    const sel=$('returnSourceRow'),source=$('returnSource').value,q=($('returnSourceSearch').value||'').trim().toLowerCase();
+    const previous=sel.value,items=[];
+    if(source==='手動輸入'&&!q){sel.innerHTML='<option value="">先輸入零件編號搜尋採購／委外明細</option>';return}
+    if(source==='手動輸入'||source==='採購明細'){
+      (purchaseRows||[]).forEach((r,i)=>{const no=String(r.no||''),part=String(r.part||''),drawing=String(r.drawing||r.desc||'');if(!q||[part,drawing].some(x=>x.toLowerCase().includes(q)))items.push({value:`purchase:${i}`,label:`採購｜${part||drawing||'未填零件'}｜圖號 ${drawing||'—'}｜工單 ${no||'—'}｜${r.supplier||'—'}｜數量 ${r.qty||'—'}`})});
+    }
+    if(source==='手動輸入'||source==='委外明細'){
+      (outsourcingRows||[]).forEach((r,i)=>{const no=(r.orderNos||[]).join(', '),fileName=String(r.fileName||''),folder=String(r.folder||'');if(!q||[fileName,folder].some(x=>x.toLowerCase().includes(q)))items.push({value:`outsourcing:${i}`,label:`委外｜${fileName||'委外檔案'}｜${folder}｜工單 ${no||'未辨識'}`})});
+    }
+    sel.innerHTML='<option value="">不帶入／手動輸入</option>'+items.map(x=>`<option value="${esc(x.value)}">${esc(x.label)}</option>`).join('');
+    if(items.some(x=>x.value===previous))sel.value=previous;
+  }
+  function applyReturnSourceRow(value){
+    if(!value)return;
+    const [kind,indexText]=value.split(':'),i=Number(indexText);let r;
+    if(kind==='purchase'){r=(purchaseRows||[])[i];$('returnSource').value='採購明細'}
+    else if(kind==='outsourcing'){r=(outsourcingRows||[])[i];$('returnSource').value='委外明細'}
+    if(!r)return;
+    $('returnSupplier').value=r.supplier||r.folder||'';$('returnOrderNo').value=r.no||(r.orderNos||[]).join(', ')||'';$('returnPart').value=r.part||'';$('returnMaterial').value=r.material||'';$('returnQty').value=r.qty||'';
+    refreshReturnSourceRows();$('returnSourceRow').value=value;
+  }
   function imageToData(file){return new Promise((resolve,reject)=>{
     const readOriginal=()=>{const rd=new FileReader();rd.onload=()=>resolve({name:file.name,type:file.type||'application/octet-stream',size:file.size,data:rd.result});rd.onerror=()=>reject(new Error('附件讀取失敗'));rd.readAsDataURL(file)};
     const isPdf=file.type==='application/pdf'||/\.pdf$/i.test(file.name||'');
@@ -8503,7 +8526,8 @@ function closeOrderMoreModal(){
       if(btn.id==='saveReturnImageCleanupBtn'||btn.id==='returnImageManageBtn'||btn.id==='returnImageCount')return;
       if(btn.matches('[data-return-detail],[data-return-edit],[data-return-next],[data-return-close],[data-return-delete],[data-return-reopen]')){e.preventDefault();handleListAction(btn);return}if(btn.hasAttribute('data-return-settings-open')){e.preventDefault();returnToImageList=true;hideImageListModal();viewDetail(btn.dataset.returnSettingsOpen);return}
     });
-    document.addEventListener('change',e=>{if(e.target.id==='returnSource'){const sel=$('returnSourceRow'),src=e.target.value;sel.innerHTML='<option value="">不帶入／手動輸入</option>';if(src==='採購明細'){(purchaseRows||[]).forEach((r,i)=>{const o=document.createElement('option');o.value=String(i);o.textContent=`${r.part||'未填零件'}｜工單 ${r.no||'—'}｜${r.supplier||'—'}｜數量 ${r.qty||'—'}`;sel.appendChild(o)})}else if(src==='委外明細'){(outsourcingRows||[]).forEach((r,i)=>{const o=document.createElement('option');o.value=String(i);o.textContent=`${(r.orderNos||[]).join(', ')||'未辨識工單'}｜${r.fileName||'委外檔案'}｜${r.folder||''}`;sel.appendChild(o)})}}else if(e.target.id==='returnSourceRow'){const src=$('returnSource').value,i=Number(e.target.value);if(e.target.value==='')return;let r;if(src==='採購明細')r=(purchaseRows||[])[i];else if(src==='委外明細')r=(outsourcingRows||[])[i];if(r){$('returnSupplier').value=r.supplier||r.folder||'';$('returnOrderNo').value=r.no||(r.orderNos||[]).join(', ')||'';$('returnPart').value=r.part||'';$('returnMaterial').value=r.material||'';$('returnQty').value=r.qty||''}}else if(e.target.id==='returnSearch'||e.target.id==='returnStatusFilter')render()});
+    document.addEventListener('input',e=>{if(e.target.id==='returnSourceSearch')refreshReturnSourceRows()});
+    document.addEventListener('change',e=>{if(e.target.id==='returnSource'){refreshReturnSourceRows()}else if(e.target.id==='returnSourceRow'){applyReturnSourceRow(e.target.value)}else if(e.target.id==='returnSearch'||e.target.id==='returnStatusFilter')render()});
     document.addEventListener('click',e=>{if(e.target===$('returnEditModal'))hideModal();if(e.target===$('returnImageListModal'))hideImageListModal()});
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('returnImageListModal')?.classList.contains('hidden'))hideImageListModal()});
     const manageBtn=$('returnImageManageBtn');if(manageBtn)manageBtn.onclick=e=>{e.preventDefault();e.stopPropagation();renderImageList()};
@@ -8515,6 +8539,70 @@ function closeOrderMoreModal(){
   window.pmcReturnRender=render;window.pmcReturnRenderSettings=renderSettings;
   async function init(){try{if(window.pmcReturnStorageReady)await window.pmcReturnStorageReady;bind();if(!Array.isArray(getRecords()))setRecords([]);cleanup();render();renderSettings()}catch(err){console.error('驗退管理初始化錯誤',err);const list=$('returnRecordsList');if(list)list.innerHTML='<div class="empty">驗退管理初始化失敗，請重新載入頁面；若仍發生請回報錯誤。</div>'}}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
+</script>
+
+<style id="pmc-v354-desktop-drag-scroll">
+@media (min-width:761px) and (hover:hover) and (pointer:fine){
+  .pmc-drag-scroll-grab{cursor:grabbing!important}
+  body.pmc-drag-scrolling,body.pmc-drag-scrolling *{user-select:none!important;-webkit-user-select:none!important;cursor:grabbing!important}
+}
+</style>
+<script id="pmc-v354-desktop-drag-scroll-js">
+(function(){
+  const desktopMouse=window.matchMedia('(min-width:761px) and (hover:hover) and (pointer:fine)');
+  if(!desktopMouse.matches)return;
+  const excluded='button,a,input,textarea,select,option,label,[contenteditable="true"],[draggable="true"],.no-drag-scroll';
+  let drag=null,suppressClick=false,suppressEl=null,suppressTimer=0;
+  function scrollAxes(el){
+    if(!el||el===document.body||el===document.documentElement)return false;
+    const style=getComputedStyle(el),x=/^(auto|scroll|overlay)$/.test(style.overflowX),y=/^(auto|scroll|overlay)$/.test(style.overflowY);
+    return {x:x&&el.scrollWidth>el.clientWidth+1,y:y&&el.scrollHeight>el.clientHeight+1};
+  }
+  function findScrollers(target){
+    const candidates=[];
+    let el=target instanceof Element?target:null;
+    while(el&&el!==document.body&&el!==document.documentElement){const axes=scrollAxes(el);if(axes&&(axes.x||axes.y))candidates.push({el,axes});el=el.parentElement}
+    const root=document.scrollingElement;
+    if(root&&(root.scrollHeight>root.clientHeight+1||root.scrollWidth>root.clientWidth+1)&&!candidates.some(x=>x.el===root))candidates.push({el:root,axes:{x:root.scrollWidth>root.clientWidth+1,y:root.scrollHeight>root.clientHeight+1}});
+    return candidates;
+  }
+  function stop(){
+    if(drag?.el)drag.el.classList.remove('pmc-drag-scroll-grab');
+    document.body.classList.remove('pmc-drag-scrolling');
+    if(drag?.active){suppressClick=true;suppressEl=drag.el;clearTimeout(suppressTimer);suppressTimer=setTimeout(()=>{suppressClick=false;suppressEl=null},500)}
+    drag=null;
+  }
+  document.addEventListener('mousedown',e=>{
+    if(e.button!==0||e.target.closest(excluded))return;
+    const candidates=findScrollers(e.target);if(!candidates.length)return;
+    drag={candidates,x:e.clientX,y:e.clientY,active:false};
+  });
+  document.addEventListener('mousemove',e=>{
+    if(!drag)return;
+    if(!(e.buttons&1)){stop();return}
+    const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+    if(!drag.active&&Math.hypot(dx,dy)<5)return;
+    if(!drag.active){
+      const horizontal=Math.abs(dx)>Math.abs(dy);
+      const candidate=drag.candidates.find(c=>horizontal?c.axes.x:c.axes.y);
+      if(!candidate){stop();return}
+      drag.el=candidate.el;drag.canX=candidate.axes.x;drag.canY=candidate.axes.y;drag.left=drag.el.scrollLeft;drag.top=drag.el.scrollTop;
+      drag.el.classList.add('pmc-drag-scroll-grab');
+      drag.active=true;document.body.classList.add('pmc-drag-scrolling');
+      window.getSelection?.().removeAllRanges();
+    }
+    e.preventDefault();
+    if(drag.canX)drag.el.scrollLeft=drag.left-dx;
+    if(drag.canY)drag.el.scrollTop=drag.top-dy;
+  },{passive:false});
+  document.addEventListener('mouseup',stop);
+  window.addEventListener('blur',stop);
+  document.addEventListener('click',e=>{
+    if(!suppressClick)return;
+    const draggedArea=suppressEl;suppressClick=false;suppressEl=null;clearTimeout(suppressTimer);
+    if(draggedArea&&(draggedArea===e.target||draggedArea.contains(e.target))){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation()}
+  },true);
 })();
 </script>
 
