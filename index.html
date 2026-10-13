@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PMC 生產管理系統 V3.54 - 桌面拖曳捲動</title>
+<title>PMC 生產管理系統 V3.55 - 工單照片 IndexedDB</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
@@ -1792,7 +1792,7 @@ input,select{min-height:38px}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>V3.54</span></div>
+    <div>PMC <span>V3.55</span></div>
     <small>生產管理系統</small>
   </div>
 
@@ -1834,7 +1834,7 @@ input,select{min-height:38px}
 
 
   <div class="top-actions">
-    <span class="mobile-version-badge" aria-label="版本">V3.54</span>
+    <span class="mobile-version-badge" aria-label="版本">V3.55</span>
     <span id="dataUpdatedAt" class="data-updated-badge" aria-label="資料更新時間">資料更新：—</span>
     <span id="dataStorageStatus" class="data-updated-badge" aria-live="polite" style="display:none"></span>
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
@@ -3273,8 +3273,45 @@ function processFilterMatch(order,key){
    STORAGE
 ========================================================= */
 
+let orderPhotoStorageReady=false;
+async function persistAndDetachOrderPhotos(syncState="synced",sourceOrders=orders){
+  const all=(sourceOrders||[]).flatMap(order=>(order.images||[]).filter(img=>img?.dataUrl).map(img=>({
+    orderNo:String(order.no),id:String(img.id),name:String(img.name||"工單照片"),dataUrl:String(img.dataUrl),
+    size:Number(img.size||0),width:Number(img.width||0),height:Number(img.height||0),createdAt:String(img.createdAt||""),syncState
+  })));
+  if(!window.pmcMergeOrderPhotos)throw new Error("工單照片 IndexedDB 尚未就緒");
+  await window.pmcMergeOrderPhotos(all);
+  const stored=await window.pmcGetAllOrderPhotos();
+  (orders||[]).forEach(order=>{
+    const forOrder=(stored||[]).filter(photo=>String(photo.orderNo)===String(order.no));
+    const deleted=new Set(forOrder.filter(photo=>photo.deleted).map(photo=>String(photo.id)));
+    order.images=(order.images||[]).filter(img=>!deleted.has(String(img.id)));
+    const existing=new Set(order.images.map(img=>String(img.id)));
+    forOrder.filter(photo=>!photo.deleted&&!existing.has(String(photo.id))).forEach(photo=>order.images.push({id:String(photo.id),name:String(photo.name||"工單照片"),size:Number(photo.size||0),width:Number(photo.width||0),height:Number(photo.height||0),createdAt:String(photo.createdAt||"")}));
+  });
+  orderPhotoStorageReady=true;
+  (orders||[]).forEach(order=>(order.images||[]).forEach(img=>{delete img.dataUrl}));
+  try{saveData();return true}catch(error){console.warn("工單照片已保存，但工單本機快取保存失敗：",error);return false}
+}
+
 function saveData(){
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(orders));
+  const toSave=orderPhotoStorageReady?(orders||[]).map(order=>({...order,images:(order.images||[]).map(({dataUrl,...img})=>img)})):orders;
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(toSave));
+}
+
+async function buildOrdersForExport(){
+  if(!window.pmcGetAllOrderPhotos)throw new Error("工單照片 IndexedDB 尚未就緒");
+  const stored=await window.pmcGetAllOrderPhotos(),byOrder=new Map();
+  (stored||[]).forEach(photo=>{const key=String(photo.orderNo);if(!byOrder.has(key))byOrder.set(key,[]);byOrder.get(key).push(photo)});
+  return (orders||[]).map(order=>{
+    const photos=(order.images||[]).map(meta=>{
+      const found=(byOrder.get(String(order.no))||[]).find(photo=>String(photo.id)===String(meta.id));
+      const dataUrl=meta.dataUrl||found?.dataUrl;
+      if(!dataUrl)throw new Error(`工單 ${order.no} 的照片「${meta.name||meta.id}」尚未保存，無法匯出`);
+      return {...meta,dataUrl};
+    });
+    return {...order,images:photos};
+  });
 }
 
 function applyServerData(data){
@@ -3327,11 +3364,16 @@ async function loadData(){
   if(window.pmcReturnStorageReady){
     try{await window.pmcReturnStorageReady;}catch(error){console.warn("驗退 IndexedDB 初始化失敗：",error);}
   }
+  if(window.pmcOrderPhotoStorageReady){
+    try{await window.pmcOrderPhotoStorageReady;}catch(error){console.warn("工單照片 IndexedDB 初始化失敗：",error);}
+  }
   try{
     const response=await fetch("./PMC_Data.json?ts="+Date.now(),{cache:"no-store"});
     if(!response.ok) throw new Error("HTTP "+response.status);
     const data=await response.json();
     const applyResult=applyServerData(data)||{};
+    let orderPhotosPersisted=true,orderPhotoError=null,localOrdersSaved=applyResult.localOrdersSaved!==false;
+    try{localOrdersSaved=(await persistAndDetachOrderPhotos())&&localOrdersSaved;}catch(error){orderPhotosPersisted=false;orderPhotoError=error;console.error("中央工單資料已載入，但照片保存至 IndexedDB 失敗：",error)}
     let returnRecordsPersisted=Array.isArray(data.returnRecords)?true:null,storageError=null;
     if(Array.isArray(data.returnRecords)){
       try{
@@ -3339,7 +3381,7 @@ async function loadData(){
         await window.pmcPersistReturnRecords(data.returnRecords);
       }catch(error){returnRecordsPersisted=false;storageError=error;console.error("中央驗退資料已載入，但 IndexedDB 保存失敗：",error);}
     }
-    const result={source:"server",ok:true,returnRecordsPersisted,localOrdersSaved:applyResult.localOrdersSaved!==false,storageError};
+    const result={source:"server",ok:true,returnRecordsPersisted,localOrdersSaved,orderPhotosPersisted,orderPhotoError,storageError};
     if(window.pmcReturnRender)window.pmcReturnRender();
     if(window.pmcReturnRenderSettings)window.pmcReturnRenderSettings();
     return result;
@@ -3351,6 +3393,7 @@ async function loadData(){
         const parsed=JSON.parse(saved);
         if(Array.isArray(parsed) && parsed.length){
           orders=parsed.map(normalizeOrder);
+          try{if(parsed.some(order=>(order.images||[]).some(img=>img?.dataUrl)))await persistAndDetachOrderPhotos("pending");else if(window.pmcOrderPhotoStorageReady){await window.pmcOrderPhotoStorageReady;orderPhotoStorageReady=true;}}catch(photoError){console.error("舊版工單照片遷移至 IndexedDB 失敗：",photoError)}
           dataUpdatedAt="";
           if(window.pmcReturnRender)window.pmcReturnRender();
           return {source:"local",ok:true};
@@ -3396,7 +3439,11 @@ function updateDataSourceUI(result){
   if(!status)return;
   status.style.display="inline-flex";
   const dataLoaded=result?.source==="server"||result?.source==="file";
-  if(dataLoaded&&result.returnRecordsPersisted===false){
+  if(dataLoaded&&result.orderPhotosPersisted===false){
+    status.textContent="照片保存失敗";
+    status.style.color="#b42318";
+    status.title="工單照片已載入目前頁面，但未能保存至此瀏覽器的 IndexedDB。請勿關閉頁面，並先匯出 PMC_Data.json。"+(result.orderPhotoError?.message?" 詳情："+result.orderPhotoError.message:"");
+  }else if(dataLoaded&&result.returnRecordsPersisted===false){
     status.textContent="驗退保存失敗";
     status.style.color="#b42318";
     status.title="中央 PMC_Data.json 已載入並顯示，但驗退資料無法保存至此瀏覽器的 IndexedDB。請先匯出 PMC_Data.json。"+(result.storageError?.message?" 詳情："+result.storageError.message:"");
@@ -3405,9 +3452,13 @@ function updateDataSourceUI(result){
     status.style.color="#b42318";
     status.title="中央資料已載入；工單本機快取未保存。請確認瀏覽器儲存空間。";
   }else if(dataLoaded&&result.returnRecordsPersisted===true){
-    status.textContent="驗退已存";
+    status.textContent="資料已存";
     status.style.color="#166534";
-    status.title="中央資料已載入；驗退資料已保存至此瀏覽器的 IndexedDB。跨裝置同步仍需匯出並更新 GitHub。";
+    status.title="驗退資料與工單照片已保存至此瀏覽器的 IndexedDB。跨裝置同步仍需匯出 PMC_Data.json 並更新 GitHub。";
+  }else if(dataLoaded&&result.orderPhotosPersisted===true){
+    status.textContent="照片已存";
+    status.style.color="#166534";
+    status.title="工單照片已保存至此瀏覽器的 IndexedDB。跨裝置同步仍需匯出 PMC_Data.json 並更新 GitHub。";
   }else if(dataLoaded){
     status.textContent="沒有驗退欄位";
     status.style.color="#475569";
@@ -3429,14 +3480,17 @@ function loadDataFromFile(file){
     try{
       const data=JSON.parse(reader.result);
       const applyResult=applyServerData(data)||{};
+      let orderPhotosPersisted=true,orderPhotoError=null,localOrdersSaved=applyResult.localOrdersSaved!==false;
+      try{localOrdersSaved=(await persistAndDetachOrderPhotos())&&localOrdersSaved;}catch(error){orderPhotosPersisted=false;orderPhotoError=error;console.error("選取檔案已載入，但工單照片保存至 IndexedDB 失敗：",error)}
       let returnRecordsPersisted=Array.isArray(data.returnRecords)?true:null,storageError=null;
       if(Array.isArray(data.returnRecords)){
         try{if(!window.pmcPersistReturnRecords)throw new Error("IndexedDB 儲存服務尚未就緒");await window.pmcPersistReturnRecords(data.returnRecords)}
         catch(error){returnRecordsPersisted=false;storageError=error;console.error("選取檔案已載入，但驗退資料保存失敗：",error)}
       }
       renderAll();
-      updateDataSourceUI({source:"file",returnRecordsPersisted,localOrdersSaved:applyResult.localOrdersSaved!==false,storageError});
-      if(returnRecordsPersisted)alert("已載入選取的 PMC_Data.json");
+      updateDataSourceUI({source:"file",returnRecordsPersisted,localOrdersSaved,orderPhotosPersisted,orderPhotoError,storageError});
+      if(!orderPhotosPersisted)alert("已載入檔案，但工單照片無法保存至此瀏覽器。請勿關閉頁面，並立即匯出 PMC_Data.json。");
+      else if(returnRecordsPersisted)alert("已載入選取的 PMC_Data.json");
       else alert("已載入並顯示選取檔案，但驗退資料無法保存至此瀏覽器。請立即匯出 PMC_Data.json。");
     }catch(error){
       console.error(error);
@@ -3467,10 +3521,10 @@ function normalizeOrder(order){
   });
   order.actual=order.actual||{};
   order.images=Array.isArray(order.images)?order.images:[];
-  order.images=order.images.filter(img=>img&&img.dataUrl).map(img=>({
+  order.images=order.images.filter(img=>img&&typeof img==="object").map(img=>({
     id:String(img.id||('img_'+Date.now()+'_'+Math.random().toString(36).slice(2,8))),
     name:String(img.name||'工單照片'),
-    dataUrl:String(img.dataUrl),
+    ...(img.dataUrl?{dataUrl:String(img.dataUrl)}:{}),
     size:Number(img.size||0),
     width:Number(img.width||0),
     height:Number(img.height||0),
@@ -6262,7 +6316,7 @@ function saveOrder(){
    DELETE
 ========================================================= */
 
-function deleteOrderByNo(no){
+async function deleteOrderByNo(no){
   if(!requireAdmin()) return;
 
   const order =
@@ -6284,6 +6338,8 @@ function deleteOrderByNo(no){
   if(!ok)
     return;
 
+  try{if((order.images||[]).length)await window.pmcDeleteOrderPhotos(no);}catch(error){console.error("工單照片清除失敗：",error);alert("工單照片未能從本機儲存移除，工單未刪除。"+(error?.message?"\n"+error.message:""));return;}
+
 
   orders =
     orders.filter(
@@ -6294,6 +6350,7 @@ function deleteOrderByNo(no){
   saveData();
 
   renderAll();
+  if((order.images||[]).length)markOrderPhotosPending();
 
 }
 
@@ -6341,14 +6398,18 @@ function autoSchedule(){
    EXPORT
 ========================================================= */
 
-function exportData(){
+async function exportData(){
   if(!requireAdmin()) return;
+
+  let exportOrders;
+  try{exportOrders=await buildOrdersForExport();}
+  catch(error){console.error("工單照片匯出失敗：",error);alert("匯出失敗："+(error?.message||"無法讀取工單照片"));return;}
 
   const data={
     version:"3.1",
     exportedAt:new Date().toISOString(),
     source:"PMC central JSON",
-    orders:orders,
+    orders:exportOrders,
     processRules:processRules,
     scheduleMode:scheduleMode,
     purchaseRows:purchaseRows,
@@ -6411,6 +6472,8 @@ function importData(file){
 
 
         const applyResult=applyServerData(data)||{};
+        let orderPhotosPersisted=true,orderPhotoError=null,localOrdersSaved=applyResult.localOrdersSaved!==false;
+        try{localOrdersSaved=(await persistAndDetachOrderPhotos())&&localOrdersSaved;}catch(error){orderPhotosPersisted=false;orderPhotoError=error;console.error("匯入資料已載入，但工單照片保存至 IndexedDB 失敗：",error)}
         let returnRecordsPersisted=Array.isArray(data.returnRecords)?true:null,storageError=null;
         if(Array.isArray(data.returnRecords)){
           try{if(!window.pmcPersistReturnRecords)throw new Error("IndexedDB 儲存服務尚未就緒");await window.pmcPersistReturnRecords(data.returnRecords)}
@@ -6418,9 +6481,9 @@ function importData(file){
         }
 
         renderAll();
-        updateDataSourceUI({source:"file",returnRecordsPersisted,localOrdersSaved:applyResult.localOrdersSaved!==false,storageError});
+      updateDataSourceUI({source:"file",returnRecordsPersisted,localOrdersSaved,orderPhotosPersisted,orderPhotoError,storageError});
 
-        alert(returnRecordsPersisted?"資料匯入完成":"資料已載入，但驗退資料無法保存至此瀏覽器。請立即匯出 PMC_Data.json。");
+        alert(!orderPhotosPersisted?"資料已載入，但工單照片無法保存至此瀏覽器。請勿關閉頁面，並立即匯出 PMC_Data.json。":returnRecordsPersisted?"資料匯入完成":"資料已載入，但驗退資料無法保存至此瀏覽器。請立即匯出 PMC_Data.json。");
 
 
       }catch(error){
@@ -6445,7 +6508,7 @@ function importData(file){
    RESET
 ========================================================= */
 
-function resetDemoData(){
+async function resetDemoData(){
   if(!requireAdmin()) return;
 
   const ok =
@@ -6456,6 +6519,8 @@ function resetDemoData(){
 
   if(!ok)
     return;
+
+  try{await window.pmcReplaceOrderPhotos([]);}catch(error){alert("無法清除本機工單照片，示範資料未重設。"+(error?.message?"\n"+error.message:""));return;}
 
 
   orders =
@@ -6592,6 +6657,7 @@ function saveImageCleanupDays(){const el=document.getElementById("imageCleanupDa
 function imageBytes(n){n=Number(n)||0;if(n<1024)return n+" B";if(n<1048576)return (n/1024).toFixed(1)+" KB";return (n/1048576).toFixed(2)+" MB";}
 function getAllImages(){return (orders||[]).flatMap(o=>(o.images||[]).map(img=>({...img,orderNo:o.no,customer:o.customer||""})));}
 function totalImageStats(){const imgs=getAllImages();return {count:imgs.length,bytes:imgs.reduce((a,b)=>a+Number(b.size||0),0)};}
+function markOrderPhotosPending(){const el=document.getElementById("dataStorageStatus");if(!el)return;el.style.display="inline-flex";el.textContent="照片待同步";el.style.color="#92400e";el.title="工單照片已保存在此裝置的 IndexedDB；匯出 PMC_Data.json 並更新 GitHub 後，其他裝置才會同步。請在更新中央資料前先完成匯出。";}
 function renderImageDataSummary(){
   const el=document.getElementById("imageDataSummary");if(!el)return;
   const st=totalImageStats();
@@ -6634,14 +6700,16 @@ function getOrderPhotoById(no,id){
   if(!o)return null;
   return (o.images||[]).find(x=>String(x.id)===String(id))||null;
 }
-function loadOrderPhotoElement(imgEl){
+async function loadOrderPhotoElement(imgEl){
   if(!imgEl)return null;
   if(imgEl.getAttribute("src"))return imgEl.getAttribute("src");
   const photo=getOrderPhotoById(imgEl.dataset.orderNo,imgEl.dataset.photoId||imgEl.dataset.photoView);
-  if(!photo||!photo.dataUrl)return null;
-  imgEl.src=photo.dataUrl;
-  imgEl.removeAttribute("aria-label");
-  return photo.dataUrl;
+  if(!photo)return null;
+  try{
+    const stored=photo.dataUrl?photo:await window.pmcGetOrderPhoto(imgEl.dataset.orderNo,photo.id);
+    if(!stored?.dataUrl)throw new Error("找不到此照片的本機資料");
+    imgEl.src=stored.dataUrl;imgEl.removeAttribute("aria-label");return stored.dataUrl;
+  }catch(error){console.error("工單照片載入失敗：",error);imgEl.alt="照片載入失敗，請重新載入 PMC_Data.json";imgEl.title=error?.message||"照片載入失敗";return null;}
 }
 function initLazyOrderPhotos(root){
   const imgs=Array.from((root||document).querySelectorAll("img.image-lazy:not([src])"));
@@ -6661,8 +6729,8 @@ function initLazyOrderPhotos(root){
     imgs.forEach(loadOrderPhotoElement);
   }
 }
-function openOrderPhotoLightbox(imgEl){
-  const dataUrl=loadOrderPhotoElement(imgEl);
+async function openOrderPhotoLightbox(imgEl){
+  const dataUrl=await loadOrderPhotoElement(imgEl);
   if(!dataUrl)return;
   openImageLightbox(dataUrl,imgEl.alt||"工單照片");
 }
@@ -6697,11 +6765,16 @@ function readImageCompressed(file){
 }
 async function addOrderImages(no,files){
   if(!requireAdmin())return;const o=findOrder(no);if(!o)return;const arr=Array.from(files||[]);if(!arr.length)return;
-  let added=0;for(const f of arr){try{const img=await readImageCompressed(f);o.images=o.images||[];o.images.push({id:"img_"+Date.now()+"_"+Math.random().toString(36).slice(2,9),...img,createdAt:new Date().toISOString()});added++;}catch(e){console.warn(e);}}
-  saveData();renderAll();renderImageDataSummary();openOrderPhotoModal(no);alert(`已新增 ${added} 張照片`);
+  let added=0,lastError=null;for(const f of arr){try{const img=await readImageCompressed(f),record={id:"img_"+Date.now()+"_"+Math.random().toString(36).slice(2,9),orderNo:String(no),...img,createdAt:new Date().toISOString(),syncState:"pending"};await window.pmcPutOrderPhoto(record);o.images=o.images||[];const {orderNo,...meta}=record;delete meta.key;delete meta.dataUrl;delete meta.syncState;o.images.push(meta);added++;}catch(e){lastError=e;console.warn("工單照片新增失敗：",e);}}
+  try{saveData();}catch(error){console.error("工單照片索引本機保存失敗：",error);lastError=error;}
+  renderAll();renderImageDataSummary();openOrderPhotoModal(no);
+  if(added)markOrderPhotosPending();
+  if(added===arr.length)alert(`已新增 ${added} 張照片`);else alert(`成功新增 ${added}/${arr.length} 張照片。`+(lastError?.message?"\n"+lastError.message:""));
 }
-function deleteOrderImage(no,id){
-  if(!requireAdmin())return;const o=findOrder(no);if(!o)return;if(!confirm("確定刪除此照片？"))return;o.images=(o.images||[]).filter(x=>String(x.id)!==String(id));saveData();renderAll();renderImageDataSummary();openOrderPhotoModal(no);
+async function deleteOrderImage(no,id){
+  if(!requireAdmin())return;const o=findOrder(no);if(!o)return;if(!confirm("確定刪除此照片？"))return;
+  try{await window.pmcDeleteOrderPhoto(no,id);o.images=(o.images||[]).filter(x=>String(x.id)!==String(id));saveData();renderAll();renderImageDataSummary();openOrderPhotoModal(no);markOrderPhotosPending();}
+  catch(error){console.error("工單照片刪除失敗：",error);alert("照片刪除失敗，原照片仍保留。"+(error?.message?"\n"+error.message:""));}
 }
 function openImageManageModal(){
   if(!requireAdmin())return;const m=document.getElementById("imageManageModal"),body=document.getElementById("imageManageBody");if(!m||!body)return;
@@ -6710,10 +6783,10 @@ function openImageManageModal(){
   m.classList.remove("hidden");m.setAttribute("aria-hidden","false");m.style.display="flex";document.body.style.overflow="hidden";
 }
 function closeImageManageModal(){const m=document.getElementById("imageManageModal");if(m){m.classList.add("hidden");m.setAttribute("aria-hidden","true");m.style.display="none";}document.body.style.overflow="";}
-function cleanupClosedOrderImages(){
+async function cleanupClosedOrderImages(){
   const days=getImageCleanupDays();if(days<0)return;const now=new Date(TODAY+"T00:00:00");let removed=0;
-  (orders||[]).forEach(o=>{if(!o.actualClose||!(o.images||[]).length)return;const close=new Date(String(o.actualClose)+"T00:00:00");if(isNaN(close))return;if(Math.floor((now-close)/86400000)>=days){removed+=o.images.length;o.images=[];}});
-  if(removed){saveData();renderImageDataSummary();}
+  for(const o of orders||[]){if(!o.actualClose||!(o.images||[]).length)continue;const close=new Date(String(o.actualClose)+"T00:00:00");if(isNaN(close))continue;if(Math.floor((now-close)/86400000)>=days){try{await window.pmcDeleteOrderPhotos(o.no);removed+=o.images.length;o.images=[];}catch(error){console.error(`工單 ${o.no} 的到期照片清理失敗：`,error)}}}
+  if(removed){saveData();renderImageDataSummary();markOrderPhotosPending();}
 }
 function updateCurrentPhotoButton(){const b=document.getElementById("pmcCurrentPhotoBtn"),no=window.pmcCurrentOrderNo,o=findOrder(no);if(!b)return;if(o&&(o.images||[]).length){b.style.display="inline-block";b.textContent=`照片 ${o.images.length}`;b.dataset.currentPhoto=no;}else{b.style.display="none";b.dataset.currentPhoto="";}}
 
@@ -6780,7 +6853,7 @@ document.addEventListener(
     document.getElementById("orderPhotoCloseBtn")?.addEventListener("click",closeOrderPhotoModal);
     document.getElementById("imageManageCloseBtn")?.addEventListener("click",closeImageManageModal);
     document.getElementById("saveImageCleanupBtn")?.addEventListener("click",function(){if(requireAdmin())saveImageCleanupDays();});
-    document.getElementById("imageManageBody")?.addEventListener("click",function(e){const v=e.target.closest("[data-manage-photo]");if(v)openOrderPhotoModal(v.dataset.managePhoto,true);const d=e.target.closest("[data-manage-delete]");if(d&&requireAdmin()){const o=findOrder(d.dataset.manageDelete);if(o&&confirm(`確定刪除工單 ${o.no} 的全部照片？`)){o.images=[];saveData();renderAll();openImageManageModal();}}});
+    document.getElementById("imageManageBody")?.addEventListener("click",async function(e){const v=e.target.closest("[data-manage-photo]");if(v)openOrderPhotoModal(v.dataset.managePhoto,true);const d=e.target.closest("[data-manage-delete]");if(d&&requireAdmin()){const o=findOrder(d.dataset.manageDelete);if(o&&confirm(`確定刪除工單 ${o.no} 的全部照片？`)){try{await window.pmcDeleteOrderPhotos(o.no);o.images=[];saveData();renderAll();openImageManageModal();markOrderPhotosPending();}catch(error){alert("刪除照片失敗，原照片仍保留。"+(error?.message?"\n"+error.message:""));}}}});
     document.getElementById("orderPhotoGrid")?.addEventListener("click",function(e){
       const pic=e.target.closest("[data-photo-view]");
       if(pic&&pic.tagName==="IMG"){openOrderPhotoLightbox(pic);return;}
@@ -6802,7 +6875,7 @@ document.addEventListener(
       closeImageManageModal();
       if(parentWasOpen&&photoWasOpen)e.stopImmediatePropagation();
     });
-    cleanupClosedOrderImages();
+    await cleanupClosedOrderImages();
     document.getElementById("loginCloseBtn").addEventListener("click",closeLoginModal);
     document.getElementById("loginCancelBtn").addEventListener("click",closeLoginModal);
     document.getElementById("loginSubmitBtn").addEventListener("click",doLogin);
@@ -8388,7 +8461,7 @@ function closeOrderMoreModal(){
 /* V3.46 驗退紀錄改存 IndexedDB；中央資料載入與本機保存狀態分開處理。 */
 (function(){
   const KEY='PMC_V340_RETURN_RECORDS', DAYS_KEY='PMC_V340_RETURN_IMAGE_CLEANUP_DAYS';
-  const DB_NAME='PMC_V346_RETURN_DB', STORE_NAME='returnRecords', DB_VERSION=1;
+  const DB_NAME='PMC_V346_RETURN_DB', STORE_NAME='returnRecords', ORDER_PHOTO_STORE='orderPhotos', DB_VERSION=2;
   const $=id=>document.getElementById(id);
   let returnToImageList=false;
   let dbPromise=null;
@@ -8402,7 +8475,7 @@ function closeOrderMoreModal(){
     if(dbPromise)return dbPromise;
     dbPromise=new Promise((resolve,reject)=>{
       const req=indexedDB.open(DB_NAME,DB_VERSION);
-      req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(STORE_NAME))db.createObjectStore(STORE_NAME)};
+      req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(STORE_NAME))db.createObjectStore(STORE_NAME);if(!db.objectStoreNames.contains(ORDER_PHOTO_STORE))db.createObjectStore(ORDER_PHOTO_STORE,{keyPath:'key'})};
       req.onsuccess=()=>{const db=req.result;db.onversionchange=()=>db.close();resolve(db)};
       req.onerror=()=>reject(req.error||new Error('無法開啟 IndexedDB'));
       req.onblocked=()=>reject(new Error('IndexedDB 升級被其他分頁阻擋，請關閉其他 PMC 分頁後重試'));
@@ -8424,6 +8497,61 @@ function closeOrderMoreModal(){
       tx.oncomplete=()=>resolve(true);tx.onerror=()=>reject(tx.error||new Error('寫入 IndexedDB 失敗'));tx.onabort=()=>reject(tx.error||new Error('寫入 IndexedDB 中止'));
     });
   }
+  async function replaceOrderPhotos(photos){
+    const db=await openDb();
+    return new Promise((resolve,reject)=>{
+      const tx=db.transaction(ORDER_PHOTO_STORE,'readwrite'),store=tx.objectStore(ORDER_PHOTO_STORE);
+      store.clear();
+      (photos||[]).forEach(photo=>store.put({...photo,key:String(photo.orderNo)+'\u0000'+String(photo.id)}));
+      tx.oncomplete=()=>resolve(true);tx.onerror=()=>reject(tx.error||new Error('工單照片保存失敗'));tx.onabort=()=>reject(tx.error||new Error('工單照片保存中止'));
+    });
+  }
+  async function mergeOrderPhotos(photos){
+    const incoming=(photos||[]).map(photo=>({...photo,syncState:photo.syncState||'synced'}));
+    const incomingKeys=new Set(incoming.map(photo=>String(photo.orderNo)+'\u0000'+String(photo.id)));
+    const existing=await getAllOrderPhotos(),tombstoneKeys=new Set(existing.filter(photo=>photo.deleted&&photo.syncState==='pending').map(photo=>String(photo.orderNo)+'\u0000'+String(photo.id)));
+    const central=incoming.filter(photo=>!tombstoneKeys.has(String(photo.orderNo)+'\u0000'+String(photo.id)));
+    const pendingAdds=existing.filter(photo=>!photo.deleted&&photo.syncState==='pending'&&!incomingKeys.has(String(photo.orderNo)+'\u0000'+String(photo.id)));
+    const pendingDeletes=existing.filter(photo=>photo.deleted&&photo.syncState==='pending'&&incomingKeys.has(String(photo.orderNo)+'\u0000'+String(photo.id)));
+    return replaceOrderPhotos([...central,...pendingAdds,...pendingDeletes]);
+  }
+  async function getOrderPhoto(orderNo,id){
+    const db=await openDb();
+    return new Promise((resolve,reject)=>{
+      const tx=db.transaction(ORDER_PHOTO_STORE,'readonly'),req=tx.objectStore(ORDER_PHOTO_STORE).get(String(orderNo)+'\u0000'+String(id));
+      req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error||new Error('工單照片讀取失敗'));
+    });
+  }
+  async function getAllOrderPhotos(){
+    const db=await openDb();
+    return new Promise((resolve,reject)=>{
+      const tx=db.transaction(ORDER_PHOTO_STORE,'readonly'),req=tx.objectStore(ORDER_PHOTO_STORE).getAll();
+      req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error||new Error('工單照片清單讀取失敗'));
+    });
+  }
+  async function putOrderPhoto(photo){
+    const db=await openDb();
+    return new Promise((resolve,reject)=>{
+      const tx=db.transaction(ORDER_PHOTO_STORE,'readwrite'),store=tx.objectStore(ORDER_PHOTO_STORE);
+      store.put({...photo,key:String(photo.orderNo)+'\u0000'+String(photo.id)});
+      tx.oncomplete=()=>resolve(true);tx.onerror=()=>reject(tx.error||new Error('工單照片保存失敗'));tx.onabort=()=>reject(tx.error||new Error('工單照片保存中止'));
+    });
+  }
+  async function deleteOrderPhoto(orderNo,id){
+    const db=await openDb();
+    return new Promise((resolve,reject)=>{
+      const tx=db.transaction(ORDER_PHOTO_STORE,'readwrite');tx.objectStore(ORDER_PHOTO_STORE).put({key:String(orderNo)+'\u0000'+String(id),orderNo:String(orderNo),id:String(id),deleted:true,syncState:'pending'});
+      tx.oncomplete=()=>resolve(true);tx.onerror=()=>reject(tx.error||new Error('工單照片刪除失敗'));tx.onabort=()=>reject(tx.error||new Error('工單照片刪除中止'));
+    });
+  }
+  async function deleteOrderPhotos(orderNo){
+    const all=await getAllOrderPhotos(),photos=all.filter(photo=>String(photo.orderNo)===String(orderNo)&&!photo.deleted);
+    const db=await openDb();
+    return new Promise((resolve,reject)=>{
+      const tx=db.transaction(ORDER_PHOTO_STORE,'readwrite'),store=tx.objectStore(ORDER_PHOTO_STORE);photos.forEach(photo=>store.put({key:photo.key,orderNo:photo.orderNo,id:photo.id,deleted:true,syncState:'pending'}));
+      tx.oncomplete=()=>resolve(true);tx.onerror=()=>reject(tx.error||new Error('工單照片刪除失敗'));tx.onabort=()=>reject(tx.error||new Error('工單照片刪除中止'));
+    });
+  }
   async function initializeStorage(){
     let legacy=null;
     try{const raw=localStorage.getItem(KEY);if(raw){const parsed=JSON.parse(raw);if(Array.isArray(parsed))legacy=parsed;}}catch(error){console.warn('讀取舊版驗退快取失敗：',error)}
@@ -8443,6 +8571,14 @@ function closeOrderMoreModal(){
   window.pmcSetReturnRecordsMemory=setRecords;
   window.pmcPersistReturnRecords=async records=>{setRecords(records);return writeStoredRecords(records)};
   window.pmcReturnStorageReady=initializeStorage();
+  window.pmcReplaceOrderPhotos=replaceOrderPhotos;
+  window.pmcMergeOrderPhotos=mergeOrderPhotos;
+  window.pmcGetOrderPhoto=getOrderPhoto;
+  window.pmcGetAllOrderPhotos=getAllOrderPhotos;
+  window.pmcPutOrderPhoto=putOrderPhoto;
+  window.pmcDeleteOrderPhoto=deleteOrderPhoto;
+  window.pmcDeleteOrderPhotos=deleteOrderPhotos;
+  window.pmcOrderPhotoStorageReady=openDb().then(()=>true);
   function bytes(f){return Number(f.size||0)||Math.floor(String(f.data||'').length*3/4)}
   function fmtSize(n){n=Number(n)||0;return n<1024?n+' B':n<1048576?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(2)+' MB'}
   function days(){try{const n=Number(localStorage.getItem(DAYS_KEY));return Number.isFinite(n)&&n>=0?n:7}catch(e){return 7}}
