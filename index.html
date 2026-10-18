@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PMC 生產管理系統 V3.55 - 工單照片 IndexedDB</title>
+<title>PMC 生產管理系統 V3.56 - 匯入進度與容量管理</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
@@ -1792,7 +1792,7 @@ input,select{min-height:38px}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>V3.55</span></div>
+    <div>PMC <span>V3.56</span></div>
     <small>生產管理系統</small>
   </div>
 
@@ -1834,7 +1834,7 @@ input,select{min-height:38px}
 
 
   <div class="top-actions">
-    <span class="mobile-version-badge" aria-label="版本">V3.55</span>
+    <span class="mobile-version-badge" aria-label="版本">V3.56</span>
     <span id="dataUpdatedAt" class="data-updated-badge" aria-label="資料更新時間">資料更新：—</span>
     <span id="dataStorageStatus" class="data-updated-badge" aria-live="polite" style="display:none"></span>
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
@@ -2066,6 +2066,14 @@ input,select{min-height:38px}
 
     <select id="ganttOrder"></select>
 
+    <label class="gantt-status-filter-label">總覽篩選
+      <select id="ganttStatusFilter" aria-label="甘特圖工單狀態篩選">
+        <option value="未完成" selected>未完成工單</option>
+        <option value="已完成">已完成工單</option>
+        <option value="全部">全部工單</option>
+      </select>
+    </label>
+
     <input
       type="date"
       id="ganttStart">
@@ -2106,6 +2114,7 @@ input,select{min-height:38px}
 
 
   <div id="ganttContainer"></div>
+  <div id="ganttPagination" class="gantt-pagination" style="display:none"></div>
 
 
   <div class="legend">
@@ -2510,6 +2519,11 @@ input,select{min-height:38px}
         </label>
         <button class="btn secondary small" id="saveImageCleanupBtn" type="button">儲存設定</button>
       </div>
+      <div class="storage-capacity-card">
+        <div><b>本機儲存容量</b><div id="storageCapacitySummary" class="footer-note" aria-live="polite">正在檢查瀏覽器儲存空間…</div></div>
+        <div class="storage-capacity-actions"><button class="btn secondary small" id="refreshStorageCapacityBtn" type="button">重新檢查</button><button class="btn secondary small" id="cleanupClosedPhotosBtn" type="button">依儲存設定清理結案工單照片</button></div>
+      </div>
+      <div class="footer-note">容量數字是瀏覽器對整個 PMC 網站來源的估算，包含本機快取與 IndexedDB；瀏覽器配額可能變動，仍請定期匯出 PMC_Data.json。</div>
     </div>
 
   </div>
@@ -3274,6 +3288,24 @@ function processFilterMatch(order,key){
 ========================================================= */
 
 let orderPhotoStorageReady=false;
+function startPmcBusy(title,detail="請稍候…"){
+  if(window.__pmcBusyActive)return false;
+  const overlay=document.getElementById("pmcBusyOverlay");if(!overlay)return false;
+  window.__pmcBusyActive=true;overlay.hidden=false;overlay.setAttribute("aria-hidden","false");
+  document.getElementById("pmcBusyTitle").textContent=title;
+  document.getElementById("pmcBusyDetail").textContent=detail;
+  updatePmcBusy(title,detail,null);return true;
+}
+function updatePmcBusy(title,detail,percent=null){
+  if(!window.__pmcBusyActive)return;
+  const heading=document.getElementById("pmcBusyTitle"),description=document.getElementById("pmcBusyDetail"),bar=document.getElementById("pmcBusyBar"),track=document.getElementById("pmcBusyProgress");
+  if(heading&&title)heading.textContent=title;if(description&&detail)description.textContent=detail;
+  const determinate=percent!==null&&percent!==undefined&&Number.isFinite(Number(percent));
+  if(bar){bar.classList.toggle("indeterminate",!determinate);bar.style.width=determinate?`${Math.max(0,Math.min(100,Number(percent)))}%`:"35%";}
+  if(track){if(determinate){track.setAttribute("aria-valuenow",String(Math.round(Number(percent))));track.setAttribute("aria-valuetext",`${Math.round(Number(percent))}%`)}else{track.removeAttribute("aria-valuenow");track.setAttribute("aria-valuetext","處理中");}}
+}
+function endPmcBusy(){const overlay=document.getElementById("pmcBusyOverlay");window.__pmcBusyActive=false;if(overlay){overlay.hidden=true;overlay.setAttribute("aria-hidden","true");}}
+window.pmcStartBusy=startPmcBusy;window.pmcUpdateBusy=updatePmcBusy;window.pmcEndBusy=endPmcBusy;
 async function persistAndDetachOrderPhotos(syncState="synced",sourceOrders=orders){
   const all=(sourceOrders||[]).flatMap(order=>(order.images||[]).filter(img=>img?.dataUrl).map(img=>({
     orderNo:String(order.no),id:String(img.id),name:String(img.name||"工單照片"),dataUrl:String(img.dataUrl),
@@ -3291,7 +3323,8 @@ async function persistAndDetachOrderPhotos(syncState="synced",sourceOrders=order
   });
   orderPhotoStorageReady=true;
   (orders||[]).forEach(order=>(order.images||[]).forEach(img=>{delete img.dataUrl}));
-  try{saveData();return true}catch(error){console.warn("工單照片已保存，但工單本機快取保存失敗：",error);return false}
+  try{saveData();}catch(error){console.warn("工單照片已保存，但工單本機快取保存失敗：",error);return false}
+  window.pmcRefreshStorageCapacity?.();return true;
 }
 
 function saveData(){
@@ -4980,6 +5013,7 @@ function buildPurchaseRowFromSource(row,formatType,supplierName,today,cutoff){
 async function analyzePurchaseSourceFile(file){
   if(!requireAdmin())return;
   if(!window.XLSX)throw new Error("XLSX 元件未載入");
+  if(!startPmcBusy("分析採購部進度表",`檔案：${file.name}｜讀取 Excel 並準備分段解析…`))return;
   const months=Math.max(1,Math.min(36,Number(document.getElementById("purchaseRecentMonths")?.value)||3));
   document.getElementById("purchaseRecentMonths").value=months;
   const statusEl=document.getElementById("purchaseAutoStatus");
@@ -5038,7 +5072,7 @@ async function analyzePurchaseSourceFile(file){
           const head=XLSX.utils.sheet_to_json(ws,{header:1,range:{s:{r:0,c:0},e:{r:9,c:11}},defval:"",raw:true});
           if(!head.length)continue;
           scannedSheets++;const type=detect(head);if(!type){
-            self.postMessage({kind:"progress",name,si:si+1,totalSheets,scannedSheets,matchedSheets,scannedRows,found:result.length,sheet:sheetName,phase:"略過非採購格式"});
+            self.postMessage({kind:"progress",name,si:si+1,totalSheets,scannedSheets,matchedSheets,scannedRows,found:result.length,sheet:sheetName,phase:"略過非採購格式",percent:Math.round((si+1)/totalSheets*100)});
             continue;
           }
           matchedSheets++;
@@ -5048,7 +5082,7 @@ async function analyzePurchaseSourceFile(file){
             const re=Math.min(maxR,rs+CHUNK-1);
             const rows=XLSX.utils.sheet_to_json(ws,{header:1,range:{s:{r:rs,c:0},e:{r:re,c:11}},defval:"",raw:true});
             for(const row of rows){scannedRows++;const item=fmtRow(row,type,sheetName,today,cutoff);if(item)result.push(item);}
-            self.postMessage({kind:"progress",name,si:si+1,totalSheets,scannedSheets,matchedSheets,scannedRows,found:result.length,sheet:sheetName,phase:"處理第 "+(Math.floor(rs/CHUNK)+1)+" 段"});
+            self.postMessage({kind:"progress",name,si:si+1,totalSheets,scannedSheets,matchedSheets,scannedRows,found:result.length,sheet:sheetName,phase:"處理第 "+(Math.floor(rs/CHUNK)+1)+" 段",percent:Math.round(((si+(re+1)/(maxR+1))/totalSheets)*100)});
             // 讓 Worker 有機會回收每批 rows，避免巨型工作表長時間持有大量暫存資料。
             await new Promise(r=>setTimeout(r,0));
           }
@@ -5067,27 +5101,30 @@ async function analyzePurchaseSourceFile(file){
     realWorker.onmessage=function(ev){
       const m=ev.data||{};
       if(m.kind==="progress"){
-        statusEl.textContent=`目前檔案：${file.name}｜分析中，分段進行到第 ${m.si}/${m.totalSheets} 張工作表｜${m.found} 筆`;
+        const percent=Math.max(1,Math.min(99,Number(m.percent)||0));
+        statusEl.textContent=`目前檔案：${file.name}｜${m.phase}：${m.sheet}｜工作表 ${m.si}/${m.totalSheets}｜已掃描 ${m.scannedRows} 列，符合 ${m.found} 筆`;
+        updatePmcBusy("分析採購部進度表",`${m.phase}：${m.sheet}｜工作表 ${m.si}/${m.totalSheets}｜已掃描 ${m.scannedRows} 列，符合 ${m.found} 筆`,percent);
       }else if(m.kind==="done"){
         finished=true;cleanupReal();
         purchaseRows=m.result||[];purchasePage=1;localStorage.setItem("PMC_V3_PURCHASE_ROWS",JSON.stringify(purchaseRows));
         const overdue=purchaseRows.filter(r=>r.status==="逾期").length;
         statusEl.innerHTML=`目前檔案：<b>${esc(file.name)}</b>｜<b>${purchaseRows.length}</b> 筆未進貨詳細資料 <span style="font-weight:400;color:var(--muted)">（${m.scannedSheets} 張工作表／${m.matchedSheets} 張符合格式／最近 ${m.months} 個月以上含未來交期）</span>`;
-        renderPurchase();renderAll();
+        renderPurchase();renderAll();endPmcBusy();
         alert(`PMC 分析完成！\\n\\n檔案：${file.name}\\n符合格式工作表：${m.matchedSheets} 張\\n未進貨詳細資料：${purchaseRows.length} 筆\\n其中逾期：${overdue} 筆\\n日期範圍：${m.cutoff} ～ 未來交期\\n\\n已採用「Web Worker + 分段解析」，避免 Chrome 主畫面因大型 Excel 而崩潰。`);
       }else if(m.kind==="error"){
         finished=true;cleanupReal();
+        endPmcBusy();
         console.error("採購 Excel Worker error",m);
         statusEl.textContent=`目前檔案：${file.name}｜分析失敗：${m.message}`;
         alert("採購部進度表分析失敗："+m.message);
       }
     };
     realWorker.onerror=function(e){
-      if(finished)return;finished=true;cleanupReal();console.error(e);statusEl.textContent=`目前檔案：${file.name}｜分析失敗：Worker 無法執行`;
+      if(finished)return;finished=true;cleanupReal();endPmcBusy();console.error(e);statusEl.textContent=`目前檔案：${file.name}｜分析失敗：Worker 無法執行`;
       alert("採購部進度表分析失敗：瀏覽器背景解析程序無法執行。\\n\\n如果公司電腦封鎖外部 CDN，請改用「選擇 Excel」匯入已整理檔案。 ");
     };
     realWorker.postMessage({buffer,name:file.name,months},[buffer]);
-  }catch(err){cleanupReal();throw err;}
+  }catch(err){cleanupReal();endPmcBusy();throw err;}
 }
 
 function importPurchaseExcel(file){
@@ -5155,6 +5192,10 @@ function renderGantt(){
     ).value;
   const search =
     (document.getElementById("ganttOrderSearch")?.value || "").trim().toLowerCase();
+  const statusFilter=document.getElementById("ganttStatusFilter")?.value||"未完成";
+  const pagination=document.getElementById("ganttPagination");
+  const filterLabel=document.querySelector(".gantt-status-filter-label");
+  if(filterLabel)filterLabel.style.display=selected?"none":"";
 
   /* V3.30：甘特圖首次進入不預先繪製全部工單，避免一次建立大量 DOM。
      使用者選擇單一工單後才繪製；「多工單總覽」按鈕才明確要求全部工單。 */
@@ -5164,13 +5205,16 @@ function renderGantt(){
         <b style="display:block;font-size:16px;margin-bottom:6px">請先選擇工單</b>
         <span>選擇工單後才會建立甘特圖；如需查看全部工單，請點「多工單總覽」。</span>
       </div>`;
+    if(pagination)pagination.style.display="none";
     return;
   }
 
   const list =
     orders.filter(function(o){
       const text=[o.no,o.customer,o.product].join(" ").toLowerCase();
-      return (window.__pmcGanttShowAll || o.no===selected || (!selected && search && text.includes(search))) && (!search || text.includes(search) || o.no===selected);
+      const requested=window.__pmcGanttShowAll || o.no===selected || (!selected && search && text.includes(search));
+      const statusOk=!!selected||statusFilter==="全部"||(statusFilter==="已完成"?overallStatus(o)==="已完成":overallStatus(o)!=="已完成");
+      return requested && (!search || text.includes(search) || o.no===selected) && statusOk;
     });
 
 
@@ -5191,9 +5235,14 @@ function renderGantt(){
 
     `;
 
+    if(pagination)pagination.style.display="none";
     return;
 
   }
+
+  const multiView=!selected&&(!!window.__pmcGanttShowAll||!!search),pageSize=20,totalPages=Math.max(1,Math.ceil(list.length/pageSize));
+  window.__pmcGanttPage=Math.min(totalPages,Math.max(1,Number(window.__pmcGanttPage)||1));
+  const pageStart=(window.__pmcGanttPage-1)*pageSize,visibleList=multiView?list.slice(pageStart,pageStart+pageSize):list;
 
 
   let html = `
@@ -5241,7 +5290,7 @@ function renderGantt(){
   `;
 
 
-  list.forEach(function(order){
+  visibleList.forEach(function(order){
 
     normalizeOrder(order);
 
@@ -5377,6 +5426,13 @@ function renderGantt(){
 
   container.innerHTML =
     html;
+
+  if(pagination){
+    if(multiView){
+      pagination.style.display="flex";
+      pagination.innerHTML=`<span>顯示 ${pageStart+1}–${Math.min(pageStart+pageSize,list.length)}／${list.length} 筆工單｜每頁 ${pageSize} 筆</span><div class="gantt-pagination-buttons"><button class="btn secondary small" type="button" data-gantt-page="prev" ${window.__pmcGanttPage<=1?"disabled":""}>上一頁</button><span>第 ${window.__pmcGanttPage}／${totalPages} 頁</span><button class="btn secondary small" type="button" data-gantt-page="next" ${window.__pmcGanttPage>=totalPages?"disabled":""}>下一頁</button></div>`;
+    }else{pagination.style.display="none";pagination.innerHTML="";}
+  }
 
   // 將畫面捲到今天附近，讓「回到今天」真的回到今天
   const wrap = container.querySelector(".gantt-wrap");
@@ -6350,7 +6406,7 @@ async function deleteOrderByNo(no){
   saveData();
 
   renderAll();
-  if((order.images||[]).length)markOrderPhotosPending();
+  if((order.images||[]).length){markOrderPhotosPending();refreshStorageCapacity();}
 
 }
 
@@ -6580,25 +6636,31 @@ function isOutsourcingRowOverdue(row){
   return nos.some(no=>{const o=orders.find(x=>String(x.no).trim()===String(no).trim());return o?.due && diffDays(TODAY,parseDate(o.due))<0;});
 }
 function saveOutsourcing(){localStorage.setItem("PMC_V7_OUTSOURCING_ROWS",JSON.stringify(outsourcingRows));}
-function processOutsourcingFiles(files,type){
+async function processOutsourcingFiles(files,type){
   const isTiff=type==="tiff";
   const label=isTiff?"TIFF影像":"PDF";
   const matched=Array.from(files||[]).filter(f=>isTiff?/\.(tif|tiff)$/i.test(f.name):/\.pdf$/i.test(f.name));
   if(!matched.length){alert(`選取的資料夾沒有 ${label} 檔案。`);return;}
+  if(!startPmcBusy(`掃描 ${label} 檔名`,`共 ${matched.length} 個檔案｜擷取工單號碼…`))return;
   let added=0,skipped=0;
   const existing=new Set(outsourcingRows.map(r=>outsourcingRowKey(r.fileName)));
   let folderLabel="";
-  matched.forEach(file=>{
-    const rel=file.webkitRelativePath||file.name;
-    const parts=rel.split(/[\\/]/).filter(Boolean);
-    if(!folderLabel) folderLabel=parts[0]||"";
-    if(existing.has(outsourcingRowKey(file.name))){skipped++;return;}
-    const orderNos=extractOutsourcingOrderNos(file.name);
-    outsourcingRows.push({id:"os_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,7),fileName:file.name,fileType:isTiff?"TIFF":"PDF",folder:parts.length>1?parts.slice(0,-1).join(" / "):folderLabel||"",orderNos,status:"未回",importedAt:fmt(TODAY)});
-    existing.add(outsourcingRowKey(file.name));added++;
-  });
-  outsourcingFolderLabel=folderLabel||outsourcingFolderLabel;
-  saveOutsourcing();renderOutsourcing();
+  try{
+    for(let i=0;i<matched.length;i++){
+      const file=matched[i],rel=file.webkitRelativePath||file.name,parts=rel.split(/[\\/]/).filter(Boolean);
+      if(!folderLabel)folderLabel=parts[0]||"";
+      if(existing.has(outsourcingRowKey(file.name)))skipped++;
+      else{
+        const orderNos=extractOutsourcingOrderNos(file.name);
+        outsourcingRows.push({id:"os_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,7),fileName:file.name,fileType:isTiff?"TIFF":"PDF",folder:parts.length>1?parts.slice(0,-1).join(" / "):folderLabel||"",orderNos,status:"未回",importedAt:fmt(TODAY)});
+        existing.add(outsourcingRowKey(file.name));added++;
+      }
+      if((i+1)%250===0||i+1===matched.length){const pct=Math.round((i+1)/matched.length*100),detail=`已掃描 ${i+1}/${matched.length} 個檔案｜新增 ${added}、略過 ${skipped}`;updatePmcBusy(`掃描 ${label} 檔名`,detail,pct);document.getElementById("outsourcingFolderInfo").textContent=detail;await new Promise(resolve=>setTimeout(resolve,0));}
+    }
+    outsourcingFolderLabel=folderLabel||outsourcingFolderLabel;
+    saveOutsourcing();renderOutsourcing();
+  }finally{endPmcBusy();}
+  if(window.pmcRefreshStorageCapacity)window.pmcRefreshStorageCapacity();
   alert(`資料夾掃描完成\n新增 ${added} 份 ${label}\n已存在跳過 ${skipped} 份`);
 }
 function outsourcingStatsForOrder(no){
@@ -6658,6 +6720,22 @@ function imageBytes(n){n=Number(n)||0;if(n<1024)return n+" B";if(n<1048576)retur
 function getAllImages(){return (orders||[]).flatMap(o=>(o.images||[]).map(img=>({...img,orderNo:o.no,customer:o.customer||""})));}
 function totalImageStats(){const imgs=getAllImages();return {count:imgs.length,bytes:imgs.reduce((a,b)=>a+Number(b.size||0),0)};}
 function markOrderPhotosPending(){const el=document.getElementById("dataStorageStatus");if(!el)return;el.style.display="inline-flex";el.textContent="照片待同步";el.style.color="#92400e";el.title="工單照片已保存在此裝置的 IndexedDB；匯出 PMC_Data.json 並更新 GitHub 後，其他裝置才會同步。請在更新中央資料前先完成匯出。";}
+function formatStorageBytes(n){n=Number(n)||0;if(n<1024)return `${Math.round(n)} B`;if(n<1048576)return `${(n/1024).toFixed(1)} KB`;if(n<1073741824)return `${(n/1048576).toFixed(2)} MB`;return `${(n/1073741824).toFixed(2)} GB`;}
+async function refreshStorageCapacity(showAlert=true){
+  const card=document.querySelector(".storage-capacity-card"),summary=document.getElementById("storageCapacitySummary");if(!card||!summary)return;
+  const orderBytes=totalImageStats().bytes,returns=Array.isArray(window.pmcReturnRecords)?window.pmcReturnRecords:[],returnBytes=returns.reduce((sum,r)=>sum+(r.files||[]).reduce((n,f)=>n+(Number(f.size)||Math.floor(String(f.data||"").length*3/4)),0),0),attachmentBytes=orderBytes+returnBytes;
+  try{
+    if(!navigator.storage?.estimate)throw new Error("此瀏覽器未提供儲存空間估算功能");
+    const estimate=await navigator.storage.estimate(),usage=Number(estimate.usage)||0,quota=Number(estimate.quota)||0;
+    if(!quota)throw new Error("瀏覽器未回報可用配額");
+    const percent=Math.min(100,usage/quota*100),level=percent>=90?"danger":percent>=80?"warning":"ok";
+    card.dataset.level=level;
+    const prefix=level==="danger"?"空間接近上限，請先匯出資料並檢查結案工單照片清理設定。":level==="warning"?"空間使用偏高，建議匯出資料並檢查結案工單照片清理設定。":"目前估算空間尚足夠。";
+    summary.textContent=`${prefix}網站估計用量 ${formatStorageBytes(usage)}／${formatStorageBytes(quota)}（${percent.toFixed(1)}%）；PMC 附件約 ${formatStorageBytes(attachmentBytes)}（工單 ${formatStorageBytes(orderBytes)}／驗退 ${formatStorageBytes(returnBytes)}）。`;
+    if(showAlert&&level==="danger"&&isAdmin){try{if(!sessionStorage.getItem("PMC_V356_QUOTA_WARNING")){sessionStorage.setItem("PMC_V356_QUOTA_WARNING","1");alert("瀏覽器回報本機網站儲存空間已達估算配額的 90% 以上。請先匯出 PMC_Data.json，並檢查設定中的結案圖片清理。此數值為估算，實際可用空間仍可能不同。");}}catch(error){}}
+  }catch(error){card.dataset.level="warning";summary.textContent=`無法取得瀏覽器配額估算（${error?.message||"未知原因"}）。PMC 附件約 ${formatStorageBytes(attachmentBytes)}；請定期匯出資料並留意儲存失敗提示。`;}
+}
+window.pmcRefreshStorageCapacity=refreshStorageCapacity;
 function renderImageDataSummary(){
   const el=document.getElementById("imageDataSummary");if(!el)return;
   const st=totalImageStats();
@@ -6765,15 +6843,25 @@ function readImageCompressed(file){
 }
 async function addOrderImages(no,files){
   if(!requireAdmin())return;const o=findOrder(no);if(!o)return;const arr=Array.from(files||[]);if(!arr.length)return;
-  let added=0,lastError=null;for(const f of arr){try{const img=await readImageCompressed(f),record={id:"img_"+Date.now()+"_"+Math.random().toString(36).slice(2,9),orderNo:String(no),...img,createdAt:new Date().toISOString(),syncState:"pending"};await window.pmcPutOrderPhoto(record);o.images=o.images||[];const {orderNo,...meta}=record;delete meta.key;delete meta.dataUrl;delete meta.syncState;o.images.push(meta);added++;}catch(e){lastError=e;console.warn("工單照片新增失敗：",e);}}
-  try{saveData();}catch(error){console.error("工單照片索引本機保存失敗：",error);lastError=error;}
-  renderAll();renderImageDataSummary();openOrderPhotoModal(no);
-  if(added)markOrderPhotosPending();
+  if(!startPmcBusy("處理工單照片",`工單 ${no}｜共 ${arr.length} 張`))return;
+  let added=0,lastError=null;
+  try{
+    for(let i=0;i<arr.length;i++){
+      const f=arr[i];updatePmcBusy("處理工單照片",`工單 ${no}｜正在壓縮並保存第 ${i+1}/${arr.length} 張`,Math.round(i/arr.length*100));
+      try{const img=await readImageCompressed(f),record={id:"img_"+Date.now()+"_"+Math.random().toString(36).slice(2,9),orderNo:String(no),...img,createdAt:new Date().toISOString(),syncState:"pending"};await window.pmcPutOrderPhoto(record);o.images=o.images||[];const {orderNo,...meta}=record;delete meta.key;delete meta.dataUrl;delete meta.syncState;o.images.push(meta);added++;}
+      catch(e){lastError=e;console.warn("工單照片新增失敗：",e);}
+      updatePmcBusy("處理工單照片",`工單 ${no}｜已處理 ${i+1}/${arr.length} 張`,Math.round((i+1)/arr.length*100));
+    }
+    try{saveData();}catch(error){console.error("工單照片索引本機保存失敗：",error);lastError=error;}
+    renderAll();renderImageDataSummary();openOrderPhotoModal(no);
+    if(added)markOrderPhotosPending();
+  }finally{endPmcBusy();}
+  if(window.pmcRefreshStorageCapacity)window.pmcRefreshStorageCapacity();
   if(added===arr.length)alert(`已新增 ${added} 張照片`);else alert(`成功新增 ${added}/${arr.length} 張照片。`+(lastError?.message?"\n"+lastError.message:""));
 }
 async function deleteOrderImage(no,id){
   if(!requireAdmin())return;const o=findOrder(no);if(!o)return;if(!confirm("確定刪除此照片？"))return;
-  try{await window.pmcDeleteOrderPhoto(no,id);o.images=(o.images||[]).filter(x=>String(x.id)!==String(id));saveData();renderAll();renderImageDataSummary();openOrderPhotoModal(no);markOrderPhotosPending();}
+  try{await window.pmcDeleteOrderPhoto(no,id);o.images=(o.images||[]).filter(x=>String(x.id)!==String(id));saveData();renderAll();renderImageDataSummary();openOrderPhotoModal(no);markOrderPhotosPending();refreshStorageCapacity();}
   catch(error){console.error("工單照片刪除失敗：",error);alert("照片刪除失敗，原照片仍保留。"+(error?.message?"\n"+error.message:""));}
 }
 function openImageManageModal(){
@@ -6786,7 +6874,8 @@ function closeImageManageModal(){const m=document.getElementById("imageManageMod
 async function cleanupClosedOrderImages(){
   const days=getImageCleanupDays();if(days<0)return;const now=new Date(TODAY+"T00:00:00");let removed=0;
   for(const o of orders||[]){if(!o.actualClose||!(o.images||[]).length)continue;const close=new Date(String(o.actualClose)+"T00:00:00");if(isNaN(close))continue;if(Math.floor((now-close)/86400000)>=days){try{await window.pmcDeleteOrderPhotos(o.no);removed+=o.images.length;o.images=[];}catch(error){console.error(`工單 ${o.no} 的到期照片清理失敗：`,error)}}}
-  if(removed){saveData();renderImageDataSummary();markOrderPhotosPending();}
+  if(removed){saveData();renderImageDataSummary();markOrderPhotosPending();refreshStorageCapacity();}
+  return removed;
 }
 function updateCurrentPhotoButton(){const b=document.getElementById("pmcCurrentPhotoBtn"),no=window.pmcCurrentOrderNo,o=findOrder(no);if(!b)return;if(o&&(o.images||[]).length){b.style.display="inline-block";b.textContent=`照片 ${o.images.length}`;b.dataset.currentPhoto=no;}else{b.style.display="none";b.dataset.currentPhoto="";}}
 
@@ -6824,7 +6913,7 @@ function renderAll(){
 ========================================================= */
 function openLoginModal(){const m=document.getElementById("loginModal");m.classList.remove("hidden");m.style.display="flex";m.setAttribute("aria-hidden","false");document.getElementById("loginError").style.display="none";document.getElementById("loginUser").value="";document.getElementById("loginPass").value="";setTimeout(()=>document.getElementById("loginUser").focus(),50);}
 function closeLoginModal(){const m=document.getElementById("loginModal");m.classList.add("hidden");m.style.display="none";m.setAttribute("aria-hidden","true");}
-function doLogin(){const u=document.getElementById("loginUser").value.trim(),p=document.getElementById("loginPass").value;if(u===ADMIN_USER&&p===ADMIN_PASS){isAdmin=true;sessionStorage.setItem("PMC_V3_ADMIN_LOGIN","1");closeLoginModal();updatePermissions();renderAll();alert("管理者登入成功");}else document.getElementById("loginError").style.display="block";}
+function doLogin(){const u=document.getElementById("loginUser").value.trim(),p=document.getElementById("loginPass").value;if(u===ADMIN_USER&&p===ADMIN_PASS){isAdmin=true;sessionStorage.setItem("PMC_V3_ADMIN_LOGIN","1");closeLoginModal();updatePermissions();renderAll();refreshStorageCapacity();alert("管理者登入成功");}else document.getElementById("loginError").style.display="block";}
 function doLogout(){isAdmin=false;sessionStorage.removeItem("PMC_V3_ADMIN_LOGIN");updatePermissions();showPage("board");renderAll();}
 function updatePermissions(){
   const b=document.getElementById("permissionBadge");b.textContent=isAdmin?"權限：管理者":"權限：訪客查詢";b.classList.toggle("admin",isAdmin);
@@ -6846,6 +6935,8 @@ document.addEventListener(
   "DOMContentLoaded",
   async function(){
     updatePermissions();
+    document.getElementById("refreshStorageCapacityBtn")?.addEventListener("click",function(){refreshStorageCapacity();});
+    document.getElementById("cleanupClosedPhotosBtn")?.addEventListener("click",async function(){if(!requireAdmin())return;const days=getImageCleanupDays();if(!confirm(`依目前已儲存的設定（結案滿 ${days} 天）清理到期工單照片？照片會從此裝置及 PMC 資料中移除，請先確認重要資料已匯出。`))return;const removed=await cleanupClosedOrderImages();await refreshStorageCapacity(false);alert(removed?`已清理 ${removed} 張到期工單照片。請匯出 PMC_Data.json 並更新中央資料。`:`沒有符合設定的結案工單照片。`);});
     document.getElementById("openDataFileBtn").addEventListener("click",function(){document.getElementById("dataFileInput").click();});
     document.getElementById("dataFileInput").addEventListener("change",function(e){if(e.target.files[0])loadDataFromFile(e.target.files[0]);e.target.value="";});
     document.getElementById("loginBtn").addEventListener("click",function(){isAdmin?doLogout():openLoginModal();});
@@ -6853,7 +6944,7 @@ document.addEventListener(
     document.getElementById("orderPhotoCloseBtn")?.addEventListener("click",closeOrderPhotoModal);
     document.getElementById("imageManageCloseBtn")?.addEventListener("click",closeImageManageModal);
     document.getElementById("saveImageCleanupBtn")?.addEventListener("click",function(){if(requireAdmin())saveImageCleanupDays();});
-    document.getElementById("imageManageBody")?.addEventListener("click",async function(e){const v=e.target.closest("[data-manage-photo]");if(v)openOrderPhotoModal(v.dataset.managePhoto,true);const d=e.target.closest("[data-manage-delete]");if(d&&requireAdmin()){const o=findOrder(d.dataset.manageDelete);if(o&&confirm(`確定刪除工單 ${o.no} 的全部照片？`)){try{await window.pmcDeleteOrderPhotos(o.no);o.images=[];saveData();renderAll();openImageManageModal();markOrderPhotosPending();}catch(error){alert("刪除照片失敗，原照片仍保留。"+(error?.message?"\n"+error.message:""));}}}});
+    document.getElementById("imageManageBody")?.addEventListener("click",async function(e){const v=e.target.closest("[data-manage-photo]");if(v)openOrderPhotoModal(v.dataset.managePhoto,true);const d=e.target.closest("[data-manage-delete]");if(d&&requireAdmin()){const o=findOrder(d.dataset.manageDelete);if(o&&confirm(`確定刪除工單 ${o.no} 的全部照片？`)){try{await window.pmcDeleteOrderPhotos(o.no);o.images=[];saveData();renderAll();openImageManageModal();markOrderPhotosPending();refreshStorageCapacity();}catch(error){alert("刪除照片失敗，原照片仍保留。"+(error?.message?"\n"+error.message:""));}}}});
     document.getElementById("orderPhotoGrid")?.addEventListener("click",function(e){
       const pic=e.target.closest("[data-photo-view]");
       if(pic&&pic.tagName==="IMG"){openOrderPhotoLightbox(pic);return;}
@@ -7146,6 +7237,7 @@ document.addEventListener(
         "change",
         function(){
           window.__pmcGanttShowAll=false;
+          window.__pmcGanttPage=1;
           renderGantt();
         }
       );
@@ -7154,8 +7246,18 @@ document.addEventListener(
       .getElementById("ganttOrderSearch")
       .addEventListener("input",function(){
         window.__pmcGanttShowAll=false;
+        window.__pmcGanttPage=1;
         renderGantt();
       });
+
+    document.getElementById("ganttStatusFilter")?.addEventListener("change",function(){
+      window.__pmcGanttShowAll=true;window.__pmcGanttPage=1;document.getElementById("ganttOrder").value="";renderGantt();
+    });
+    document.getElementById("ganttPagination")?.addEventListener("click",function(e){
+      const btn=e.target.closest("[data-gantt-page]");if(!btn||btn.disabled)return;
+      const pages=Math.max(1,Math.ceil(orders.filter(o=>{const text=[o.no,o.customer,o.product].join(" ").toLowerCase(),q=(document.getElementById("ganttOrderSearch")?.value||"").trim().toLowerCase(),status=document.getElementById("ganttStatusFilter")?.value||"未完成";return (!q||text.includes(q))&&(status==="全部"||(status==="已完成"?overallStatus(o)==="已完成":overallStatus(o)!=="已完成"));}).length/20));
+      window.__pmcGanttPage=btn.dataset.ganttPage==="next"?Math.min(pages,(window.__pmcGanttPage||1)+1):Math.max(1,(window.__pmcGanttPage||1)-1);renderGantt();
+    });
 
 
     document
@@ -7198,6 +7300,7 @@ document.addEventListener(
       .getElementById("ganttAllOrders")
       .addEventListener("click",function(){
         window.__pmcGanttShowAll=true;
+        window.__pmcGanttPage=1;
         document.getElementById("ganttOrder").value="";
         document.getElementById("ganttOrderSearch").value="";
         renderGantt();
@@ -7326,7 +7429,7 @@ document.addEventListener(
 
     /* 採購 Excel：直接分析來源檔 */
     document.getElementById("purchaseAutoImportBtn").addEventListener("click",function(){if(requireAdmin())document.getElementById("purchaseAutoExcelFile").click();});
-    document.getElementById("purchaseAutoExcelFile").addEventListener("change",function(e){const file=e.target.files[0];if(file&&requireAdmin()){analyzePurchaseSourceFile(file).catch(err=>{console.error(err);const el=document.getElementById("purchaseAutoStatus");if(el)el.textContent=`目前檔案：${file.name}｜分析失敗：${err.message}`;alert("採購部進度表分析失敗："+err.message);});}e.target.value="";});
+    document.getElementById("purchaseAutoExcelFile").addEventListener("change",function(e){const file=e.target.files[0];if(file&&requireAdmin()){analyzePurchaseSourceFile(file).catch(err=>{endPmcBusy();console.error(err);const el=document.getElementById("purchaseAutoStatus");if(el)el.textContent=`目前檔案：${file.name}｜分析失敗：${err.message}`;alert("採購部進度表分析失敗："+err.message);});}e.target.value="";});
     document.getElementById("purchaseImportBtn").addEventListener("click",function(){if(requireAdmin())document.getElementById("purchaseExcelFile").click();});
     document.getElementById("purchaseExcelFile").addEventListener("change",function(e){if(e.target.files[0]&&requireAdmin())importPurchaseExcel(e.target.files[0]);e.target.value="";});
     document.getElementById("purchaseClearBtn").addEventListener("click",function(){if(!requireAdmin())return;if(confirm("確定清除已匯入的未進貨資料？")){purchaseRows=[];purchasePage=1;localStorage.removeItem("PMC_V3_PURCHASE_ROWS");renderPurchase();}});
@@ -7383,13 +7486,13 @@ document.addEventListener(
     if(osScanPdf)osScanPdf.addEventListener("click",function(){
       if(!requireAdmin())return;
       if(!outsourcingSelectedFiles.length){alert("請先選擇資料夾。");return;}
-      try{processOutsourcingFiles(outsourcingSelectedFiles,"pdf");}catch(err){console.error(err);alert("掃描 PDF 失敗："+err.message);}
+      processOutsourcingFiles(outsourcingSelectedFiles,"pdf").catch(err=>{endPmcBusy();console.error(err);alert("掃描 PDF 失敗："+err.message);});
     });
     const osScanTiff=document.getElementById("outsourcingScanTiffBtn");
     if(osScanTiff)osScanTiff.addEventListener("click",function(){
       if(!requireAdmin())return;
       if(!outsourcingSelectedFiles.length){alert("請先選擇資料夾。");return;}
-      try{processOutsourcingFiles(outsourcingSelectedFiles,"tiff");}catch(err){console.error(err);alert("掃描 TIFF影像失敗："+err.message);}
+      processOutsourcingFiles(outsourcingSelectedFiles,"tiff").catch(err=>{endPmcBusy();console.error(err);alert("掃描 TIFF影像失敗："+err.message);});
     });
     const osClear=document.getElementById("outsourcingClearBtn");
     if(osClear)osClear.addEventListener("click",function(){if(!requireAdmin())return;if(confirm("確定清除全部委外製造匯入資料？")){outsourcingRows=[];outsourcingFolderLabel="";saveOutsourcing();renderOutsourcing();}});
@@ -7421,6 +7524,7 @@ document.addEventListener(
     /* 第一次畫面 */
     renderAll();
     updateDataSourceUI(initialDataResult);
+    refreshStorageCapacity();
 
   }
 );
@@ -8567,9 +8671,9 @@ function closeOrderMoreModal(){
     if(ok){el.textContent='驗退已存';el.style.color='#166534';el.title='驗退紀錄已保存至此瀏覽器的 IndexedDB；跨裝置同步仍需匯出並更新 GitHub。'}
     else{el.textContent='驗退保存失敗';el.style.color='#b42318';el.title='資料仍在目前頁面記憶體中；請立即匯出 PMC_Data.json，避免重新載入後遺失。'+(error?.message?' 詳情：'+error.message:'')}
   }
-  async function persist(){try{await writeStoredRecords(getRecords());showPersistenceStatus(true);return true}catch(error){console.error('驗退 IndexedDB 保存失敗：',error);showPersistenceStatus(false,error);alert('驗退資料已在目前頁面更新，但無法保存至此瀏覽器。請立即匯出 PMC_Data.json，避免重新載入後遺失。');return false}}
+  async function persist(){try{await writeStoredRecords(getRecords());showPersistenceStatus(true);window.pmcRefreshStorageCapacity?.();return true}catch(error){console.error('驗退 IndexedDB 保存失敗：',error);showPersistenceStatus(false,error);alert('驗退資料已在目前頁面更新，但無法保存至此瀏覽器。請立即匯出 PMC_Data.json，避免重新載入後遺失。');return false}}
   window.pmcSetReturnRecordsMemory=setRecords;
-  window.pmcPersistReturnRecords=async records=>{setRecords(records);return writeStoredRecords(records)};
+  window.pmcPersistReturnRecords=async records=>{setRecords(records);const result=await writeStoredRecords(records);window.pmcRefreshStorageCapacity?.();return result};
   window.pmcReturnStorageReady=initializeStorage();
   window.pmcReplaceOrderPhotos=replaceOrderPhotos;
   window.pmcMergeOrderPhotos=mergeOrderPhotos;
@@ -8644,8 +8748,10 @@ function closeOrderMoreModal(){
     if(!admin())return;const part=$('returnPart').value.trim(),qty=$('returnQty').value;
     if(!part){alert('請填寫必填欄位：零件編號');$('returnPart').focus();return}if(qty===''||!Number.isFinite(Number(qty))||Number(qty)<=0){alert('請輸入大於 0 的數量');$('returnQty').focus();return}
     const records=getRecords(),id=$('returnEditId').value,old=records.find(x=>x.id===id),now=new Date().toISOString(),removed=[...document.querySelectorAll('[data-return-delete-file]:checked')].map(x=>Number(x.dataset.returnDeleteFile));let files=(old?.files||[]).filter((f,i)=>!removed.includes(i));const selected=[...($('returnFiles').files||[])];
-    const save=$('returnSaveBtn');save.disabled=true;save.textContent=selected.length?'正在處理附件…':'儲存中…';
-    let stagedRecords=null;try{for(const f of selected){const v=await imageToData(f);if(v)files.push(v)}const status=$('returnStatus').value;const r={id:id||('RET-'+Date.now().toString(36).toUpperCase()),source:$('returnSource').value,supplier:$('returnSupplier').value.trim(),orderNo:$('returnOrderNo').value.trim(),part,material:$('returnMaterial').value.trim(),qty:Number(qty),reason:$('returnReason').value.trim(),handling:$('returnHandling').value,status,notes:$('returnNotes').value.trim(),files,createdAt:old?.createdAt||now,updatedAt:now,closedAt:status==='已結案'?(old?.closedAt||now):''};stagedRecords=old?records.map(x=>x.id===id?r:x):[r,...records];setRecords(stagedRecords);if(!await persist()){setRecords(records);render();renderSettings();return}hideModal();render();renderSettings();alert('驗退紀錄已儲存。若要同步到其他裝置，請匯出 PMC_Data.json 並更新 GitHub。')}catch(err){if(stagedRecords)setRecords(records);console.error('驗退附件處理／儲存失敗',err);alert(err?.message||'附件處理或儲存失敗，原紀錄已保留。')}finally{save.disabled=false;save.textContent='儲存紀錄'}
+    const save=$('returnSaveBtn');
+    if(selected.length&&window.pmcStartBusy&&!window.pmcStartBusy('處理驗退附件',`共 ${selected.length} 個附件`))return;
+    save.disabled=true;save.textContent=selected.length?'正在處理附件…':'儲存中…';
+    let stagedRecords=null;try{for(let i=0;i<selected.length;i++){window.pmcUpdateBusy?.('處理驗退附件',`正在處理第 ${i+1}/${selected.length} 個附件`,Math.round(i/selected.length*100));const v=await imageToData(selected[i]);if(v)files.push(v);window.pmcUpdateBusy?.('處理驗退附件',`已處理 ${i+1}/${selected.length} 個附件`,Math.round((i+1)/selected.length*100))}const status=$('returnStatus').value;const r={id:id||('RET-'+Date.now().toString(36).toUpperCase()),source:$('returnSource').value,supplier:$('returnSupplier').value.trim(),orderNo:$('returnOrderNo').value.trim(),part,material:$('returnMaterial').value.trim(),qty:Number(qty),reason:$('returnReason').value.trim(),handling:$('returnHandling').value,status,notes:$('returnNotes').value.trim(),files,createdAt:old?.createdAt||now,updatedAt:now,closedAt:status==='已結案'?(old?.closedAt||now):''};stagedRecords=old?records.map(x=>x.id===id?r:x):[r,...records];setRecords(stagedRecords);if(!await persist()){setRecords(records);render();renderSettings();return}hideModal();render();renderSettings();alert('驗退紀錄已儲存。若要同步到其他裝置，請匯出 PMC_Data.json 並更新 GitHub。')}catch(err){if(stagedRecords)setRecords(records);console.error('驗退附件處理／儲存失敗',err);alert(err?.message||'附件處理或儲存失敗，原紀錄已保留。')}finally{if(selected.length)window.pmcEndBusy?.();save.disabled=false;save.textContent='儲存紀錄'}
   }
   function render(){const list=$('returnRecordsList');if(!list)return;const records=getRecords(),filter=$('returnStatusFilter')?.value||'active',q=($('returnSearch')?.value||'').trim().toLowerCase();$('returnKpiTotal').textContent=records.filter(r=>r.status==='待處理').length;$('returnKpiPending').textContent=records.filter(r=>r.status==='重製中').length;$('returnKpiRedo').textContent=records.filter(r=>r.status==='待重新驗收').length;$('returnKpiClosed').textContent=records.filter(r=>r.status==='已結案').length;
     const rows=records.filter(r=>{if(filter==='active'&&r.status==='已結案')return false;if(filter!=='active'&&filter!=='全部'&&r.status!==filter)return false;return !q||[r.part,r.orderNo,r.supplier,r.reason,r.material,r.notes].join(' ').toLowerCase().includes(q)});
@@ -8741,6 +8847,22 @@ function closeOrderMoreModal(){
   },true);
 })();
 </script>
+
+<style id="pmc-v356-operation-feedback">
+.pmc-busy-overlay{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:20px;background:rgba(15,23,42,.48);backdrop-filter:blur(2px)}
+.pmc-busy-overlay[hidden]{display:none!important}
+.pmc-busy-panel{width:min(440px,100%);padding:24px;border-radius:16px;background:#fff;box-shadow:0 22px 70px rgba(15,23,42,.25);text-align:center}
+.pmc-busy-spinner{width:34px;height:34px;margin:0 auto 14px;border:4px solid #dbeafe;border-top-color:#2563eb;border-radius:50%;animation:pmcBusySpin .8s linear infinite}
+.pmc-busy-title{font-size:17px;font-weight:800;color:#172033}.pmc-busy-detail{margin-top:7px;color:#64748b;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+.pmc-busy-progress{height:9px;margin-top:17px;border-radius:999px;background:#e2e8f0;overflow:hidden}.pmc-busy-bar{height:100%;width:35%;border-radius:inherit;background:linear-gradient(90deg,#2563eb,#38bdf8);transition:width .18s ease}.pmc-busy-bar.indeterminate{animation:pmcBusySlide 1.15s ease-in-out infinite}
+.gantt-status-filter-label{display:inline-flex;align-items:center;gap:6px;color:#475569;font-size:12px;white-space:nowrap}.gantt-status-filter-label select{min-width:125px}.gantt-pagination{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 14px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}.gantt-pagination-buttons{display:flex;align-items:center;gap:6px}.storage-capacity-card{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:14px;padding:12px 14px;border:1px solid #dbe3ed;border-radius:10px;background:#f8fafc}.storage-capacity-actions{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap;flex:none}.storage-capacity-card[data-level="warning"]{border-color:#f2ca7a;background:#fffbeb}.storage-capacity-card[data-level="danger"]{border-color:#f3aaa5;background:#fff5f4}.storage-capacity-card[data-level="ok"]{border-color:#b7dfc5;background:#f3fbf6}
+@keyframes pmcBusySpin{to{transform:rotate(360deg)}}@keyframes pmcBusySlide{0%{transform:translateX(-120%)}100%{transform:translateX(310%)}}
+@media(max-width:760px){.pmc-busy-panel{padding:20px 16px}.gantt-status-filter-label{width:100%;justify-content:space-between}.gantt-status-filter-label select{flex:1}.gantt-pagination{align-items:flex-start}.gantt-pagination-buttons{width:100%;justify-content:space-between}.storage-capacity-card{align-items:flex-start;flex-direction:column}.storage-capacity-actions{width:100%;flex-direction:column}.storage-capacity-card button{width:100%}}
+@media(prefers-reduced-motion:reduce){.pmc-busy-spinner,.pmc-busy-bar.indeterminate{animation:none}.pmc-busy-bar{transition:none}}
+</style>
+<div id="pmcBusyOverlay" class="pmc-busy-overlay" role="alert" aria-live="assertive" aria-hidden="true" hidden>
+  <div class="pmc-busy-panel"><div class="pmc-busy-spinner" aria-hidden="true"></div><div id="pmcBusyTitle" class="pmc-busy-title">處理中</div><div id="pmcBusyDetail" class="pmc-busy-detail">請稍候…</div><div id="pmcBusyProgress" class="pmc-busy-progress" role="progressbar" aria-label="作業進度"><div id="pmcBusyBar" class="pmc-busy-bar indeterminate"></div></div></div>
+</div>
 
 </body>
 </html>
