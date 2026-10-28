@@ -1792,7 +1792,7 @@ input,select{min-height:38px}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>V3.56</span></div>
+    <div>PMC <span>V3.57</span></div>
     <small>生產管理系統</small>
   </div>
 
@@ -8784,66 +8784,80 @@ function closeOrderMoreModal(){
 })();
 </script>
 
-<style id="pmc-v354-desktop-drag-scroll">
+<style id="pmc-v357-desktop-drag-scroll">
 @media (min-width:761px) and (hover:hover) and (pointer:fine){
   .pmc-drag-scroll-grab{cursor:grabbing!important}
   body.pmc-drag-scrolling,body.pmc-drag-scrolling *{user-select:none!important;-webkit-user-select:none!important;cursor:grabbing!important}
 }
 </style>
-<script id="pmc-v354-desktop-drag-scroll-js">
+<script id="pmc-v357-desktop-drag-scroll-js">
 (function(){
-  const desktopMouse=window.matchMedia('(min-width:761px) and (hover:hover) and (pointer:fine)');
-  if(!desktopMouse.matches)return;
+  // V3.57：加強桌面拖曳捲動。不要因瀏覽器對 hover/pointer 的回報而整段停用。
+  if(window.__pmcDragScrollV357)return;
+  window.__pmcDragScrollV357=true;
   const excluded='button,a,input,textarea,select,option,label,[contenteditable="true"],[draggable="true"],.no-drag-scroll';
   let drag=null,suppressClick=false,suppressEl=null,suppressTimer=0;
-  function scrollAxes(el){
+  function canScroll(el,axis){
     if(!el||el===document.body||el===document.documentElement)return false;
-    const style=getComputedStyle(el),x=/^(auto|scroll|overlay)$/.test(style.overflowX),y=/^(auto|scroll|overlay)$/.test(style.overflowY);
-    return {x:x&&el.scrollWidth>el.clientWidth+1,y:y&&el.scrollHeight>el.clientHeight+1};
+    const style=getComputedStyle(el),overflow=axis==='x'?style.overflowX:style.overflowY;
+    const dimension=axis==='x'?(el.scrollWidth>el.clientWidth+1):(el.scrollHeight>el.clientHeight+1);
+    return dimension && /^(auto|scroll|overlay|hidden)$/.test(overflow);
   }
   function findScrollers(target){
     const candidates=[];
-    let el=target instanceof Element?target:null;
-    while(el&&el!==document.body&&el!==document.documentElement){const axes=scrollAxes(el);if(axes&&(axes.x||axes.y))candidates.push({el,axes});el=el.parentElement}
+    let el=target instanceof Element?target:target&&target.parentElement;
+    while(el&&el!==document.body&&el!==document.documentElement){
+      const x=canScroll(el,'x'),y=canScroll(el,'y');
+      if(x||y)candidates.push({el,x,y});
+      el=el.parentElement;
+    }
     const root=document.scrollingElement;
-    if(root&&(root.scrollHeight>root.clientHeight+1||root.scrollWidth>root.clientWidth+1)&&!candidates.some(x=>x.el===root))candidates.push({el:root,axes:{x:root.scrollWidth>root.clientWidth+1,y:root.scrollHeight>root.clientHeight+1}});
+    if(root&&(root.scrollHeight>root.clientHeight+1||root.scrollWidth>root.clientWidth+1)){
+      candidates.push({el:root,x:root.scrollWidth>root.clientWidth+1,y:root.scrollHeight>root.clientHeight+1});
+    }
     return candidates;
   }
   function stop(){
-    if(drag?.el)drag.el.classList.remove('pmc-drag-scroll-grab');
+    if(drag&&drag.el)drag.el.classList.remove('pmc-drag-scroll-grab');
     document.body.classList.remove('pmc-drag-scrolling');
-    if(drag?.active){suppressClick=true;suppressEl=drag.el;clearTimeout(suppressTimer);suppressTimer=setTimeout(()=>{suppressClick=false;suppressEl=null},500)}
+    if(drag&&drag.active){
+      suppressClick=true;suppressEl=drag.el;clearTimeout(suppressTimer);
+      suppressTimer=setTimeout(()=>{suppressClick=false;suppressEl=null},500);
+    }
     drag=null;
   }
-  document.addEventListener('mousedown',e=>{
-    if(e.button!==0||e.target.closest(excluded))return;
-    const candidates=findScrollers(e.target);if(!candidates.length)return;
+  document.addEventListener('mousedown',function(e){
+    if(e.button!==0||!(e.target instanceof Element)||e.target.closest(excluded))return;
+    const candidates=findScrollers(e.target);
+    if(!candidates.length)return;
     drag={candidates,x:e.clientX,y:e.clientY,active:false};
-  });
-  document.addEventListener('mousemove',e=>{
+  },true);
+  document.addEventListener('mousemove',function(e){
     if(!drag)return;
-    if(!(e.buttons&1)){stop();return}
+    if(!(e.buttons&1)){stop();return;}
     const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
-    if(!drag.active&&Math.hypot(dx,dy)<5)return;
+    if(!drag.active&&Math.hypot(dx,dy)<4)return;
     if(!drag.active){
-      const horizontal=Math.abs(dx)>Math.abs(dy);
-      const candidate=drag.candidates.find(c=>horizontal?c.axes.x:c.axes.y);
-      if(!candidate){stop();return}
-      drag.el=candidate.el;drag.canX=candidate.axes.x;drag.canY=candidate.axes.y;drag.left=drag.el.scrollLeft;drag.top=drag.el.scrollTop;
-      drag.el.classList.add('pmc-drag-scroll-grab');
-      drag.active=true;document.body.classList.add('pmc-drag-scrolling');
-      window.getSelection?.().removeAllRanges();
+      const horizontal=Math.abs(dx)>=Math.abs(dy);
+      let candidate=drag.candidates.find(c=>horizontal?c.x:c.y);
+      if(!candidate)candidate=drag.candidates.find(c=>horizontal?c.y:c.x);
+      if(!candidate){stop();return;}
+      drag.el=candidate.el;drag.canX=candidate.x;drag.canY=candidate.y;
+      drag.left=drag.el.scrollLeft;drag.top=drag.el.scrollTop;
+      drag.active=true;drag.el.classList.add('pmc-drag-scroll-grab');
+      document.body.classList.add('pmc-drag-scrolling');
+      if(window.getSelection)window.getSelection().removeAllRanges();
     }
     e.preventDefault();
     if(drag.canX)drag.el.scrollLeft=drag.left-dx;
     if(drag.canY)drag.el.scrollTop=drag.top-dy;
-  },{passive:false});
-  document.addEventListener('mouseup',stop);
+  },{capture:true,passive:false});
+  document.addEventListener('mouseup',stop,true);
   window.addEventListener('blur',stop);
-  document.addEventListener('click',e=>{
+  document.addEventListener('click',function(e){
     if(!suppressClick)return;
     const draggedArea=suppressEl;suppressClick=false;suppressEl=null;clearTimeout(suppressTimer);
-    if(draggedArea&&(draggedArea===e.target||draggedArea.contains(e.target))){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation()}
+    if(draggedArea&&(draggedArea===e.target||draggedArea.contains(e.target))){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();}
   },true);
 })();
 </script>
