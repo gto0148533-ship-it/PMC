@@ -1,6 +1,6 @@
 {
   "version": "3.1",
-  "exportedAt": "2026-11-02T03:35:05.634Z",
+  "exportedAt": "2026-11-03T06:16:10.665Z",
   "source": "PMC central JSON",
   "orders": [
     {
@@ -734,6 +734,10 @@
         "weld": {
           "start": "2026-08-19",
           "end": "2026-10-19"
+        },
+        "assembly": {
+          "start": "2026-10-19",
+          "end": "2026-11-02"
         }
       },
       "schedule": {
@@ -840,6 +844,10 @@
         "assembly": {
           "start": "2026-09-28",
           "end": "2026-10-15"
+        },
+        "electrical": {
+          "start": "2026-10-15",
+          "end": "2026-11-02"
         }
       },
       "schedule": {
@@ -2124,9 +2132,9 @@
       "orderDate": "2026-09-28",
       "due": "2026-10-09",
       "priority": "維修",
-      "status": "生產中",
+      "status": "已完成",
       "processMode": "auto",
-      "actualClose": "",
+      "actualClose": "2026-10-30",
       "durations": {
         "design": 1,
         "weld": 5,
@@ -2165,6 +2173,10 @@
         "test": {
           "start": "2026-10-16",
           "end": "2026-10-16"
+        },
+        "close": {
+          "start": "2026-10-16",
+          "end": "2026-10-30"
         }
       },
       "images": [
@@ -2693,6 +2705,10 @@
         "assembly": {
           "start": "2026-10-19",
           "end": "2026-10-26"
+        },
+        "electrical": {
+          "start": "2026-10-26",
+          "end": "2026-11-03"
         }
       },
       "images": [
@@ -3079,6 +3095,796 @@
       "status": "待到貨"
     },
     {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-BB002-03",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-BB002-12",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-BB002-13",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "P115E-TW016",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW019-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "P310T-TW021-02",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW021-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW021-02",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW021-06",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW051",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW052-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-TW023",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-TW085",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW048-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW048-05",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW049-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW049-02",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-BB003-04",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-BB003-05",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-BB003-06",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-BB003-10",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW073-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW073-02",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-TW074-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-TW088",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-TW221",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-TW222",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-BB004-04",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-HH184",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW075",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-TW076-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-TW076-02",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312T-TW238",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-HH026-04",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW072",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW029-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW029-02",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW029-03",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW029-05",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-BB020-03",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-HH135-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-HH135-02",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-HH135-03",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-TW068",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW079",
+      "qty": 9,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-TW369",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-TW370",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-TW080-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-TW080-02",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-TW089",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-TW090",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312T-TW358",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312T-TW367",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312T-TW368",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-BB010-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-HH188-02",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-HH188-03",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-HH208-01",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-HH208-03",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW077",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-TW078-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-TW078-02",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-TW078-03",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "P310T-HH060",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "P310T-TW010-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "P310T-TW010-02",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "P310T-TW010-03",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "P310T-TW011-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "P310T-TW011-02",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "P310T-TW011-03",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "P310T-TW024-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312T-TW034",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-TW039",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-TW063",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-TW064",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-TW350-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-TW350-02",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312T-TW366",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "庫存機、備庫存",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-HH002-02",
+      "qty": 200,
+      "status": "待到貨"
+    },
+    {
       "supplier": "毅和",
       "no": "備庫存",
       "expected": "2026-11-10",
@@ -3179,13 +3985,783 @@
       "status": "待到貨"
     },
     {
-      "supplier": "金大展(銑304)",
-      "no": "2608004",
-      "expected": "2026-11-06",
-      "drawing": "螺旋計量本體",
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
       "material": "304",
-      "part": "PG31ES-BB002-18",
-      "qty": 1,
+      "part": "PV312TX-TW061-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW061-05",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW081-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW081-02",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW081-03",
+      "qty": 12,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW081-04",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW082-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW083-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW083-02",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW083-03",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-HH091-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-HH093-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-HH094-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-HH094-02",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-SH016-02",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW086",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW087",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-HH187-01",
+      "qty": 12,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-HH187-03",
+      "qty": 24,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-BB008-01",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-BB019-01",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-BB019-02",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-BB019-03",
+      "qty": 12,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-HH097",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-HH007-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-HH080-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-HH098-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-HH099-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-HH101-01",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-HH101-02",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-HH101-05",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-HH101-06",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-HH101-07",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW031-01",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW031-02",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW032-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW032-02",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312T-TW098",
+      "qty": 12,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW033-01",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW035-01",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW035-02",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312T-TW075-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312T-TW075-02",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312T-TW076-01",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-BB006-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-BB008",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-BB009",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-BB010-G",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-BB015",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-BB027",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-HH053-02",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-HH053-03",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-HH030-01",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-HH030-02",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-HH030-05",
+      "qty": 12,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-HH030-06",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-HH030-07",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-HH030-08",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-HH055-10",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-HH242",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-HH100",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-HH101",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-HH102-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-HH103-03",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312T-TW037-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312T-TW037-02",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312T-TW037-03",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312TX-HH086-01",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312T-TW035-01",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312T-TW035-02",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312T-TW035-03",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312T-HH113-02",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312T-HH113-03",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW047-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312TX-TW047-03",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "41",
+      "part": "PV312T-TW020",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "304",
+      "part": "PV312T-TW028-01",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "庫存機、備庫存",
+      "expected": "2026-11-18",
+      "drawing": "",
+      "material": "S45C",
+      "part": "PV312T-HH122",
+      "qty": 20,
       "status": "待到貨"
     },
     {
@@ -3229,6 +4805,146 @@
       "status": "待到貨"
     },
     {
+      "supplier": "崧禾",
+      "no": "庫存機、備庫存",
+      "expected": "2026-11-27",
+      "drawing": "開袋軸心",
+      "material": "SUJ2",
+      "part": "PV312TX-SH003",
+      "qty": 20,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "崧禾",
+      "no": "庫存機",
+      "expected": "2026-11-27",
+      "drawing": "置袋平台軸心",
+      "material": "SUJ2",
+      "part": "PV312TX-SH012",
+      "qty": 12,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "崧禾",
+      "no": "庫存機",
+      "expected": "2026-11-27",
+      "drawing": "調整軸心",
+      "material": "電鍍心軸",
+      "part": "PV312TX-SH013",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "崧禾",
+      "no": "庫存機",
+      "expected": "2026-11-27",
+      "drawing": "調整心軸B",
+      "material": "電鍍心軸",
+      "part": "PV312TX-SH021",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "崧禾",
+      "no": "庫存機",
+      "expected": "2026-11-27",
+      "drawing": "受台心軸",
+      "material": "電鍍心軸",
+      "part": "PV312TX-SH022",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "崧禾",
+      "no": "庫存機",
+      "expected": "2026-11-27",
+      "drawing": "抱袋調整心軸",
+      "material": "SUJ2",
+      "part": "PV312TX-SH002",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "崧禾",
+      "no": "庫存機",
+      "expected": "2026-11-27",
+      "drawing": "封口汽缸軸承",
+      "material": "SUJ2",
+      "part": "PV312T-SH012",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "賞億",
+      "no": "庫存機、備庫存",
+      "expected": "2026-11-27",
+      "drawing": "開袋軸心",
+      "material": "SUJ2",
+      "part": "PV312TX-SH003",
+      "qty": 20,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "賞億",
+      "no": "庫存機",
+      "expected": "2026-11-27",
+      "drawing": "置袋平台軸心",
+      "material": "SUJ2",
+      "part": "PV312TX-SH012",
+      "qty": 12,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "賞億",
+      "no": "庫存機",
+      "expected": "2026-11-27",
+      "drawing": "調整軸心",
+      "material": "電鍍心軸",
+      "part": "PV312TX-SH013",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "賞億",
+      "no": "庫存機",
+      "expected": "2026-11-27",
+      "drawing": "調整心軸B",
+      "material": "電鍍心軸",
+      "part": "PV312TX-SH021",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "賞億",
+      "no": "庫存機",
+      "expected": "2026-11-27",
+      "drawing": "受台心軸",
+      "material": "電鍍心軸",
+      "part": "PV312TX-SH022",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "賞億",
+      "no": "庫存機",
+      "expected": "2026-11-27",
+      "drawing": "抱袋調整心軸",
+      "material": "SUJ2",
+      "part": "PV312TX-SH002",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "賞億",
+      "no": "庫存機",
+      "expected": "2026-11-27",
+      "drawing": "封口汽缸軸承",
+      "material": "SUJ2",
+      "part": "PV312T-SH012",
+      "qty": 6,
+      "status": "待到貨"
+    },
+    {
       "supplier": "加新(拜特)",
       "no": "2606005",
       "expected": "2026-11-09",
@@ -3266,6 +4982,46 @@
       "material": "304",
       "part": "PG30ES-GR001",
       "qty": 1,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "加新(拜特)",
+      "no": "庫存機",
+      "expected": "2026-11-30",
+      "drawing": "AT5時規皮帶輪",
+      "material": "S45C",
+      "part": "TTPA50-AT5150-A-N16",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "加新(拜特)",
+      "no": "庫存機",
+      "expected": "2026-11-30",
+      "drawing": "AT5時規皮帶輪",
+      "material": "S45C",
+      "part": "TTPA50-AT5150-A-Y30-Q37-R37-S9-T9",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "加新(拜特)",
+      "no": "庫存機、備庫存",
+      "expected": "2026-11-30",
+      "drawing": "拉撐齒輪",
+      "material": "S45C",
+      "part": "PV312T-GR001",
+      "qty": 10,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "加新(拜特)",
+      "no": "庫存機、備庫存",
+      "expected": "2026-11-30",
+      "drawing": "夾袋軸心齒排",
+      "material": "S45C",
+      "part": "PV312TX-GR001",
+      "qty": 20,
       "status": "待到貨"
     },
     {
@@ -5452,19 +7208,6 @@
       "importedAt": "2026-10-28"
     },
     {
-      "id": "os_mvritu30_iud2i",
-      "fileName": "20261028宜真SS41共39個-2608004+2606007+2607002.pdf",
-      "fileType": "PDF",
-      "folder": "宜真-圖面-SS41",
-      "orderNos": [
-        "2608004",
-        "2606007",
-        "2607002"
-      ],
-      "status": "未回",
-      "importedAt": "2026-10-28"
-    },
-    {
       "id": "os_mvrvjoc5_1mpun",
       "fileName": "20261013元力共25個(藍13白7黃5)-2607002(1015白黃回，P17黃回來有瑕疵，1021送元力重新處理，1028回)(1021藍回)-單1021.pdf",
       "fileType": "PDF",
@@ -5533,8 +7276,33 @@
       "importedAt": "2026-10-29"
     },
     {
-      "id": "os_mvypajoc_to50i",
-      "fileName": "20261030宜真SS41共107個-2606002+2605001+2605009+2608004+2607002+2606007.pdf",
+      "id": "os_mw08aiuh_9xkwf",
+      "fileName": "20261103元力共35個(黃2白20公會#41 13個)-2607002+2608004.pdf",
+      "fileType": "PDF",
+      "folder": "元力-圖面",
+      "orderNos": [
+        "2607002",
+        "2608004"
+      ],
+      "status": "未回",
+      "importedAt": "2026-11-03"
+    },
+    {
+      "id": "os_mw08b9l4_ajoqf",
+      "fileName": "20261028宜真SS41共39個-2608004+2606007+2607002(1030回).pdf",
+      "fileType": "PDF",
+      "folder": "宜真-圖面-SS41",
+      "orderNos": [
+        "2608004",
+        "2606007",
+        "2607002"
+      ],
+      "status": "已回",
+      "importedAt": "2026-11-03"
+    },
+    {
+      "id": "os_mw08b9l4_3dnif",
+      "fileName": "20261030宜真SS41共107個-2606002+2605001+2605009+2608004+2607002+2606007(1102回).pdf",
       "fileType": "PDF",
       "folder": "宜真-圖面-SS41",
       "orderNos": [
@@ -5545,8 +7313,23 @@
         "2607002",
         "2606007"
       ],
+      "status": "已回",
+      "importedAt": "2026-11-03"
+    },
+    {
+      "id": "os_mw08b9l4_zs94t",
+      "fileName": "20261102宜真SS41共33個-2605008+2608004+2606007+2607002+2608001.pdf",
+      "fileType": "PDF",
+      "folder": "宜真-圖面-SS41",
+      "orderNos": [
+        "2605008",
+        "2608004",
+        "2606007",
+        "2607002",
+        "2608001"
+      ],
       "status": "未回",
-      "importedAt": "2026-11-02"
+      "importedAt": "2026-11-03"
     }
   ],
   "returnRecords": [
