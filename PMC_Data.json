@@ -1,6 +1,6 @@
 {
   "version": "3.1",
-  "exportedAt": "2026-11-04T06:37:18.002Z",
+  "exportedAt": "2026-11-05T09:28:51.820Z",
   "source": "PMC central JSON",
   "orders": [
     {
@@ -2448,9 +2448,9 @@
       "orderDate": "2026-09-23",
       "due": "2026-11-06",
       "priority": "維修",
-      "status": "生產中",
+      "status": "已完成",
       "processMode": "auto",
-      "actualClose": "",
+      "actualClose": "2026-11-04",
       "durations": {
         "design": 7,
         "weld": 14,
@@ -2489,6 +2489,10 @@
         "weld": {
           "start": "2026-10-06",
           "end": "2026-10-29"
+        },
+        "close": {
+          "start": "2026-10-28",
+          "end": "2026-11-04"
         }
       },
       "images": [
@@ -3075,86 +3079,6 @@
     },
     {
       "supplier": "佳欣",
-      "no": "2608004",
-      "expected": "2026-10-30",
-      "drawing": "",
-      "material": "41",
-      "part": "2608004-TW103-01",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2608004",
-      "expected": "2026-10-30",
-      "drawing": "",
-      "material": "41",
-      "part": "2608004-TW105-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2608004",
-      "expected": "2026-10-30",
-      "drawing": "",
-      "material": "41",
-      "part": "2608004-TW105-02",
-      "qty": 2,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2608004",
-      "expected": "2026-10-30",
-      "drawing": "",
-      "material": "41",
-      "part": "2608004-TW107-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2608004",
-      "expected": "2026-10-30",
-      "drawing": "",
-      "material": "41",
-      "part": "2608004-TW108-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2608004",
-      "expected": "2026-10-30",
-      "drawing": "",
-      "material": "41",
-      "part": "2608004-TW110-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2608004",
-      "expected": "2026-10-30",
-      "drawing": "",
-      "material": "41",
-      "part": "2608004-TW111-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2608004",
-      "expected": "2026-10-30",
-      "drawing": "",
-      "material": "41",
-      "part": "2608004-TW112-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
       "no": "2608003",
       "expected": "2026-11-06",
       "drawing": "",
@@ -3211,26 +3135,6 @@
       "material": "304",
       "part": "2608003-TW005-04",
       "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2608001",
-      "expected": "2026-10-30",
-      "drawing": "",
-      "material": "304",
-      "part": "2608001-TW038-01",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "廠內量具",
-      "expected": "2026-11-06",
-      "drawing": "",
-      "material": "41",
-      "part": "標準直角尺50*50*50*30",
-      "qty": "各4",
       "status": "待到貨"
     },
     {
@@ -4091,6 +3995,16 @@
       "material": "304",
       "part": "PV312T-TW075-03",
       "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "2608004",
+      "expected": "2026-11-06",
+      "drawing": "",
+      "material": "304",
+      "part": "PG31ES-HH123-02",
+      "qty": 2,
       "status": "待到貨"
     },
     {
@@ -4974,13 +4888,33 @@
       "status": "待到貨"
     },
     {
-      "supplier": "承弘-車",
-      "no": "庫存3台份",
+      "supplier": "毅和",
+      "no": "紐朗",
       "expected": "2026-11-17",
-      "drawing": "止推墊片",
-      "material": "磷青銅",
-      "part": "PV312T-SH055",
-      "qty": 6,
+      "drawing": "",
+      "material": "316",
+      "part": "2608003-TW006",
+      "qty": 2,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "紐朗",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "316",
+      "part": "2608003-TW007",
+      "qty": 2,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "毅和",
+      "no": "紐朗",
+      "expected": "2026-11-17",
+      "drawing": "",
+      "material": "316",
+      "part": "2608003-TW008",
+      "qty": 2,
       "status": "待到貨"
     },
     {
@@ -5001,16 +4935,6 @@
       "material": "304",
       "part": "PV312T-SH061",
       "qty": 20,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "承弘-車",
-      "no": "庫存3台份",
-      "expected": "2026-11-17",
-      "drawing": "曲柄心軸",
-      "material": "304",
-      "part": "PV312T-SH060",
-      "qty": 40,
       "status": "待到貨"
     },
     {
@@ -7705,18 +7629,6 @@
       "importedAt": "2026-10-29"
     },
     {
-      "id": "os_mw08aiuh_9xkwf",
-      "fileName": "20261103元力共35個(黃2白20公會#41 13個)-2607002+2608004.pdf",
-      "fileType": "PDF",
-      "folder": "元力-圖面",
-      "orderNos": [
-        "2607002",
-        "2608004"
-      ],
-      "status": "未回",
-      "importedAt": "2026-11-03"
-    },
-    {
       "id": "os_mw08b9l4_ajoqf",
       "fileName": "20261028宜真SS41共39個-2608004+2606007+2607002(1030回).pdf",
       "fileType": "PDF",
@@ -7746,21 +7658,6 @@
       "importedAt": "2026-11-03"
     },
     {
-      "id": "os_mw08b9l4_zs94t",
-      "fileName": "20261102宜真SS41共33個-2605008+2608004+2606007+2607002+2608001.pdf",
-      "fileType": "PDF",
-      "folder": "宜真-圖面-SS41",
-      "orderNos": [
-        "2605008",
-        "2608004",
-        "2606007",
-        "2607002",
-        "2608001"
-      ],
-      "status": "未回",
-      "importedAt": "2026-11-03"
-    },
-    {
       "id": "os_mw1qt39t_tmrgd",
       "fileName": "20261104宜真SS41共18個-補庫存+2608004.pdf",
       "fileType": "PDF",
@@ -7770,6 +7667,57 @@
       ],
       "status": "未回",
       "importedAt": "2026-11-04"
+    },
+    {
+      "id": "os_mw3ce2rp_pz03c",
+      "fileName": "20261015元力共16個(白7黃8藍1)-2608001+2607002(1022藍回)(1028白黃回)-單1021.pdf",
+      "fileType": "PDF",
+      "folder": "元力-圖面",
+      "orderNos": [
+        "2608001",
+        "2607002"
+      ],
+      "status": "已回",
+      "importedAt": "2026-11-05"
+    },
+    {
+      "id": "os_mw3ce2rp_58owb",
+      "fileName": "20261103元力共35個(黃2白20公會#41 13個)-2607002+2608004(1105白回).pdf",
+      "fileType": "PDF",
+      "folder": "元力-圖面",
+      "orderNos": [
+        "2607002",
+        "2608004"
+      ],
+      "status": "未回",
+      "importedAt": "2026-11-05"
+    },
+    {
+      "id": "os_mw3ce2rp_z0spm",
+      "fileName": "20261105元力共12個(白1公會#41 11個)-2605004+2608004.pdf",
+      "fileType": "PDF",
+      "folder": "元力-圖面",
+      "orderNos": [
+        "2605004",
+        "2608004"
+      ],
+      "status": "未回",
+      "importedAt": "2026-11-05"
+    },
+    {
+      "id": "os_mw3cf9g4_ku0u6",
+      "fileName": "20261102宜真SS41共33個-2605008+2608004+2606007+2607002+2608001(1104回).pdf",
+      "fileType": "PDF",
+      "folder": "宜真-圖面-SS41",
+      "orderNos": [
+        "2605008",
+        "2608004",
+        "2606007",
+        "2607002",
+        "2608001"
+      ],
+      "status": "已回",
+      "importedAt": "2026-11-05"
     }
   ],
   "returnRecords": [
