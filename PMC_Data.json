@@ -1,6 +1,6 @@
 {
   "version": "3.1",
-  "exportedAt": "2026-11-05T09:28:51.820Z",
+  "exportedAt": "2026-11-06T08:50:34.375Z",
   "source": "PMC central JSON",
   "orders": [
     {
@@ -560,6 +560,14 @@
         "purchase": {
           "start": "2026-09-16",
           "end": "2026-11-02"
+        },
+        "outsourcing": {
+          "start": "2026-09-16",
+          "end": "2026-11-04"
+        },
+        "assembly": {
+          "start": "2026-10-26",
+          "end": "2026-11-06"
         }
       },
       "schedule": {
@@ -1032,6 +1040,10 @@
         "outsourcing": {
           "start": "2026-07-24",
           "end": "2026-10-12"
+        },
+        "assembly": {
+          "start": "2026-10-05",
+          "end": "2026-11-06"
         }
       },
       "schedule": {
@@ -4008,6 +4020,66 @@
       "status": "待到貨"
     },
     {
+      "supplier": "佳欣",
+      "no": "2607002",
+      "expected": "2026-11-06",
+      "drawing": "",
+      "material": "304",
+      "part": "2607002-TW037-01",
+      "qty": 2,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "2112001",
+      "expected": "2026-11-13",
+      "drawing": "",
+      "material": "304",
+      "part": "2112001-TW100-01",
+      "qty": 1,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "2112001",
+      "expected": "2026-11-13",
+      "drawing": "",
+      "material": "304",
+      "part": "2112001-TW100-02",
+      "qty": 1,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "2112001",
+      "expected": "2026-11-13",
+      "drawing": "",
+      "material": "304",
+      "part": "2112001-TW101-01",
+      "qty": 2,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "2112001",
+      "expected": "2026-11-13",
+      "drawing": "",
+      "material": "304",
+      "part": "2112001-TW101-02",
+      "qty": 4,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "佳欣",
+      "no": "2112001",
+      "expected": "2026-11-13",
+      "drawing": "",
+      "material": "304",
+      "part": "2112001-HH200-01",
+      "qty": 1,
+      "status": "待到貨"
+    },
+    {
       "supplier": "毅和",
       "no": "備庫存",
       "expected": "2026-11-10",
@@ -5384,16 +5456,6 @@
       "drawing": "",
       "material": "橡膠",
       "part": "2606007-SH026-02",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "正鋒刀具",
-      "no": "2606007",
-      "expected": "2026-11-26",
-      "drawing": "",
-      "material": "SKH-9",
-      "part": "2606007-CT001",
       "qty": 2,
       "status": "待到貨"
     }
@@ -7658,17 +7720,6 @@
       "importedAt": "2026-11-03"
     },
     {
-      "id": "os_mw1qt39t_tmrgd",
-      "fileName": "20261104宜真SS41共18個-補庫存+2608004.pdf",
-      "fileType": "PDF",
-      "folder": "宜真-圖面-SS41",
-      "orderNos": [
-        "2608004"
-      ],
-      "status": "未回",
-      "importedAt": "2026-11-04"
-    },
-    {
       "id": "os_mw3ce2rp_pz03c",
       "fileName": "20261015元力共16個(白7黃8藍1)-2608001+2607002(1022藍回)(1028白黃回)-單1021.pdf",
       "fileType": "PDF",
@@ -7718,6 +7769,28 @@
       ],
       "status": "已回",
       "importedAt": "2026-11-05"
+    },
+    {
+      "id": "os_mw4qcgrz_rq1pt",
+      "fileName": "20261104宜真SS41共18個-補庫存+2608004(1106回).pdf",
+      "fileType": "PDF",
+      "folder": "宜真-圖面-SS41",
+      "orderNos": [
+        "2608004"
+      ],
+      "status": "已回",
+      "importedAt": "2026-11-06"
+    },
+    {
+      "id": "os_mw4qcgs0_mr1yg",
+      "fileName": "20261106宜真SS41共27個-庫存3台份+2608004.pdf",
+      "fileType": "PDF",
+      "folder": "宜真-圖面-SS41",
+      "orderNos": [
+        "2608004"
+      ],
+      "status": "未回",
+      "importedAt": "2026-11-06"
     }
   ],
   "returnRecords": [
