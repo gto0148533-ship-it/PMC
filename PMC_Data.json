@@ -1,6 +1,6 @@
 {
   "version": "3.1",
-  "exportedAt": "2026-11-06T08:50:34.375Z",
+  "exportedAt": "2026-11-09T03:41:22.819Z",
   "source": "PMC central JSON",
   "orders": [
     {
@@ -746,6 +746,10 @@
         "assembly": {
           "start": "2026-10-19",
           "end": "2026-11-02"
+        },
+        "electrical": {
+          "start": "2026-11-02",
+          "end": "2026-11-06"
         }
       },
       "schedule": {
@@ -1607,9 +1611,9 @@
       "orderDate": "2026-09-18",
       "due": "2026-10-30",
       "priority": "一般",
-      "status": "生產中",
+      "status": "已完成",
       "processMode": "semi",
-      "actualClose": "",
+      "actualClose": "2026-11-09",
       "durations": {
         "design": 1,
         "weld": 1,
@@ -1644,6 +1648,14 @@
         "electrical": {
           "start": "2026-09-21",
           "end": "2026-09-21"
+        },
+        "test": {
+          "start": "2026-09-21",
+          "end": "2026-11-09"
+        },
+        "close": {
+          "start": "2026-11-09",
+          "end": "2026-11-09"
         }
       },
       "schedule": {
@@ -3081,96 +3093,6 @@
   "purchaseRows": [
     {
       "supplier": "佳欣",
-      "no": "2608004",
-      "expected": "2026-10-20",
-      "drawing": "",
-      "material": "304",
-      "part": "2608004-TW001-03",
-      "qty": 1,
-      "status": "逾期"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2608003",
-      "expected": "2026-11-06",
-      "drawing": "",
-      "material": "316",
-      "part": "2608003-TW004-01",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2608003",
-      "expected": "2026-11-06",
-      "drawing": "",
-      "material": "316",
-      "part": "2608003-TW004-02",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2608003",
-      "expected": "2026-11-06",
-      "drawing": "",
-      "material": "316",
-      "part": "2608003-TW005-01",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2608003",
-      "expected": "2026-11-06",
-      "drawing": "",
-      "material": "304",
-      "part": "2608003-TW005-02",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2608003",
-      "expected": "2026-11-06",
-      "drawing": "",
-      "material": "304",
-      "part": "2608003-TW005-03",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2608003",
-      "expected": "2026-11-06",
-      "drawing": "",
-      "material": "304",
-      "part": "2608003-TW005-04",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2111002",
-      "expected": "2026-11-06",
-      "drawing": "",
-      "material": "304",
-      "part": "2111002-TW091",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2605009",
-      "expected": "2026-11-06",
-      "drawing": "",
-      "material": "41",
-      "part": "2605009-TW020",
-      "qty": 4,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "佳欣",
       "no": "庫存機",
       "expected": "2026-11-19",
       "drawing": "",
@@ -3957,76 +3879,6 @@
       "material": "304",
       "part": "PV312TX-HH002-02",
       "qty": 200,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "庫存機",
-      "expected": "2026-11-19",
-      "drawing": "",
-      "material": "41",
-      "part": "PV312T-HH229",
-      "qty": 3,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "庫存機",
-      "expected": "2026-11-19",
-      "drawing": "",
-      "material": "41",
-      "part": "PV312T-HH228",
-      "qty": 3,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "庫存機",
-      "expected": "2026-11-19",
-      "drawing": "",
-      "material": "41",
-      "part": "PV312TX-HH001",
-      "qty": 3,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "庫存機",
-      "expected": "2026-11-19",
-      "drawing": "",
-      "material": "304",
-      "part": "PV312TX-TW032-03",
-      "qty": 6,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "庫存機",
-      "expected": "2026-11-19",
-      "drawing": "",
-      "material": "304",
-      "part": "PV312T-TW075-03",
-      "qty": 6,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2608004",
-      "expected": "2026-11-06",
-      "drawing": "",
-      "material": "304",
-      "part": "PG31ES-HH123-02",
-      "qty": 2,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "佳欣",
-      "no": "2607002",
-      "expected": "2026-11-06",
-      "drawing": "",
-      "material": "304",
-      "part": "2607002-TW037-01",
-      "qty": 2,
       "status": "待到貨"
     },
     {
@@ -5371,46 +5223,6 @@
     },
     {
       "supplier": "加新(拜特)",
-      "no": "2606005",
-      "expected": "2026-11-09",
-      "drawing": "從動齒輪-4分25T",
-      "material": "304",
-      "part": "PG30ES-GR004",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "加新(拜特)",
-      "no": "2606005",
-      "expected": "2026-11-09",
-      "drawing": "帶動齒輪-4分25T",
-      "material": "304",
-      "part": "PG30ES-GR002",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "加新(拜特)",
-      "no": "2606005",
-      "expected": "2026-11-09",
-      "drawing": "撥料齒輪",
-      "material": "304",
-      "part": "PG30ES-GR003",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "加新(拜特)",
-      "no": "2606005",
-      "expected": "2026-11-09",
-      "drawing": "帶動齒輪-4分25T",
-      "material": "304",
-      "part": "PG30ES-GR001",
-      "qty": 1,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "加新(拜特)",
       "no": "庫存機",
       "expected": "2026-11-30",
       "drawing": "AT5時規皮帶輪",
@@ -5457,7 +5269,7 @@
       "material": "橡膠",
       "part": "2606007-SH026-02",
       "qty": 2,
-      "status": "待到貨"
+      "status": "逾期"
     }
   ],
   "outsourcingRows": [
@@ -7804,7 +7616,7 @@
       "qty": 1,
       "reason": "雷割拆件問題",
       "handling": "重製",
-      "status": "重製中",
+      "status": "待重新驗收",
       "notes": "",
       "files": [
         {
@@ -7817,7 +7629,7 @@
         }
       ],
       "createdAt": "2026-10-28T08:50:09.733Z",
-      "updatedAt": "2026-10-28T08:50:14.324Z",
+      "updatedAt": "2026-11-09T03:36:09.557Z",
       "closedAt": ""
     },
     {
