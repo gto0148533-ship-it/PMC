@@ -1,6 +1,6 @@
 {
   "version": "3.1",
-  "exportedAt": "2026-11-09T03:41:22.819Z",
+  "exportedAt": "2026-11-10T09:33:33.037Z",
   "source": "PMC central JSON",
   "orders": [
     {
@@ -235,6 +235,10 @@
         "weld": {
           "start": "2026-09-09",
           "end": "2026-10-30"
+        },
+        "outsourcing": {
+          "start": "2026-09-09",
+          "end": "2026-11-10"
         }
       },
       "schedule": {
@@ -3932,102 +3936,12 @@
       "status": "待到貨"
     },
     {
-      "supplier": "毅和",
-      "no": "備庫存",
-      "expected": "2026-11-10",
-      "drawing": "",
-      "material": "41",
-      "part": "PV312T-TW364-01",
-      "qty": 5,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "備庫存",
-      "expected": "2026-11-10",
-      "drawing": "",
-      "material": "41",
-      "part": "PV312T-TW364-03",
-      "qty": 5,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "備庫存",
-      "expected": "2026-11-10",
-      "drawing": "",
-      "material": "41",
-      "part": "PV312T-TW365-01",
-      "qty": 5,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "備庫存",
-      "expected": "2026-11-10",
-      "drawing": "",
-      "material": "41",
-      "part": "PV312T-HH010-01",
-      "qty": 4,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "備庫存",
-      "expected": "2026-11-10",
-      "drawing": "",
-      "material": "41",
-      "part": "PV312T-HH010-02",
-      "qty": 4,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "備庫存",
-      "expected": "2026-11-10",
-      "drawing": "",
-      "material": "41",
-      "part": "PV312T-HH010-05",
-      "qty": 8,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "備庫存",
-      "expected": "2026-11-10",
-      "drawing": "",
-      "material": "41",
-      "part": "PV312T-HH010-06",
-      "qty": 4,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "備庫存",
-      "expected": "2026-11-10",
-      "drawing": "",
-      "material": "41",
-      "part": "PV312T-HH010-07",
-      "qty": 4,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
-      "no": "備庫存",
-      "expected": "2026-11-10",
-      "drawing": "",
-      "material": "41",
-      "part": "PV312T-HH010-08",
-      "qty": 4,
-      "status": "待到貨"
-    },
-    {
-      "supplier": "毅和",
+      "supplier": "佳欣",
       "no": "2606007",
-      "expected": "2026-11-10",
+      "expected": "2026-11-19",
       "drawing": "",
       "material": "304",
-      "part": "2606007-HH077-01",
+      "part": "2606007-HH076-01",
       "qty": 1,
       "status": "待到貨"
     },
@@ -4992,8 +4906,18 @@
       "status": "待到貨"
     },
     {
-      "supplier": "紳竣(銑41.AL)",
+      "supplier": "震特-車銑",
       "no": "庫存3台份",
+      "expected": "2026-12-03",
+      "drawing": "開袋調整螺桿",
+      "material": "304",
+      "part": "PV312TX-WA002",
+      "qty": 10,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "紳竣(銑41.AL)",
+      "no": "庫存機3台份",
       "expected": "2026-11-20",
       "drawing": "置袋盤下底板",
       "material": "6061",
@@ -5003,7 +4927,7 @@
     },
     {
       "supplier": "紳竣(銑41.AL)",
-      "no": "庫存3台份",
+      "no": "庫存機3台份",
       "expected": "2026-11-20",
       "drawing": "壓包前板",
       "material": "6061",
@@ -5013,7 +4937,7 @@
     },
     {
       "supplier": "紳竣(銑41.AL)",
-      "no": "庫存3台份",
+      "no": "庫存機3台份",
       "expected": "2026-11-20",
       "drawing": "壓板",
       "material": "41",
@@ -5023,7 +4947,7 @@
     },
     {
       "supplier": "紳竣(銑41.AL)",
-      "no": "庫存3台份",
+      "no": "庫存機3台份",
       "expected": "2026-11-20",
       "drawing": "封刀與汽缸固定板",
       "material": "6061",
@@ -5033,7 +4957,7 @@
     },
     {
       "supplier": "紳竣(銑41.AL)",
-      "no": "庫存3台份",
+      "no": "庫存機3台份",
       "expected": "2026-11-20",
       "drawing": "夾爪推板",
       "material": "S45C",
@@ -5043,7 +4967,7 @@
     },
     {
       "supplier": "紳竣(銑41.AL)",
-      "no": "庫存3台份",
+      "no": "庫存機3台份",
       "expected": "2026-11-20",
       "drawing": "夾爪支臂",
       "material": "S45C",
@@ -5053,7 +4977,7 @@
     },
     {
       "supplier": "紳竣(銑41.AL)",
-      "no": "庫存3台份",
+      "no": "庫存機3台份",
       "expected": "2026-11-20",
       "drawing": "夾爪側板",
       "material": "6061",
@@ -5063,7 +4987,7 @@
     },
     {
       "supplier": "紳竣(銑41.AL)",
-      "no": "庫存3台份",
+      "no": "庫存機3台份",
       "expected": "2026-11-20",
       "drawing": "夾爪",
       "material": "6061",
@@ -5073,7 +4997,7 @@
     },
     {
       "supplier": "紳竣(銑41.AL)",
-      "no": "庫存3台份",
+      "no": "庫存機3台份",
       "expected": "2026-11-20",
       "drawing": "封口銅板A",
       "material": "黃銅",
@@ -5083,7 +5007,7 @@
     },
     {
       "supplier": "紳竣(銑41.AL)",
-      "no": "庫存3台份",
+      "no": "庫存機3台份",
       "expected": "2026-11-20",
       "drawing": "封口銅板B",
       "material": "黃銅",
@@ -5093,7 +5017,7 @@
     },
     {
       "supplier": "紳竣(銑41.AL)",
-      "no": "庫存3台份",
+      "no": "庫存機3台份",
       "expected": "2026-11-20",
       "drawing": "封口銅板",
       "material": "黃銅",
@@ -5103,12 +5027,102 @@
     },
     {
       "supplier": "紳竣(銑41.AL)",
-      "no": "庫存3台份",
+      "no": "庫存機3台份",
       "expected": "2026-11-20",
       "drawing": "溫度感測SENSOR固定座",
       "material": "黃銅",
       "part": "PV312T-HH051",
       "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "紳竣(銑41.AL)",
+      "no": "庫存機3台份",
+      "expected": "2026-11-27",
+      "drawing": "擺臂真空連桿",
+      "material": "6061",
+      "part": "PV312TX-HH191",
+      "qty": 5,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "紳竣(銑41.AL)",
+      "no": "庫存機3台份",
+      "expected": "2026-11-27",
+      "drawing": "開袋夾爪汽缸固定板B",
+      "material": "6061",
+      "part": "PV312TX-HH020",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "紳竣(銑41.AL)",
+      "no": "庫存機3台份",
+      "expected": "2026-11-27",
+      "drawing": "開袋夾爪汽缸固定板A",
+      "material": "6061",
+      "part": "PV312TX-HH021",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "紳竣(銑41.AL)",
+      "no": "庫存機3台份",
+      "expected": "2026-11-27",
+      "drawing": "前支架",
+      "material": "6061",
+      "part": "PV312TX-HH041",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "紳竣(銑41.AL)",
+      "no": "庫存機3台份",
+      "expected": "2026-11-27",
+      "drawing": "左支架",
+      "material": "6061",
+      "part": "PV312TX-HH042",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "紳竣(銑41.AL)",
+      "no": "庫存機3台份",
+      "expected": "2026-11-27",
+      "drawing": "補強板",
+      "material": "6061",
+      "part": "PV312TX-HH009",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "紳竣(銑41.AL)",
+      "no": "庫存機3台份",
+      "expected": "2026-11-27",
+      "drawing": "移載抱袋背板",
+      "material": "6061",
+      "part": "PV312TX-HH082",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "紳竣(銑41.AL)",
+      "no": "庫存機3台份",
+      "expected": "2026-11-27",
+      "drawing": "抱袋左支撐",
+      "material": "6061",
+      "part": "PV312TX-HH011",
+      "qty": 3,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "紳竣(銑41.AL)",
+      "no": "庫存機3台份",
+      "expected": "2026-11-27",
+      "drawing": "補強板",
+      "material": "6061",
+      "part": "PV312TX-HH012",
+      "qty": 3,
       "status": "待到貨"
     },
     {
@@ -5219,6 +5233,66 @@
       "material": "SUJ2",
       "part": "PV312T-SH012",
       "qty": 6,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "賞億",
+      "no": "2303006+7",
+      "expected": "2026-11-20",
+      "drawing": "拍打軸心",
+      "material": "SUJ2",
+      "part": "1909004-SH045",
+      "qty": 4,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "賞億",
+      "no": "2007010",
+      "expected": "2026-11-27",
+      "drawing": "推袋心軸",
+      "material": "電鍍心軸",
+      "part": "1801003-SH049",
+      "qty": 2,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "賞億",
+      "no": "2007010",
+      "expected": "2026-11-27",
+      "drawing": "拍打軸心",
+      "material": "SUJ2",
+      "part": "1909004-SH045",
+      "qty": 2,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "賞億",
+      "no": "2007010",
+      "expected": "2026-11-27",
+      "drawing": "取袋軸心",
+      "material": "SUJ2",
+      "part": "2007010-SH004",
+      "qty": 2,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "賞億",
+      "no": "2007010",
+      "expected": "2026-11-27",
+      "drawing": "導桿",
+      "material": "SUJ2",
+      "part": "2007010-SH081",
+      "qty": 2,
+      "status": "待到貨"
+    },
+    {
+      "supplier": "賞億",
+      "no": "2007010",
+      "expected": "2026-11-27",
+      "drawing": "大擋料導桿",
+      "material": "SUJ2",
+      "part": "2007010-SH082",
+      "qty": 2,
       "status": "待到貨"
     },
     {
@@ -7544,30 +7618,6 @@
       "importedAt": "2026-11-05"
     },
     {
-      "id": "os_mw3ce2rp_58owb",
-      "fileName": "20261103元力共35個(黃2白20公會#41 13個)-2607002+2608004(1105白回).pdf",
-      "fileType": "PDF",
-      "folder": "元力-圖面",
-      "orderNos": [
-        "2607002",
-        "2608004"
-      ],
-      "status": "未回",
-      "importedAt": "2026-11-05"
-    },
-    {
-      "id": "os_mw3ce2rp_z0spm",
-      "fileName": "20261105元力共12個(白1公會#41 11個)-2605004+2608004.pdf",
-      "fileType": "PDF",
-      "folder": "元力-圖面",
-      "orderNos": [
-        "2605004",
-        "2608004"
-      ],
-      "status": "未回",
-      "importedAt": "2026-11-05"
-    },
-    {
       "id": "os_mw3cf9g4_ku0u6",
       "fileName": "20261102宜真SS41共33個-2605008+2608004+2606007+2607002+2608001(1104回).pdf",
       "fileType": "PDF",
@@ -7603,6 +7653,41 @@
       ],
       "status": "未回",
       "importedAt": "2026-11-06"
+    },
+    {
+      "id": "os_mwahqrp9_gedj5",
+      "fileName": "20261029元力共15個(易格斯粉15個)-2608001(1110回).pdf",
+      "fileType": "PDF",
+      "folder": "元力-圖面",
+      "orderNos": [
+        "2608001"
+      ],
+      "status": "未回",
+      "importedAt": "2026-11-10"
+    },
+    {
+      "id": "os_mwahqrp9_69ulj",
+      "fileName": "20261103元力共35個(黃2白20公會#41 13個)-2607002+2608004(1105白回)(1110黃 公會#41回).pdf",
+      "fileType": "PDF",
+      "folder": "元力-圖面",
+      "orderNos": [
+        "2607002",
+        "2608004"
+      ],
+      "status": "已回",
+      "importedAt": "2026-11-10"
+    },
+    {
+      "id": "os_mwahqrp9_a4c3z",
+      "fileName": "20261105元力共12個(白1公會#41 11個)-2605004+2608004(1110白 公會#41回).pdf",
+      "fileType": "PDF",
+      "folder": "元力-圖面",
+      "orderNos": [
+        "2605004",
+        "2608004"
+      ],
+      "status": "已回",
+      "importedAt": "2026-11-10"
     }
   ],
   "returnRecords": [
