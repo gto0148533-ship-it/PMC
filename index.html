@@ -1792,7 +1792,7 @@ input,select{min-height:38px}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>V3.57</span></div>
+    <div>PMC <span>V3.58-261113</span></div>
     <small>生產管理系統</small>
   </div>
 
@@ -6871,11 +6871,51 @@ function openImageManageModal(){
   m.classList.remove("hidden");m.setAttribute("aria-hidden","false");m.style.display="flex";document.body.style.overflow="hidden";
 }
 function closeImageManageModal(){const m=document.getElementById("imageManageModal");if(m){m.classList.add("hidden");m.setAttribute("aria-hidden","true");m.style.display="none";}document.body.style.overflow="";}
-async function cleanupClosedOrderImages(){
-  const days=getImageCleanupDays();if(days<0)return;const now=new Date(TODAY+"T00:00:00");let removed=0;
-  for(const o of orders||[]){if(!o.actualClose||!(o.images||[]).length)continue;const close=new Date(String(o.actualClose)+"T00:00:00");if(isNaN(close))continue;if(Math.floor((now-close)/86400000)>=days){try{await window.pmcDeleteOrderPhotos(o.no);removed+=o.images.length;o.images=[];}catch(error){console.error(`工單 ${o.no} 的到期照片清理失敗：`,error)}}}
-  if(removed){saveData();renderImageDataSummary();markOrderPhotosPending();refreshStorageCapacity();}
-  return removed;
+async function cleanupClosedOrderImages(options={}){
+  const silent=options.silent===true;
+  const days=getImageCleanupDays();
+  const now=new Date();
+  const todayUtc=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate());
+  const result={removedPhotos:0,affectedOrders:0,failedOrders:[],eligibleOrders:0};
+  for(const order of (orders||[])){
+    const images=Array.isArray(order.images)?order.images:[];
+    if(!order.actualClose||!images.length)continue;
+    const match=String(order.actualClose).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(!match)continue;
+    const closeUtc=Date.UTC(Number(match[1]),Number(match[2])-1,Number(match[3]));
+    const checkDate=new Date(closeUtc);
+    if(checkDate.getUTCFullYear()!==Number(match[1])||checkDate.getUTCMonth()!==Number(match[2])-1||checkDate.getUTCDate()!==Number(match[3]))continue;
+    const ageDays=Math.floor((todayUtc-closeUtc)/86400000);
+    if(ageDays<days)continue;
+    result.eligibleOrders++;
+    try{
+      if(typeof window.pmcDeleteOrderPhotos!=="function")throw new Error("工單照片儲存服務尚未就緒");
+      await window.pmcDeleteOrderPhotos(order.no);
+      result.removedPhotos+=images.length;
+      result.affectedOrders++;
+      order.images=[];
+    }catch(error){
+      result.failedOrders.push({orderNo:String(order.no),message:error?.message||String(error)});
+      console.error(`工單 ${order.no} 的到期照片清理失敗：`,error);
+    }
+  }
+  if(result.removedPhotos){
+    try{saveData();}catch(error){result.saveError=error;console.error("結案照片清理後保存工單資料失敗：",error);}
+    renderImageDataSummary();
+    markOrderPhotosPending();
+    await refreshStorageCapacity(false);
+  }
+  if(!silent){
+    if(result.failedOrders.length){
+      const failed=result.failedOrders.map(x=>`${x.orderNo}：${x.message}`).join("\n");
+      alert(`清理完成，但有 ${result.failedOrders.length} 張工單清理失敗。\n成功清理 ${result.removedPhotos} 張照片。\n\n失敗明細：\n${failed}`);
+    }else if(result.removedPhotos){
+      alert(`已清理 ${result.removedPhotos} 張到期工單照片（${result.affectedOrders} 張工單）。請匯出 PMC_Data.json 並更新中央資料。`);
+    }else{
+      alert(result.eligibleOrders?"符合條件的照片清理未成功，請檢查瀏覽器儲存狀態。":"沒有符合設定的結案工單照片。");
+    }
+  }
+  return result;
 }
 function updateCurrentPhotoButton(){const b=document.getElementById("pmcCurrentPhotoBtn"),no=window.pmcCurrentOrderNo,o=findOrder(no);if(!b)return;if(o&&(o.images||[]).length){b.style.display="inline-block";b.textContent=`照片 ${o.images.length}`;b.dataset.currentPhoto=no;}else{b.style.display="none";b.dataset.currentPhoto="";}}
 
@@ -6936,7 +6976,7 @@ document.addEventListener(
   async function(){
     updatePermissions();
     document.getElementById("refreshStorageCapacityBtn")?.addEventListener("click",function(){refreshStorageCapacity();});
-    document.getElementById("cleanupClosedPhotosBtn")?.addEventListener("click",async function(){if(!requireAdmin())return;const days=getImageCleanupDays();if(!confirm(`依目前已儲存的設定（結案滿 ${days} 天）清理到期工單照片？照片會從此裝置及 PMC 資料中移除，請先確認重要資料已匯出。`))return;const removed=await cleanupClosedOrderImages();await refreshStorageCapacity(false);alert(removed?`已清理 ${removed} 張到期工單照片。請匯出 PMC_Data.json 並更新中央資料。`:`沒有符合設定的結案工單照片。`);});
+    document.getElementById("cleanupClosedPhotosBtn")?.addEventListener("click",async function(){if(!requireAdmin())return;const days=getImageCleanupDays();if(!confirm(`依目前已儲存的設定（結案滿 ${days} 天）清理到期工單照片？照片會從此裝置及 PMC 資料中移除，請先確認重要資料已匯出。`))return;await cleanupClosedOrderImages();});
     document.getElementById("openDataFileBtn").addEventListener("click",function(){document.getElementById("dataFileInput").click();});
     document.getElementById("dataFileInput").addEventListener("change",function(e){if(e.target.files[0])loadDataFromFile(e.target.files[0]);e.target.value="";});
     document.getElementById("loginBtn").addEventListener("click",function(){isAdmin?doLogout():openLoginModal();});
@@ -6966,7 +7006,7 @@ document.addEventListener(
       closeImageManageModal();
       if(parentWasOpen&&photoWasOpen)e.stopImmediatePropagation();
     });
-    await cleanupClosedOrderImages();
+    // V3.58：必須等中央資料與工單照片 IndexedDB 載入完成後才執行自動清理。
     document.getElementById("loginCloseBtn").addEventListener("click",closeLoginModal);
     document.getElementById("loginCancelBtn").addEventListener("click",closeLoginModal);
     document.getElementById("loginSubmitBtn").addEventListener("click",doLogin);
@@ -6980,6 +7020,10 @@ document.addEventListener(
     }catch(e){}
     purchaseRows=JSON.parse(localStorage.getItem("PMC_V3_PURCHASE_ROWS")||"[]");
     const initialDataResult=await loadData();
+    if(initialDataResult?.ok && initialDataResult.source!=="demo"){
+      try{await cleanupClosedOrderImages({silent:true});}
+      catch(error){console.error("啟動時自動清理結案工單照片失敗：",error);}
+    }
 
 
     /*
