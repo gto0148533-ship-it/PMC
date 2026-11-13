@@ -1781,6 +1781,13 @@ input,select{min-height:38px}
 
 </head>
 
+<!--
+PMC 版本更新規則（每次發版必須遵守）：
+1. 電腦版左側 Sidebar 與手機版右上角版本標籤必須同步更新，顯示相同版本號。
+2. 請統一修改下方 PMC_APP_VERSION，不可只改其中一個畫面，也不可留下舊版號。
+3. 發版前搜尋整份 HTML 的 V3.xx，確認沒有版本標籤遺漏；歷史功能註解中的舊版本號可保留。
+4. 版本更新只改版本標籤與本次指定功能，不可順手刪改既有功能或版面。
+-->
 <body>
 
 <div class="app">
@@ -1792,7 +1799,7 @@ input,select{min-height:38px}
 <aside class="sidebar">
 
   <div class="logo">
-    <div>PMC <span>V3.58-261113</span></div>
+    <div>PMC <span class="pmc-version-label">V3.58</span></div>
     <small>生產管理系統</small>
   </div>
 
@@ -1834,7 +1841,7 @@ input,select{min-height:38px}
 
 
   <div class="top-actions">
-    <span class="mobile-version-badge" aria-label="版本">V3.56</span>
+    <span class="mobile-version-badge pmc-version-label" aria-label="版本">V3.58</span>
     <span id="dataUpdatedAt" class="data-updated-badge" aria-label="資料更新時間">資料更新：—</span>
     <span id="dataStorageStatus" class="data-updated-badge" aria-live="polite" style="display:none"></span>
     <span id="permissionBadge" class="permission-badge">權限：訪客查詢</span>
@@ -8921,6 +8928,20 @@ function closeOrderMoreModal(){
 <div id="pmcBusyOverlay" class="pmc-busy-overlay" role="alert" aria-live="assertive" aria-hidden="true" hidden>
   <div class="pmc-busy-panel"><div class="pmc-busy-spinner" aria-hidden="true"></div><div id="pmcBusyTitle" class="pmc-busy-title">處理中</div><div id="pmcBusyDetail" class="pmc-busy-detail">請稍候…</div><div id="pmcBusyProgress" class="pmc-busy-progress" role="progressbar" aria-label="作業進度"><div id="pmcBusyBar" class="pmc-busy-bar indeterminate"></div></div></div>
 </div>
+
+<script id="pmc-version-sync">
+// 發版時只修改此處 PMC_APP_VERSION；電腦版與手機版標籤會自動同步。
+window.PMC_APP_VERSION = 'V3.58';
+(function(){
+  function syncPmcVersion(){
+    document.querySelectorAll('.pmc-version-label').forEach(function(el){
+      el.textContent = window.PMC_APP_VERSION;
+    });
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', syncPmcVersion);
+  else syncPmcVersion();
+})();
+</script>
 
 </body>
 </html>
